@@ -14,6 +14,9 @@ function insertCode(code) {
     range.setEndAfter(textNode);
     selection.removeAllRanges();
     selection.addRange(range);
+    
+    // 修复多选删除后渲染异常问题
+    editor.normalize();
 }
 
 function toggleWithInputType() {
@@ -127,6 +130,9 @@ function insertFeature(type) {
     selection.addRange(range);
     
     editor.focus();
+    
+    // 修复多选删除后渲染异常问题
+    editor.normalize();
 }
 
 function selectTranslateMode(mode) {
