@@ -65,7 +65,7 @@ function decodeJson() {
                 span.className = 'function-tag';
                 span.setAttribute('data-type', 'translate');
                 span.setAttribute('data-translate', item.translate);
-                span.setAttribute('data-with', JSON.stringify(item.with || []));
+                span.setAttribute('data-with', item.with ? item.with.join(', ') : '');
                 span.setAttribute('contenteditable', 'false');
                 span.onclick = function() { editFunction(this); };
                 updateTagPreview(span);
