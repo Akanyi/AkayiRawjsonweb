@@ -97,11 +97,6 @@ function editFunction(element) {
                 <input type="text" id="modal_objective" placeholder="例如: money, score" value="${element.getAttribute('data-objective') || ''}">
                 <div class="hint">计分板中的计分项名称</div>
             </div>
-            <div class="form-group">
-                <label for="modal_value">固定值（非常用）:</label>
-                <input type="number" id="modal_value" placeholder="留空则显示实际分数" value="${element.getAttribute('data-value') || ''}">
-                <div class="hint">设置后将显示固定值而非实际分数</div>
-            </div>
             <div class="modal-footer">
                 <button class="cancel-btn" onclick="closeModal()">取消</button>
                 <button class="apply-btn" onclick="applyFunction()">应用更改</button>
