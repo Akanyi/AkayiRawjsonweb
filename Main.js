@@ -112,3 +112,10 @@ function processTextContent(text) {
     });
 }
 
+// 更新教程切换功能
+function toggleTutorial(button) {
+    const tutorialContent = document.getElementById('tutorialContent');
+    button.classList.toggle('active');
+    tutorialContent.classList.toggle('show');
+}
+
