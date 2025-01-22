@@ -115,25 +115,20 @@ function processTextContent(text) {
 // 更新教程切换功能
 function toggleTutorial(button) {
     const tutorialContent = document.getElementById('tutorialContent');
-    const wasShown = tutorialContent.classList.contains('show');
     
-    // 添加/移除动画类
-    tutorialContent.classList.toggle('show');
+    // 更新按钮状态
     button.classList.toggle('active');
     
-    // 更新内容可见性
-    if (!wasShown) {
-        // 打开时，为每个部分添加延迟动画
-        const sections = tutorialContent.querySelectorAll('.tutorial-section, .tutorial-note');
-        sections.forEach((section, index) => {
-            section.style.transitionDelay = `${0.2 + (index * 0.1)}s`;
-        });
+    // 切换显示状态
+    tutorialContent.classList.toggle('show');
+    
+    // 如果正在显示，添加内容动画
+    if (tutorialContent.classList.contains('show')) {
+        // 设置实际的max-height以确保动画正确
+        const actualHeight = tutorialContent.scrollHeight;
+        tutorialContent.style.maxHeight = `${actualHeight}px`;
     } else {
-        // 关闭时移除延迟
-        const sections = tutorialContent.querySelectorAll('.tutorial-section, .tutorial-note');
-        sections.forEach(section => {
-            section.style.transitionDelay = '0s';
-        });
+        tutorialContent.style.maxHeight = '0';
     }
 }
 

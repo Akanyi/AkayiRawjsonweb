@@ -700,12 +700,13 @@ button[onclick="generateJson()"]:active {
 .color-u { color: #9A5CC6; }
 .color-v { color: #EB7114; }
 
+/* 教程栏样式 */
 .tutorial {
     margin-top: 20px;
     background: #f8f9fa;
     border-radius: 6px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .tutorial-button {
@@ -719,13 +720,8 @@ button[onclick="generateJson()"]:active {
     text-align: left;
     font-size: 16px;
     font-weight: 500;
-    transition: all 0.3s ease;
     position: relative;
     padding-right: 30px;
-}
-
-.tutorial-button:hover {
-    background: #2980b9;
 }
 
 .tutorial-button::after {
@@ -733,9 +729,8 @@ button[onclick="generateJson()"]:active {
     position: absolute;
     right: 15px;
     top: 50%;
-    transform: translateY(-50%) rotate(0deg);
+    transform: translateY(-50%);
     transition: transform 0.3s ease;
-    font-size: 0.8em;
 }
 
 .tutorial-button.active::after {
@@ -748,29 +743,38 @@ button[onclick="generateJson()"]:active {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    visibility: hidden;
-    padding: 0 15px;
+    transition: all 0.3s ease-out;
 }
 
 .tutorial-content.show {
-    max-height: 1000px;
+    max-height: 2000px;
     opacity: 1;
-    visibility: visible;
-    padding: 15px;
+    padding: 20px;
+}
+
+.tutorial-section {
+    margin-bottom: 20px;
 }
 
 .tutorial-content h3 {
-    margin: 15px 0 10px;
+    margin: 0 0 15px 0;
     color: #2c3e50;
     font-size: 1.2em;
 }
 
-.tutorial-content p {
+.tutorial-content p,
+.tutorial-content ul {
     margin: 8px 0;
     color: #666;
     font-size: 14px;
     line-height: 1.6;
+}
+
+.tutorial-note {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(241, 196, 15, 0.1);
+    border-left: 3px solid #f1c40f;
 }
 
 .line-break-example {
@@ -780,24 +784,6 @@ button[onclick="generateJson()"]:active {
     border-radius: 4px;
     color: #f1c40f;
     font-weight: bold;
-}
-
-.tutorial-content {
-    padding: 15px;
-    display: none;
-    background: white;
-    border-top: 1px solid #ddd;
-}
-
-.tutorial-content h3 {
-    margin-top: 0;
-    color: #2c3e50;
-}
-
-.tutorial-content p {
-    margin: 10px 0;
-    color: #666;
-    font-size: 14px;
 }
 
 /* 菜单动画样式 */
