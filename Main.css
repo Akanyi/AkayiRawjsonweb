@@ -76,6 +76,18 @@ textarea:focus, input:focus {
 #colorButtons button:nth-child(14) { background-color: #9b59b6; }
 #colorButtons button:nth-child(15) { background-color: #f1c40f; }
 #colorButtons button:nth-child(16) { background-color: #ecf0f1; color: #333; }
+#colorButtons button:nth-child(17) { background-color: #DDD605; } /* §g */
+#colorButtons button:nth-child(18) { background-color: #E3D4D1; } /* §h */
+#colorButtons button:nth-child(19) { background-color: #CECACA; } /* §i */
+#colorButtons button:nth-child(20) { background-color: #443A3B; } /* §j */
+#colorButtons button:nth-child(21) { background-color: #971607; } /* §m */
+#colorButtons button:nth-child(22) { background-color: #B4684D; } /* §n */
+#colorButtons button:nth-child(23) { background-color: #DEB12D; } /* §p */
+#colorButtons button:nth-child(24) { background-color: #47A036; } /* §q */
+#colorButtons button:nth-child(25) { background-color: #2CBAA8; } /* §s */
+#colorButtons button:nth-child(26) { background-color: #21497B; } /* §t */
+#colorButtons button:nth-child(27) { background-color: #9A5CC6; } /* §u */
+#colorButtons button:nth-child(28) { background-color: #EB7114; } /* §v */
 
 #colorButtons button:hover {
     transform: translateY(-2px);
@@ -606,4 +618,34 @@ button[onclick="generateJson()"]:active {
 .copy-button:active, .copy-plain-button:active {
     transform: translateY(1px);
 }
+
+/* 颜色代码样式 */
+.color-0 { color: #000000; }
+.color-1 { color: #0000AA; }
+.color-2 { color: #00AA00; }
+.color-3 { color: #00AAAA; }
+.color-4 { color: #AA0000; }
+.color-5 { color: #AA00AA; }
+.color-6 { color: #FFAA00; }
+.color-7 { color: #AAAAAA; }
+.color-8 { color: #555555; }
+.color-9 { color: #5555FF; }
+.color-a { color: #55FF55; }
+.color-b { color: #55FFFF; }
+.color-c { color: #FF5555; }
+.color-d { color: #FF55FF; }
+.color-e { color: #FFFF55; }
+.color-f { color: #FFFFFF; }
+.color-g { color: #DDD605; }
+.color-h { color: #E3D4D1; }
+.color-i { color: #CECACA; }
+.color-j { color: #443A3B; }
+.color-m { color: #971607; }
+.color-n { color: #B4684D; }
+.color-p { color: #DEB12D; }
+.color-q { color: #47A036; }
+.color-s { color: #2CBAA8; }
+.color-t { color: #21497B; }
+.color-u { color: #9A5CC6; }
+.color-v { color: #EB7114; }
 
