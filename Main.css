@@ -743,42 +743,43 @@ button[onclick="generateJson()"]:active {
 }
 
 .tutorial-content {
-    padding: 15px;
     background: white;
     border-top: 1px solid #ddd;
     max-height: 0;
     opacity: 0;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
+    padding: 0 15px;
 }
 
 .tutorial-content.show {
-    max-height: 1000px; /* 足够大的高度以容纳内容 */
+    max-height: 1000px;
     opacity: 1;
+    visibility: visible;
+    padding: 15px;
 }
 
-.tutorial-section {
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.tutorial-content h3 {
+    margin: 15px 0 10px;
+    color: #2c3e50;
+    font-size: 1.2em;
 }
 
-.tutorial-content.show .tutorial-section {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.2s;
+.tutorial-content p {
+    margin: 8px 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
-.tutorial-note {
-    transform: translateY(15px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tutorial-content.show .tutorial-note {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.3s;
+.line-break-example {
+    display: inline-block;
+    padding: 2px 6px;
+    background: rgba(241, 196, 15, 0.1);
+    border-radius: 4px;
+    color: #f1c40f;
+    font-weight: bold;
 }
 
 .tutorial-content {

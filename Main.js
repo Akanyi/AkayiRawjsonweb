@@ -115,7 +115,25 @@ function processTextContent(text) {
 // 更新教程切换功能
 function toggleTutorial(button) {
     const tutorialContent = document.getElementById('tutorialContent');
-    button.classList.toggle('active');
+    const wasShown = tutorialContent.classList.contains('show');
+    
+    // 添加/移除动画类
     tutorialContent.classList.toggle('show');
+    button.classList.toggle('active');
+    
+    // 更新内容可见性
+    if (!wasShown) {
+        // 打开时，为每个部分添加延迟动画
+        const sections = tutorialContent.querySelectorAll('.tutorial-section, .tutorial-note');
+        sections.forEach((section, index) => {
+            section.style.transitionDelay = `${0.2 + (index * 0.1)}s`;
+        });
+    } else {
+        // 关闭时移除延迟
+        const sections = tutorialContent.querySelectorAll('.tutorial-section, .tutorial-note');
+        sections.forEach(section => {
+            section.style.transitionDelay = '0s';
+        });
+    }
 }
 
