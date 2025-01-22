@@ -100,7 +100,7 @@ function generateJson() {
 
         // 确保有东西
         if (rawText.length === 0) {
-            throw new Error('没有可用的文本内容');
+            throw new Error('没有可用的文本内容，你不可能让工具变出文本。');
         }
 
         const jsonOutput = { "rawtext": rawText };
