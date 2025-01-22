@@ -64,6 +64,6 @@
 
 ## 许可证
 
-MIT License
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)
 
 版权所有 (c) 2025 Akanyi
