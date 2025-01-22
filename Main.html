@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Minecraft 基岩版文本转 JSON</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="Main.css">
+</head>
+<body>
+
+<h1>Minecraft 基岩版文本转 JSON</h1>
+
+<div id="inputArea">
+    <div class="editor-container">
+        <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本。使用下方按钮插入格式代码或功能。"></div>
+    </div>
+
+    <div class="feature-buttons">
+        <button onclick="insertFeature('score')">插入计分板</button>
+        <button onclick="insertFeature('selector')">插入选择器</button>
+        <button onclick="insertFeature('translate')">插入翻译</button>
+    </div>
+
+    <div id="preview" class="preview-area" style="display:none;">
+        <div id="previewContent"></div>
+        <div class="preview-note">注：预览效果不显示颜色修饰，与实际游戏中不同，仅供参考</div>
+    </div>
+
+    <div id="colorButtons">
+        <button onclick="insertCode('§0')">§0 黑</button>
+        <button onclick="insertCode('§1')">§1 深蓝</button>
+        <button onclick="insertCode('§2')">§2 深绿</button>
+        <button onclick="insertCode('§3')">§3 湖蓝</button>
+        <button onclick="insertCode('§4')">§4 深红</button>
+        <button onclick="insertCode('§5')">§5 深紫</button>
+        <button onclick="insertCode('§6')">§6 金</button>
+        <button onclick="insertCode('§7')">§7 灰</button>
+        <button onclick="insertCode('§8')">§8 深灰</button>
+        <button onclick="insertCode('§9')">§9 蓝</button>
+        <button onclick="insertCode('§a')">§a 绿</button>
+        <button onclick="insertCode('§b')">§b 水蓝</button>
+        <button onclick="insertCode('§c')">§c 红</button>
+        <button onclick="insertCode('§d')">§d 紫</button>
+        <button onclick="insertCode('§e')">§e 黄</button>
+        <button onclick="insertCode('§f')">§f 白</button>
+        <button onclick="insertCode('§k')">§k 随机</button>
+        <button onclick="insertCode('§l')">§l 粗体</button>
+        <button onclick="insertCode('§m')">§m 删除线</button>
+        <button onclick="insertCode('§n')">§n 下划线</button>
+        <button onclick="insertCode('§o')">§o 斜体</button>
+        <button onclick="insertCode('§r')">§r 重置</button>
+    </div>
+
+    <button id="generateJsonBtn" onclick="generateJson()">生成 JSON</button>
+</div>
+
+<h2>Raw JSON:</h2>
+<pre id="jsonOutput"></pre>
+
+<div class="menu">
+    <button class="menu-button" onclick="toggleMenu()">⋮</button>
+    <div class="menu-content" id="menuContent">
+        <button onclick="openDecodeModal()">解析 JSON</button>
+    </div>
+</div>
+
+<div id="decodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDecodeModal()">&times;</span>
+        <h3 id="modalTitle">解析 JSON(Preview)</h3>
+        <textarea id="jsonInput" placeholder="在此输入 JSON"></textarea>
+        <button onclick="decodeJson()">解析</button>
+    </div>
+</div>
+
+<div id="functionModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle">编辑功能</h3>
+        <div class="modal-form" id="modalForm">
+            <!-- 动态内容 -->
+        </div>
+    </div>
+</div>
+
+<script src="Main.js"></script>
+<script src="Main2.js"></script>
+<script src="Main3.js"></script>
+<script src="Main4.js"></script>
+<script src="Decodejson.js"></script>
+
+<!--服了，PowerJsDebuger免费版最多300行，拆开js好烦！-->
+
+</body>
+</html>
