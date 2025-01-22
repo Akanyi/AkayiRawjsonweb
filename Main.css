@@ -107,7 +107,13 @@ textarea:focus, input:focus {
 #colorButtons button:nth-child(19):hover,
 #colorButtons button:nth-child(20):hover,
 #colorButtons button:nth-child(21):hover,
-#colorButtons button:nth-child(22):hover {
+#colorButtons button:nth-child(22):hover,
+#colorButtons button:nth-child(23):hover,
+#colorButtons button:nth-child(24):hover,
+#colorButtons button:nth-child(25):hover,
+#colorButtons button:nth-child(26):hover,
+#colorButtons button:nth-child(27):hover,
+#colorButtons button:nth-child(28):hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
