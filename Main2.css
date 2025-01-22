@@ -1,0 +1,165 @@
+#jsonOutput {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: monospace;
+    position: relative;
+    max-height: 0; /* 初始高度为0 */
+    overflow-y: hidden; /* 隐藏溢出内容 */
+    transition: max-height 0.5s ease; /* 添加过渡效果 */
+}
+
+#jsonOutput.expanded {
+    max-height: 400px; /* 展开后的最大高度 */
+    overflow-y: auto; /* 添加滚动条 */
+}
+
+#jsonOutput pre {
+    margin: 0;
+    padding: 0;
+}
+
+.copy-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: flex-end; /* 按钮右对齐 */
+}
+
+.copy-button, .copy-plain-button {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.copy-button:hover, .copy-plain-button:hover {
+    background: linear-gradient(45deg, #2980b9, #3498db);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+}
+
+.copy-button:active, .copy-plain-button:active {
+    transform: translateY(1px);
+}
+
+body { 
+    font-family: sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+#inputArea { 
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+textarea, input { 
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+textarea:focus, input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52,152,219,0.3);
+    outline: none;
+}
+
+#colorButtons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+#colorButtons button {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+/* ...existing code... */
+
+.menu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.menu-content button, .menu-content a {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.menu-content button:hover, .menu-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.menu.show .menu-content {
+    display: block;
+}
+
+#aboutModal .modal-content {
+    text-align: center;
+}
