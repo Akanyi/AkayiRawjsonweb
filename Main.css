@@ -118,6 +118,33 @@ textarea:focus, input:focus {
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+/* 修正颜色按钮样式，确保所有按钮都有正确的颜色 */
+#colorButtons button:nth-child(17) { background-color: #DDD605; } /* §g 金币 */
+#colorButtons button:nth-child(18) { background-color: #E3D4D1; } /* §h 石英 */
+#colorButtons button:nth-child(19) { background-color: #CECACA; } /* §i 铁 */
+#colorButtons button:nth-child(20) { background-color: #443A3B; } /* §j 下界砖 */
+#colorButtons button:nth-child(21) { background-color: #971607; } /* §m 红石 */
+#colorButtons button:nth-child(22) { background-color: #B4684D; } /* §n 铜 */
+#colorButtons button:nth-child(23) { background-color: #DEB12D; } /* §p 金 */
+#colorButtons button:nth-child(24) { background-color: #47A036; } /* §q 绿宝石 */
+#colorButtons button:nth-child(25) { background-color: #2CBAA8; } /* §s 钻石 */
+#colorButtons button:nth-child(26) { background-color: #21497B; } /* §t 青金石 */
+#colorButtons button:nth-child(27) { background-color: #9A5CC6; } /* §u 紫水晶 */
+#colorButtons button:nth-child(28) { background-color: #EB7114; } /* §v 树脂 */
+
+/* 确保文字在深色背景上可见 */
+#colorButtons button:nth-child(n+17):nth-child(-n+28) {
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+/* 特别处理浅色背景的按钮 */
+#colorButtons button:nth-child(18), /* 石英 */
+#colorButtons button:nth-child(19) { /* 铁 */
+    color: #333;
+    text-shadow: none;
+}
+
 label {
     display: block;
     margin: 10px 0 5px;
