@@ -120,6 +120,20 @@
     </div>
 </div>
 
+<!-- 教程折叠栏 -->
+<div class="tutorial">
+    <button class="tutorial-button" onclick="toggleTutorial()">教程</button>
+    <div class="tutorial-content" id="tutorialContent" style="display: none;">
+        <h3>基本使用方法</h3>
+        <p>1. 在编辑器中输入文本。</p>
+        <p>2. 使用下方按钮插入格式代码或功能。</p>
+        <p>3. 点击“生成 JSON”按钮生成 JSON。</p>
+        <p>4. 在“Raw JSON”区域查看生成的 JSON。</p>
+        <p>5. 使用“复制”按钮复制 JSON。</p>
+        <p>6. 使用“解析 JSON”解析你的 JSON。</p>
+    </div>
+</div>
+
 <script src="Main.js"></script>
 <script src="Main2.js"></script>
 <script src="Main3.js"></script>
@@ -129,6 +143,17 @@
 <script src="Decodejson.js"></script>
 
 <!--服了，PowerJsDebuger免费版最多300行，拆开js好烦！-->
+
+<script>
+function toggleTutorial() {
+    const tutorialContent = document.getElementById('tutorialContent');
+    if (tutorialContent.style.display === 'none') {
+        tutorialContent.style.display = 'block';
+    } else {
+        tutorialContent.style.display = 'none';
+    }
+}
+</script>
 
 </body>
 </html>
