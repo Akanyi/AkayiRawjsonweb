@@ -61,6 +61,7 @@
     <div class="menu-content" id="menuContent">
         <button onclick="openDecodeModal()">解析 JSON</button>
         <button onclick="openAboutModal()">关于</button>
+        <button onclick="openChangelogModal()">更新日志</button>
         <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">GitHub</a>
     </div>
 </div>
@@ -81,6 +82,18 @@
         <p>这是一个用于将文本转换为 JSON 的工具，适用于Minecraft 基岩版。</p>
         <p>作者：Akanyi</p>
         <p>GitHub 地址: <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">https://github.com/Akanyi/AkayiRawjsonweb</a></p>
+    </div>
+</div>
+
+<div id="changelogModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeChangelogModal()">&times;</span>
+        <h3 id="changelogTitle">更新日志</h3>
+        <ul>
+            <li>版本 0.1.0 - 初始版本发布</li>
+            <li>版本 0.1.1 - 添加 JSON 解析功能</li>
+            <li>版本 0.1.2 - 添加关于页面和更新日志</li>
+        </ul>
     </div>
 </div>
 
