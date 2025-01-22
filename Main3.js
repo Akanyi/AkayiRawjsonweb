@@ -193,7 +193,7 @@ function updatePreview(rawText) {
 
     preview.style.display = 'block';
     let previewText = rawText.map(item => {
-        if (item.text === '\n') return '<br>';
+        if (item.text === '\n') return '<span class="line-break"></span>';
         if (item.text) {
             // §修饰符相关处理，贴合游戏本身
             const cleanedText = item.text.replace(/§./g, '');
@@ -205,7 +205,6 @@ function updatePreview(rawText) {
             if (item.with) {
                 if (Array.isArray(item.with)) {
                     item.with.forEach((param, index) => {
-                        //多情况支持，wiki说可以这么干
                         const placeholder = new RegExp(`%%[sdf]`, 'g');
                         translatedText = translatedText.replace(placeholder, escapeHtml(param));
                     });
