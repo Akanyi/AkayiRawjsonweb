@@ -184,11 +184,33 @@ button[onclick="generateJson()"]:active {
     }
     
     #colorButtons {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     }
     
     h1 {
         font-size: 1.8em;
+    }
+
+    .feature-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .template-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .modal-content {
+        width: 95%;
+        max-width: 100%;
+    }
+
+    .tutorial-button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .tutorial-content {
+        padding: 10px;
     }
 }
 
