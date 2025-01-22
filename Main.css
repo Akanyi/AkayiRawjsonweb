@@ -659,3 +659,47 @@ button[onclick="generateJson()"]:active {
 .color-u { color: #9A5CC6; }
 .color-v { color: #EB7114; }
 
+.tutorial {
+    margin-top: 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.tutorial-button {
+    background: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tutorial-button:hover {
+    background: #2980b9;
+}
+
+.tutorial-content {
+    padding: 15px;
+    display: none;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.tutorial-content h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.tutorial-content p {
+    margin: 10px 0;
+    color: #666;
+    font-size: 14px;
+}
+
