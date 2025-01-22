@@ -329,11 +329,12 @@ button[onclick="generateJson()"]:active {
     line-height: 1.6;
     white-space: pre-wrap;  /* 保留换行 */
     word-break: break-word;
-    border: 2px solid #ddd;  /* 添加边框 */
+    border: none;  /* 移除边框 */
     border-radius: 6px;  /* 添加圆角 */
     overflow-y: auto;
     padding: 12px 12px 12px 8px;
     margin: 0;
+    box-sizing: border-box;  /* 修复边框定位问题 */
 }
 
 #richTextEditor:empty:before {
@@ -560,6 +561,9 @@ button[onclick="generateJson()"]:active {
     overflow-y: auto;
     padding: 12px 12px 12px 8px;
     margin: 0;
+    border: none;  /* 移除边框 */
+    border-radius: 6px;  /* 添加圆角 */
+    box-sizing: border-box;  /* 修复边框定位问题 */
 }
 
 /* 预览区域优化 */
