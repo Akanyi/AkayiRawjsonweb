@@ -8,28 +8,66 @@ function generateJson() {
         function processTextContent(text) {
             if (!text) return;
             
-            // 确保处理所有类型的换行符
-            const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-            const segments = normalizedText.split(/(\n)/g);
+            // 确保处理所有类型的换行符并拆分文本
+            const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
             
-            segments.forEach(segment => {
-                if (segment === '\n') {
-                    if (currentText) {
-                        rawText.push({ "text": currentText, ...currentFormat });
-                        currentText = "";
+            // 处理每一行
+            lines.forEach((line, index) => {
+                // 处理格式代码
+                const segments = line.split(/(§[0-9a-fk-or])/g);
+                segments.forEach(segment => {
+                    if (segment.match(/^§[0-9a-fk-or]$/)) {
+                        if (currentText) {
+                            rawText.push({ "text": currentText, ...currentFormat });
+                            currentText = "";
+                        }
+                        handleFormatCode(segment[1]);
+                    } else if (segment) {
+                        currentText += segment;
                     }
-                    rawText.push({ "text": "\n" });
-                } else if (segment) {
-                    currentText += segment;
+                });
+
+                // 处理行尾的累积文本
+                if (currentText) {
+                    rawText.push({ "text": currentText, ...currentFormat });
+                    currentText = "";
                 }
+                
+                // 在每一行后添加换行符（包括空行）
+                rawText.push({ "text": "\n" });
             });
+
+            // 移除最后一个多余的换行符
+            if (rawText.length > 0 && rawText[rawText.length - 1].text === "\n") {
+                rawText.pop();
+            }
+        }
+
+        // 添加格式代码处理函数
+        function handleFormatCode(code) {
+            switch(code) {
+                case 'k': currentFormat.obfuscated = true; break;
+                case 'l': currentFormat.bold = true; break;
+                case 'm': currentFormat.strikethrough = true; break;
+                case 'n': currentFormat.underline = true; break;
+                case 'o': currentFormat.italic = true; break;
+                case 'r': currentFormat = {}; break;
+                default:
+                    if ('0123456789abcdef'.includes(code)) {
+                        currentFormat = { color: code }; // 重置其他格式
+                    }
+            }
         }
 
         function processNodes(node) {
             if (!node) return;
 
             if (node.nodeType === Node.TEXT_NODE) {
-                processTextContent(node.textContent);
+                // 处理文本节点，确保空白行也被处理
+                const text = node.textContent;
+                if (text.length > 0) {  // 修改判断条件，允许空行
+                    processTextContent(text);
+                }
             } else if (node.classList && node.classList.contains('function-tag')) {
                 // 处理功能标签前的累积文本
                 if (currentText) {
@@ -80,7 +118,15 @@ function generateJson() {
                         rawText.push(translateObj);
                         break;
                 }
+            } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+                // 处理 BR 标签
+                if (currentText) {
+                    rawText.push({ "text": currentText, ...currentFormat });
+                    currentText = "";
+                }
+                rawText.push({ "text": "\n" });
             } else if (node.childNodes) {
+                // 处理子节点
                 Array.from(node.childNodes).forEach(processNodes);
             }
         }
@@ -93,9 +139,14 @@ function generateJson() {
             rawText.push({ "text": currentText, ...currentFormat });
         }
 
-        // 移除最后的多余换行符
-        if (rawText.length > 0 && rawText[rawText.length - 1].text === "\n") {
-            rawText.pop();
+        // 修改最后换行符的处理
+        if (rawText.length > 0) {
+            const lastItem = rawText[rawText.length - 1];
+            // 如果最后是换行符，但倒数第二个不是换行符，则移除最后一个
+            if (lastItem.text === "\n" && 
+                (rawText.length === 1 || rawText[rawText.length - 2].text !== "\n")) {
+                rawText.pop();
+            }
         }
 
         // 确保有东西
@@ -192,13 +243,31 @@ function updatePreview(rawText) {
     }
 
     preview.style.display = 'block';
-    let previewText = rawText.map(item => {
-        if (item.text === '\n') return '<span class="line-break"></span>';
+    let previewText = rawText.map((item, index, array) => {
+        if (item.text === '\n') {
+            // 检查是否是连续的换行
+            const isConsecutiveNewline = index > 0 && array[index - 1].text === '\n';
+            // 如果是连续换行，添加一个空行的高度
+            return `<span class="line-break" ${isConsecutiveNewline ? 'style="margin-top: 1.6em;"' : ''}></span>`;
+        }
         if (item.text) {
-            // §修饰符相关处理，贴合游戏本身
+            // 修改换行符的处理逻辑
+            if (item.text.includes('\n')) {
+                return item.text.split('\n').map((text, index, array) => {
+                    if (index === array.length - 1) {
+                        // 最后一段不加换行
+                        return `<span>${escapeHtml(text.replace(/§./g, ''))}</span>`;
+                    }
+                    // 其他段落加换行
+                    return `<span>${escapeHtml(text.replace(/§./g, ''))}</span><span class="line-break"></span>`;
+                }).join('');
+            }
+            // 普通文本
             const cleanedText = item.text.replace(/§./g, '');
             return `<span>${escapeHtml(cleanedText)}</span>`;
         }
+
+        // 保持其他类型的处理不变
         if (item.selector) return `<span class="preview-selector">[${escapeHtml(item.selector)}]</span>`;
         if (item.translate) {
             let translatedText = escapeHtml(item.translate);
