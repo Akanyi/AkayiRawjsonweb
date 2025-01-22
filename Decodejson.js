@@ -14,6 +14,22 @@ function closeDecodeModal() {
     }, 300); // 等待动画完成
 }
 
+function openAboutModal() {
+    const modal = document.getElementById('aboutModal');
+    modal.style.display = 'block';
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10); // 确保动画效果
+}
+
+function closeAboutModal() {
+    const modal = document.getElementById('aboutModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300); // 等待动画完成
+}
+
 function toggleMenu() {
     const menu = document.querySelector('.menu');
     menu.classList.toggle('show');

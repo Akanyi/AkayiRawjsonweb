@@ -60,6 +60,8 @@
     <button class="menu-button" onclick="toggleMenu()">⋮</button>
     <div class="menu-content" id="menuContent">
         <button onclick="openDecodeModal()">解析 JSON</button>
+        <button onclick="openAboutModal()">关于</button>
+        <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">GitHub</a>
     </div>
 </div>
 
@@ -69,6 +71,16 @@
         <h3 id="modalTitle">解析 JSON(Preview)</h3>
         <textarea id="jsonInput" placeholder="在此输入 JSON"></textarea>
         <button onclick="decodeJson()">解析</button>
+    </div>
+</div>
+
+<div id="aboutModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAboutModal()">&times;</span>
+        <h3 id="aboutTitle">关于</h3>
+        <p>这是一个用于将文本转换为 JSON 的工具，适用于Minecraft 基岩版。</p>
+        <p>作者：Akanyi</p>
+        <p>GitHub 地址: <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">https://github.com/Akanyi/AkayiRawjsonweb</a></p>
     </div>
 </div>
 

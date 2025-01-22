@@ -837,23 +837,32 @@ button[onclick="generateJson()"]:active {
     background-color: white;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
-.menu-content button {
+.menu-content button, .menu-content a {
     background: none;
     border: none;
     padding: 10px 20px;
     text-align: left;
     width: 100%;
     cursor: pointer;
+    text-decoration: none;
+    color: #333;
+    display: block;
 }
 
-.menu-content button:hover {
+.menu-content button:hover, .menu-content a:hover {
     background-color: #f1f1f1;
 }
 
 .menu.show .menu-content {
     display: block;
+}
+
+#aboutModal .modal-content {
+    text-align: center;
 }
 
 /* ...existing code... */
