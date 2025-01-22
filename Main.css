@@ -604,6 +604,25 @@ button[onclick="generateJson()"]:active {
 .preview-content {
     font-family: 'Minecraft', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
+    white-space: pre-wrap; /* 保留换行符 */
+}
+
+/* 添加实际换行的样式 */
+.preview-content .line-break {
+    position: relative;
+    display: block;
+    height: 1.6em;
+    margin: 0;
+    padding: 0;
+}
+
+.preview-content .line-break::after {
+    content: '↵';
+    position: absolute;
+    right: 0;
+    color: rgba(241, 196, 15, 0.5); /* 使用半透明的黄色 */
+    font-size: 0.8em;
+    padding-right: 5px;
 }
 
 /* 功能标签优化 */
