@@ -163,3 +163,19 @@ textarea:focus, input:focus {
 #aboutModal .modal-content {
     text-align: center;
 }
+
+@media (max-width: 768px) {
+    #jsonOutput {
+        max-height: 200px; /* 调整为适合移动设备的高度 */
+    }
+
+    .copy-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .copy-button, .copy-plain-button {
+        width: 100%;
+        margin-top: 5px;
+    }
+}

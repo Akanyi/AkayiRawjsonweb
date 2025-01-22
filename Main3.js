@@ -143,7 +143,7 @@ function copyJson() {
 // 纯文本JSON
 function copyPlainJson() {
     const jsonText = document.querySelector('#jsonOutput pre').textContent;
-    const plainText = JSON.stringify(JSON.parse(jsonText), null, 2);
+    const plainText = JSON.stringify(JSON.parse(jsonText));
     navigator.clipboard.writeText(plainText).then(() => {
         const copyBtn = document.querySelector('.copy-plain-button');
         copyBtn.textContent = '已复制！';
