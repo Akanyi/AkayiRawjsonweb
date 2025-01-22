@@ -181,3 +181,48 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+function updatePreview(rawText) {
+    const preview = document.getElementById('preview');
+    const previewContent = document.getElementById('previewContent');
+    
+    if (!rawText || rawText.length === 0) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    preview.style.display = 'block';
+    let previewText = rawText.map(item => {
+        if (item.text === '\n') return '<br>';
+        if (item.text) {
+            // §修饰符相关处理，贴合游戏本身
+            const cleanedText = item.text.replace(/§./g, '');
+            return `<span>${escapeHtml(cleanedText)}</span>`;
+        }
+        if (item.selector) return `<span class="preview-selector">[${escapeHtml(item.selector)}]</span>`;
+        if (item.translate) {
+            let translatedText = escapeHtml(item.translate);
+            if (item.with) {
+                if (Array.isArray(item.with)) {
+                    item.with.forEach((param, index) => {
+                        //多情况支持，wiki说可以这么干
+                        const placeholder = new RegExp(`%%[sdf]`, 'g');
+                        translatedText = translatedText.replace(placeholder, escapeHtml(param));
+                    });
+                } else {
+                    translatedText = JSON.stringify(item.with, null, 2);
+                }
+            }
+            return `<span class="preview-translate">${translatedText}</span>`;
+        }
+        if (item.score) {
+            return `<span class="preview-score">[${escapeHtml(item.score.name)}的${escapeHtml(item.score.objective)}]</span>`;
+        }
+        return '';
+    }).join('');
+    
+    previewContent.innerHTML = `
+        <span style="color:#f1c40f">参考预览</span><br>
+        <div class="preview-content">${previewText || '空内容'}</div>
+    `;
+}
