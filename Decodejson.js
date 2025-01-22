@@ -95,6 +95,9 @@ function decodeJson() {
             preview.style.backgroundColor = ''; // 恢复原背景色
         }, 2000); // 2秒后恢复
 
+        // 清空输入框内容
+        document.getElementById('jsonInput').value = '';
+
         closeDecodeModal();
 
     } catch (error) {
