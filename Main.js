@@ -8,7 +8,6 @@ function applyFunction() {
             case 'score':
                 currentEditingTag.setAttribute('data-name', document.getElementById('modal_name').value || '@p');
                 currentEditingTag.setAttribute('data-objective', document.getElementById('modal_objective').value || 'score');
-                currentEditingTag.setAttribute('data-value', document.getElementById('modal_value').value || '');
                 break;
             case 'selector':
                 currentEditingTag.setAttribute('data-selector', document.getElementById('modal_selector').value || '@p');
@@ -147,8 +146,7 @@ function updatePreview(rawText) {
             return `<span class="preview-translate">${translatedText}</span>`;
         }
         if (item.score) {
-            const value = item.score.value ? `: ${item.score.value}` : '';
-            return `<span class="preview-score">[${escapeHtml(item.score.name)}的${escapeHtml(item.score.objective)}${value}]</span>`;
+            return `<span class="preview-score">[${escapeHtml(item.score.name)}的${escapeHtml(item.score.objective)}]</span>`;
         }
         return '';
     }).join('');
