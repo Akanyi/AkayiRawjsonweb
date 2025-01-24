@@ -9,12 +9,12 @@
 </head>
 <body>
 
-<!-- 添加beta水印 -->
+<!-- beta水印 -->
 <div class="beta-watermark">BETA</div>
 
 <h2>Minecraft基岩版 文本转JSON工具 </h2>
 
-<!-- 添加提示信息 -->
+<!-- 提示 -->
 <div class="beta-notice">
     <p>这个版本有未更正的问题，如果发现请大家原谅，可以去 <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">GitHub</a> 提交问题。</p>
 </div>
@@ -32,7 +32,7 @@
 
     <div id="preview" class="preview-area" style="display:none;">
         <div id="previewContent"></div>
-        <div class="preview-note">注：预览效果不显示颜色修饰，因为屏幕限制会自动换行，与实际游戏中不同，仅供参考</div>
+        <div class="preview-note">注：预览效果因为屏幕限制会自动换行，与实际游戏中不同，仅供参考</div>
     </div>
 
     <div id="colorButtons">
@@ -155,6 +155,43 @@
         <div class="tutorial-note">
             注意：只有带有 ↵ 符号的换行才会在游戏中真正换行。自动换行仅用于显示目的，不会影响实际的文本布局。
         </div>
+
+    </p>
+        <h3>什么是Raw JSON？</h3>
+        <div class="tutorial-section">
+            <p>Raw JSON 是 Minecraft 基岩版中用于显示复杂文本的格式。它允许你在游戏中显示带有颜色、格式和功能的文本。</p>
+            <p>Raw JSON 的基本结构是一个包含多个对象的数组，每个对象代表一段文本或一个功能。</p>
+            <p>例如，以下是一个简单的 Raw JSON 示例：</p>
+            <pre><code id="exampleJson1">{
+    "rawtext": [
+        {"text": "欢迎来到"},
+        {"text": "§a§lMinecraft§r"},
+        {"text": "世界！"}
+    ]
+}</code></pre>
+            <button class="copy-example-button" onclick="copyExampleJson('exampleJson1')">复制</button>
+            <button class="copy-example-button" onclick="copyExampleJsonPlain('exampleJson1')">复制纯文本</button>
+            <p>这个示例将显示 "欢迎来到" 和 "世界！" 两段普通文本，中间插入一个绿色加粗的 "Minecraft"。</p>
+        </div>
+
+        <h3>创建你的第一个Raw JSON</h3>
+        <div class="tutorial-section">
+            <p>1. 在编辑器中输入以下文本：</p>
+            <pre><code>欢迎来到§a§lMinecraft§r世界！</code></pre>
+            <p>2. 点击"生成 JSON"按钮生成 JSON。</p>
+            <p>3. 在"Raw JSON"区域查看生成的 JSON。</p>
+            <p>4. 你将看到类似以下的 JSON 输出：</p>
+            <pre><code id="exampleJson2">{
+    "rawtext": [
+        {"text": "欢迎来到"},
+        {"text": "§a§lMinecraft§r"},
+        {"text": "世界！"}
+    ]
+}</code></pre>
+            <button class="copy-example-button" onclick="copyExampleJson('exampleJson2')">复制</button>
+            <button class="copy-example-button" onclick="copyExampleJsonPlain('exampleJson2')">复制纯文本</button>
+            <p>5. 你可以将这个 JSON 复制到 Minecraft 基岩版的命令方块或其他支持 Raw JSON 的地方，来显示带有颜色和格式的文本。</p>
+        </div>
     </div>
 </div>
 
@@ -167,6 +204,23 @@
 <script src="js/Decodejson.js"></script>
 <script src="js/translate-utils.js"></script>
 <script src="js/translate-mode.js"></script>
+
+<script>
+function copyExampleJson(elementId) {
+    const jsonText = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(jsonText).then(() => {
+        alert('JSON 已复制到剪贴板');
+    });
+}
+
+function copyExampleJsonPlain(elementId) {
+    const jsonText = document.getElementById(elementId).textContent;
+    const plainText = JSON.stringify(JSON.parse(jsonText));
+    navigator.clipboard.writeText(plainText).then(() => {
+        alert('纯文本 JSON 已复制到剪贴板');
+    });
+}
+</script>
 
 <!--服了，PowerJsDebuger免费版最多300行，拆开js好烦！-->
 

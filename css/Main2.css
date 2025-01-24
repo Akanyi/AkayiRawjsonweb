@@ -720,3 +720,65 @@ textarea:focus, input:focus {
 }
 
 /* ...existing code... */
+
+/* ...existing code... */
+
+.examples-section {
+    margin-top: 15px;
+}
+
+.example-item {
+    background: #f8f9fa;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.example-item:hover {
+    background: #eee;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+.tutorial-section pre {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: monospace;
+    margin: 10px 0;
+}
+
+.tutorial-section code {
+    color: #e74c3c;
+}
+
+.copy-example-button {
+    background: #3498db;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.copy-example-button:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+}
+
+.copy-example-button:active {
+    transform: translateY(1px);
+}
+
+/* ...existing code... */
