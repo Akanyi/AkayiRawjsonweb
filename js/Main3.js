@@ -3,59 +3,26 @@ function generateJson() {
         const editor = document.getElementById("richTextEditor");
         let rawText = [];
         let currentText = "";
-        let currentFormat = {};
-        
+
         function processTextContent(text) {
             if (!text) return;
             
-            // 确保处理所有类型的换行符并拆分文本
+            // 分割换行符
             const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
             
             // 处理每一行
             lines.forEach((line, index) => {
-                // 处理格式代码
-                const segments = line.split(/(§[0-9a-fk-or])/g);
-                segments.forEach(segment => {
-                    if (segment.match(/^§[0-9a-fk-or]$/)) {
-                        if (currentText) {
-                            rawText.push({ "text": currentText, ...currentFormat });
-                            currentText = "";
-                        }
-                        handleFormatCode(segment[1]);
-                    } else if (segment) {
-                        currentText += segment;
-                    }
-                });
-
-                // 处理行尾的累积文本
-                if (currentText) {
-                    rawText.push({ "text": currentText, ...currentFormat });
-                    currentText = "";
+                // 添加当前行
+                if (line.length > 0) {
+                    rawText.push({ "text": line });
                 }
-                
-                // 在每一行后添加换行符（包括空行）
+                // 添加换行
                 rawText.push({ "text": "\n" });
             });
 
-            // 移除最后一个多余的换行符
-            if (rawText.length > 0 && rawText[rawText.length - 1].text === "\n") {
+            // 如果原文本不以换行符结尾，移除最后添加的换行
+            if (!text.endsWith('\n')) {
                 rawText.pop();
-            }
-        }
-
-        // 添加格式代码处理函数
-        function handleFormatCode(code) {
-            switch(code) {
-                case 'k': currentFormat.obfuscated = true; break;
-                case 'l': currentFormat.bold = true; break;
-                case 'm': currentFormat.strikethrough = true; break;
-                case 'n': currentFormat.underline = true; break;
-                case 'o': currentFormat.italic = true; break;
-                case 'r': currentFormat = {}; break;
-                default:
-                    if ('0123456789abcdef'.includes(code)) {
-                        currentFormat = { color: code }; // 重置其他格式
-                    }
             }
         }
 
@@ -63,32 +30,18 @@ function generateJson() {
             if (!node) return;
 
             if (node.nodeType === Node.TEXT_NODE) {
-                // 处理文本节点，确保空白行也被处理
-                const text = node.textContent;
-                if (text.length > 0) {  // 修改判断条件，允许空行
-                    processTextContent(text);
-                }
+                processTextContent(node.textContent);
             } else if (node.classList && node.classList.contains('function-tag')) {
-                // 处理功能标签前的累积文本
-                if (currentText) {
-                    rawText.push({ "text": currentText, ...currentFormat });
-                    currentText = "";
-                }
-                
+                // 处理功能标签
                 const type = node.getAttribute('data-type');
                 switch(type) {
                     case 'score':
-                        const scoreObj = {
+                        rawText.push({
                             score: {
                                 name: node.getAttribute('data-name') || '@p',
                                 objective: node.getAttribute('data-objective') || 'score'
                             }
-                        };
-                        const value = node.getAttribute('data-value');
-                        if (value && !isNaN(value)) {
-                            scoreObj.score.value = parseInt(value);
-                        }
-                        rawText.push(scoreObj);
+                        });
                         break;
                     case 'selector':
                         rawText.push({
@@ -96,62 +49,46 @@ function generateJson() {
                         });
                         break;
                     case 'translate':
-                        const translateObj = {
-                            translate: node.getAttribute('data-translate') || ''
-                        };
-                        const mode = node.getAttribute('data-translate-mode') || 'simple';
-                        const withValue = node.getAttribute('data-with');
-                        
-                        if (withValue) {
-                            if (mode === 'simple') {
-                                translateObj.with = withValue.split(',')
-                                    .map(p => p.trim())
-                                    .filter(p => p.length > 0);
-                            } else {
-                                try {
-                                    translateObj.with = JSON.parse(withValue);
-                                } catch (e) {
-                                    console.warn('Invalid rawtext JSON:', withValue);
-                                }
-                            }
+                        try {
+                            const translateData = {
+                                translate: node.getAttribute('data-translate') || '',
+                                mode: node.getAttribute('data-translate-mode') || 'simple',
+                                rawtextMode: node.getAttribute('data-rawtext-mode') || 'advanced',
+                                withValue: node.getAttribute('data-with')
+                            };
+                            // 使用全局对象
+                            rawText.push(TranslateUtils.processTranslateData(translateData));
+                        } catch (e) {
+                            console.error('处理翻译数据失败:', e);
+                            rawText.push({ text: '[翻译处理错误]' });
                         }
-                        rawText.push(translateObj);
                         break;
                 }
             } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
-                // 处理 BR 标签
-                if (currentText) {
-                    rawText.push({ "text": currentText, ...currentFormat });
-                    currentText = "";
-                }
                 rawText.push({ "text": "\n" });
             } else if (node.childNodes) {
-                // 处理子节点
                 Array.from(node.childNodes).forEach(processNodes);
             }
         }
 
         // 处理编辑器内容
         processNodes(editor);
-        
+
+        // 移除末尾的空换行
+        while (rawText.length > 0 && 
+               rawText[rawText.length - 1].text === "\n" && 
+               rawText[rawText.length - 2]?.text === "\n") {
+            rawText.pop();
+        }
+
         // 处理最后的文本
         if (currentText) {
-            rawText.push({ "text": currentText, ...currentFormat });
+            rawText.push({ "text": currentText });
         }
 
-        // 修改最后换行符的处理
-        if (rawText.length > 0) {
-            const lastItem = rawText[rawText.length - 1];
-            // 如果最后是换行符，但倒数第二个不是换行符，则移除最后一个
-            if (lastItem.text === "\n" && 
-                (rawText.length === 1 || rawText[rawText.length - 2].text !== "\n")) {
-                rawText.pop();
-            }
-        }
-
-        // 确保有东西
+        // 确保内容不为空
         if (rawText.length === 0) {
-            throw new Error('没有可用的文本内容，你不可能让工具变出文本。');
+            throw new Error('没有可用的文本内容');
         }
 
         const jsonOutput = { "rawtext": rawText };
@@ -164,14 +101,8 @@ function generateJson() {
             <pre>${JSON.stringify(jsonOutput, null, 2)}</pre>
         `;
 
-        // 展开json输出区域
         outputElement.classList.add('expanded');
-
-        // 更新预览
         updatePreview(rawText);
-        
-        // Re绑定插入按钮的点击事件
-        bindInsertButtons();
         
     } catch (error) {
         console.error('JSON生成错误:', error);
@@ -251,34 +182,66 @@ function updatePreview(rawText) {
             return `<span class="line-break" ${isConsecutiveNewline ? 'style="margin-top: 1.6em;"' : ''}></span>`;
         }
         if (item.text) {
-            // 修改换行符的处理逻辑
+            // 修改换行符的处理逻辑但保留颜色代码
             if (item.text.includes('\n')) {
                 return item.text.split('\n').map((text, index, array) => {
-                    if (index === array.length - 1) {
-                        // 最后一段不加换行
-                        return `<span>${escapeHtml(text.replace(/§./g, ''))}</span>`;
+                    let formattedText = escapeHtml(text);
+                    // 添加颜色类
+                    if (item.color) {
+                        formattedText = `<span class="color-${item.color}">${formattedText}</span>`;
                     }
-                    // 其他段落加换行
-                    return `<span>${escapeHtml(text.replace(/§./g, ''))}</span><span class="line-break"></span>`;
+                    // 添加修饰效果
+                    if (item.bold) formattedText = `<span style="font-weight:bold">${formattedText}</span>`;
+                    if (item.italic) formattedText = `<span style="font-style:italic">${formattedText}</span>`;
+                    if (item.underline) formattedText = `<span style="text-decoration:underline">${formattedText}</span>`;
+                    if (item.strikethrough) formattedText = `<span style="text-decoration:line-through">${formattedText}</span>`;
+                    if (item.obfuscated) formattedText = `<span class="obfuscated">${formattedText}</span>`;
+                    
+                    if (index === array.length - 1) {
+                        return `<span>${formattedText}</span>`;
+                    }
+                    return `<span>${formattedText}</span><span class="line-break"></span>`;
                 }).join('');
             }
-            // 普通文本
-            const cleanedText = item.text.replace(/§./g, '');
-            return `<span>${escapeHtml(cleanedText)}</span>`;
+            // 普通文本处理
+            let formattedText = escapeHtml(item.text);
+            // 添加颜色和格式
+            if (item.color) {
+                formattedText = `<span class="color-${item.color}">${formattedText}</span>`;
+            }
+            if (item.bold) formattedText = `<span style="font-weight:bold">${formattedText}</span>`;
+            if (item.italic) formattedText = `<span style="font-style:italic">${formattedText}</span>`;
+            if (item.underline) formattedText = `<span style="text-decoration:underline">${formattedText}</span>`;
+            if (item.strikethrough) formattedText = `<span style="text-decoration:line-through">${formattedText}</span>`;
+            if (item.obfuscated) formattedText = `<span class="obfuscated">${formattedText}</span>`;
+            
+            return `<span>${formattedText}</span>`;
         }
 
         // 保持其他类型的处理不变
-        if (item.selector) return `<span class="preview-selector">[${escapeHtml(item.selector)}]</span>`;
+        if (item.selector) {
+            return `<span class="preview-selector">[${escapeHtml(item.selector)}]</span>`;
+        }
         if (item.translate) {
             let translatedText = escapeHtml(item.translate);
             if (item.with) {
-                if (Array.isArray(item.with)) {
-                    item.with.forEach((param, index) => {
-                        const placeholder = new RegExp(`%%[sdf]`, 'g');
-                        translatedText = translatedText.replace(placeholder, escapeHtml(param));
+                // 支持数组和对象两种格式
+                const params = Array.isArray(item.with) ? item.with : 
+                             (item.with.parameters || []);
+                
+                if (Array.isArray(params)) {
+                    // 顺序替换所有占位符
+                    let paramIndex = 0;
+                    translatedText = translatedText.replace(/%%[sdf\d]/g, () => {
+                        if (paramIndex >= params.length) return '??';
+                        const param = params[paramIndex++];
+                        // 处理不同类型的参数
+                        if (typeof param === 'string') return escapeHtml(param);
+                        if (param.text) return escapeHtml(param.text);
+                        if (param.score) return `[${escapeHtml(param.score.name)}的${escapeHtml(param.score.objective)}]`;
+                        if (param.selector) return `[${escapeHtml(param.selector)}]`;
+                        return '??';
                     });
-                } else {
-                    translatedText = JSON.stringify(item.with, null, 2);
                 }
             }
             return `<span class="preview-translate">${translatedText}</span>`;
