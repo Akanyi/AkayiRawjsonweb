@@ -19,34 +19,6 @@
 5. 使用“复制”按钮复制 JSON。
 6. 使用“解析 JSON”解析你的 JSON。
 
-## 示例
-
-### 插入颜色代码
-
-点击颜色按钮插入相应的颜色代码，例如：
-
-- §0 黑
-- §1 深蓝
-- §2 深绿
-- §3 湖蓝
-- §4 深红
-
-### 插入功能
-
-点击功能按钮插入相应的功能，例如：
-
-- 插入计分板：`insertFeature('score')`
-- 插入选择器：`insertFeature('selector')`
-- 插入翻译：`insertFeature('translate')`
-
-## 开发
-
-### 依赖
-
-- HTML
-- CSS
-- JavaScript
-
 ### 文件结构
 
 - `Main.html`：主页面
