@@ -53,6 +53,10 @@ function switchMode(mode, isInit = false) {
                             value="${escapeHtml(currentParams)}">
                         <div class="hint">多个参数用逗号分隔，将按顺序替换占位符</div>
                     </div>
+                    <div class="examples-section">
+                        <h4>快速示例</h4>
+                        <div class="example-item" onclick="setExample('simple', '示例文本1, 示例文本2')">示例: 示例文本1, 示例文本2</div>
+                    </div>
                 `;
                 break;
             case 'visual':
@@ -66,6 +70,10 @@ function switchMode(mode, isInit = false) {
                         <div id="paramsList"></div>
                         <div class="hint">可视化编辑参数，每项参数可独立设置类型</div>
                     </div>
+                    <div class="examples-section">
+                        <h4>快速示例</h4>
+                        <div class="example-item" onclick="setExample('visual', '文本:示例文本, 计分板:@p|score, 选择器:@a')">示例: 文本:示例文本, 计分板:@p|score, 选择器:@a</div>
+                    </div>
                 `;
                 break;
             case 'advanced':
@@ -75,6 +83,10 @@ function switchMode(mode, isInit = false) {
                         <textarea id="advanced_json" rows="6" 
                             placeholder='[{"text":"示例"},{"selector":"@p"}]'></textarea>
                         <div class="hint">直接编辑JSON数组，完整支持所有功能</div>
+                    </div>
+                    <div class="examples-section">
+                        <h4>快速示例</h4>
+                        <div class="example-item" onclick="setExample('advanced', '[{"text":"示例文本"},{"score":{"name":"@p","objective":"score"}},{"selector":"@a"}]')">示例: [{"text":"示例文本"},{"score":{"name":"@p","objective":"score"}},{"selector":"@a"}]</div>
                     </div>
                 `;
                 break;
@@ -200,5 +212,30 @@ function formatForAdvanced(value) {
         return JSON.stringify(params, null, 2);
     } catch (e) {
         return '[]';
+    }
+}
+
+function setExample(mode, example) {
+    switch(mode) {
+        case 'simple':
+            document.getElementById('simple_params').value = example;
+            break;
+        case 'visual':
+            const paramsList = document.getElementById('paramsList');
+            paramsList.innerHTML = '';
+            const params = example.split(',').map(param => param.trim());
+            params.forEach(param => {
+                if (param.startsWith('文本:')) {
+                    paramsList.insertAdjacentHTML('beforeend', generateParamRow(param, 'text'));
+                } else if (param.startsWith('计分板:')) {
+                    paramsList.insertAdjacentHTML('beforeend', generateParamRow(param, 'score'));
+                } else if (param.startsWith('选择器:')) {
+                    paramsList.insertAdjacentHTML('beforeend', generateParamRow(param, 'selector'));
+                }
+            });
+            break;
+        case 'advanced':
+            document.getElementById('advanced_json').value = example;
+            break;
     }
 }
