@@ -67,7 +67,7 @@ function decodeJson() {
         preview.style.transition = 'all 0.3s ease';
 
         // 更新预览内容
-        updatePreview(jsonObject.rawtext);
+        RichTextEditor.updatePreview(jsonObject.rawtext);
 
         // 添加预览区域的动画效果
         requestAnimationFrame(() => {

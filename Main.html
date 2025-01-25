@@ -20,9 +20,7 @@
 </div>
 
 <div id="inputArea">
-    
-        <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本。使用下方按钮插入格式代码或功能。"></div>
-    
+    <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本。使用下方按钮插入格式代码或功能。"></div>
 
     <div class="feature-buttons">
         <button onclick="insertFeature('score')">插入计分板</button>
@@ -70,7 +68,7 @@
         <button onclick="insertCode('§v')">§v 材料：树脂（1.22）</button>
     </div>
 
-    <button id="generateJsonBtn" onclick="generateJson()">生成 JSON</button>
+    <button id="generateJsonBtn" onclick="RichTextEditor.generateJson()">生成 JSON</button>
 </div>
 
 <h2>Raw JSON:</h2>
@@ -156,7 +154,6 @@
             注意：只有带有 ↵ 符号的换行才会在游戏中真正换行。自动换行仅用于显示目的，不会影响实际的文本布局。
         </div>
 
-    </p>
         <h3>什么是Raw JSON？</h3>
         <div class="tutorial-section">
             <p>Raw JSON 是 Minecraft 基岩版中用于显示复杂文本的格式。它允许你在游戏中显示带有颜色、格式和功能的文本。</p>
@@ -183,9 +180,7 @@
             <p>4. 你将看到类似以下的 JSON 输出：</p>
             <pre><code id="exampleJson2">{
     "rawtext": [
-        {"text": "欢迎来到"},
-        {"text": "§a§lMinecraft§r"},
-        {"text": "世界！"}
+        {"text": "欢迎来到§a§lMinecraft§r世界！"}
     ]
 }</code></pre>
             <button class="copy-example-button" onclick="copyExampleJson('exampleJson2')">复制</button>
@@ -200,7 +195,7 @@
 <script src="js/Main3.js"></script>
 <script src="js/Main4.js"></script>
 <script src="js/Main5.js"></script>
-
+<script src="js/richTextEditor.js"></script>
 <script src="js/Decodejson.js"></script>
 <script src="js/translate-utils.js"></script>
 <script src="js/translate-mode.js"></script>
@@ -220,6 +215,12 @@ function copyExampleJsonPlain(elementId) {
         alert('纯文本 JSON 已复制到剪贴板');
     });
 }
+
+// 使用事件监听器绑定生成按钮
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('generateJsonBtn').addEventListener('click', RichTextEditor.generateJson);
+    bindInsertButtons();
+});
 </script>
 
 <!--服了，PowerJsDebuger免费版最多300行，拆开js好烦！-->

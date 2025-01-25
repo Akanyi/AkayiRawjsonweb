@@ -200,73 +200,25 @@ function applyFunction() {
     
     try {
         if (type === 'translate') {
-            const translateData = {
-                translate: document.getElementById('modal_translate').value,
-                mode: document.getElementById('translate_mode').value,
-                rawtextMode: document.getElementById('rawtext_mode').value,
-                withValue: getTranslateWithValue()
-            };
+            const translateValue = document.getElementById('modal_translate')?.value;
+            const mode = document.getElementById('translate_mode')?.value || 'simple';
             
-            // 检查参数合法性
-            if(!translateData.translate) {
+            if (!translateValue) {
                 throw new Error('翻译键不能为空');
             }
             
-            // 根据当前模式获取参数值
-            let paramValue = '';
-            if (translateData.mode === 'simple') {
-                const simpleInput = document.getElementById('simple_params');
-                paramValue = simpleInput ? simpleInput.value.trim() : '';
-            } else if (translateData.mode === 'rawtext') {
-                if (translateData.rawtextMode === 'advanced') {
-                    try {
-                        const jsonInput = document.getElementById('advanced_json');
-                        const jsonValue = jsonInput ? jsonInput.value : '[]';
-                        // 验证JSON格式
-                        JSON.parse(jsonValue);
-                        paramValue = jsonValue;
-                    } catch(e) {
-                        throw new Error('无效的JSON格式');
-                    }
-                } else {
-                    // visual模式
-                    const paramsList = document.querySelectorAll('#paramsList .param-row');
-                    const params = Array.from(paramsList)
-                        .map(row => {
-                            const type = row.querySelector('.param-type').value;
-                            const values = {
-                                text: () => {
-                                    const value = row.querySelector('.param-value').value.trim();
-                                    return value ? `文本:${value}` : '';
-                                },
-                                score: () => {
-                                    const name = row.querySelector('.param-name').value.trim() || '@p';
-                                    const obj = row.querySelector('.param-objective').value.trim() || 'score';
-                                    return `计分板:${name}|${obj}`;
-                                },
-                                selector: () => {
-                                    const sel = row.querySelector('.param-selector').value.trim() || '@p';
-                                    return `选择器:${sel}`;
-                                }
-                            };
-                            return values[type] ? values[type]() : '';
-                        })
-                        .filter(Boolean);
-                    paramValue = params.join(',');
-                }
-            }
+            currentEditingTag.setAttribute('data-translate', translateValue);
+            currentEditingTag.setAttribute('data-translate-mode', mode);
             
-            // 更新标签属性
-            currentEditingTag.setAttribute('data-translate', translateData.translate);
-            currentEditingTag.setAttribute('data-translate-mode', translateData.mode);
-            currentEditingTag.setAttribute('data-rawtext-mode', translateData.rawtextMode);
+            // 获取参数值
+            const paramValue = getTranslateWithValue();
             currentEditingTag.setAttribute('data-with', paramValue);
             
             // 更新预览
             updateTagPreview(currentEditingTag);
             closeModal();
         } else {
-            // ...处理其他类型...
+            // ...existing code...
         }
     } catch (error) {
         console.error('应用更改失败:', error);
@@ -275,30 +227,42 @@ function applyFunction() {
 }
 
 function getTranslateWithValue() {
-    const mode = document.getElementById('translate_mode').value;
-    const rawtextMode = document.getElementById('rawtext_mode').value;
+    const mode = document.getElementById('translate_mode')?.value;
     
     if (mode === 'simple') {
-        return document.getElementById('modal_with_simple').value;
+        // 使用 simple_params 而不是 modal_with_simple
+        const simpleInput = document.getElementById('simple_params');
+        return simpleInput ? simpleInput.value || '' : '';
     }
     
+    const rawtextMode = document.getElementById('rawtext_mode')?.value;
     if (mode === 'rawtext') {
         if (rawtextMode === 'advanced') {
-            return document.getElementById('modal_with_rawtext').value;
+            const advancedInput = document.getElementById('advanced_json');
+            return advancedInput ? advancedInput.value || '' : '';
         }
         
-        return Array.from(document.querySelectorAll('#paramsList .param-row'))
+        // Visual mode
+        const paramsList = document.querySelectorAll('#paramsList .param-row');
+        if (!paramsList.length) return '';
+        
+        return Array.from(paramsList)
             .map(row => {
-                const type = row.querySelector('.param-type').value;
+                const type = row.querySelector('.param-type')?.value;
                 switch(type) {
                     case 'text':
-                        return `文本:${row.querySelector('.param-value').value}`;
+                        const textValue = row.querySelector('.param-value')?.value || '';
+                        return textValue ? `文本:${textValue}` : '';
                     case 'score':
-                        return `计分板:${row.querySelector('.param-name').value}|${row.querySelector('.param-objective').value}`;
+                        const name = row.querySelector('.param-name')?.value || '@p';
+                        const objective = row.querySelector('.param-objective')?.value || 'score';
+                        return `计分板:${name}|${objective}`;
                     case 'selector':
-                        return `选择器:${row.querySelector('.param-selector').value}`;
+                        const selector = row.querySelector('.param-selector')?.value || '@p';
+                        return `选择器:${selector}`;
+                    default:
+                        return '';
                 }
-                return '';
             })
             .filter(Boolean)
             .join(',');

@@ -13,8 +13,8 @@ function applyFunction() {
                 currentEditingTag.setAttribute('data-selector', document.getElementById('modal_selector').value || '@p');
                 break;
             case 'translate':
-                const mode = document.getElementById('translate_mode').value;
-                const translateValue = document.getElementById('modal_translate').value;
+                const mode = document.getElementById('translate_mode')?.value || 'simple';
+                const translateValue = document.getElementById('modal_translate')?.value;
                 
                 if (!translateValue) {
                     throw new Error('翻译键不能为空');
@@ -24,16 +24,26 @@ function applyFunction() {
                 currentEditingTag.setAttribute('data-translate-mode', mode);
                 
                 if (mode === 'simple') {
-                    const simpleValue = document.getElementById('modal_with_simple').value || '';
+                    // 修改这里：使用 simple_params 而不是 modal_with_simple
+                    const simpleInput = document.getElementById('simple_params');
+                    if (!simpleInput) {
+                        console.error('找不到simple_params输入框');
+                        throw new Error('参数输入框不存在');
+                    }
+                    const simpleValue = simpleInput.value || '';
                     currentEditingTag.setAttribute('data-with', simpleValue);
                 } else {
-                    const rawtextValue = document.getElementById('modal_with_rawtext').value || '';
-                    try {
-                        // 验证JSON格式
-                        JSON.parse(rawtextValue);
-                        currentEditingTag.setAttribute('data-with', rawtextValue);
-                    } catch (e) {
-                        throw new Error('Rawtext JSON 格式无效');
+                    const rawtextInput = document.getElementById('modal_with_rawtext');
+                    const rawtextValue = rawtextInput ? rawtextInput.value : '';
+                    if (rawtextValue) {
+                        try {
+                            JSON.parse(rawtextValue);
+                            currentEditingTag.setAttribute('data-with', rawtextValue);
+                        } catch (e) {
+                            throw new Error('Rawtext JSON 格式无效');
+                        }
+                    } else {
+                        currentEditingTag.setAttribute('data-with', '');
                     }
                 }
                 break;
@@ -71,45 +81,6 @@ function focusEditor() {
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-}
-
-// 文本处理函数v2，修复bug与速度
-function processTextContent(text) {
-    if (!text) return;
-    
-    const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    const segments = normalizedText.split(/(\n|§[0-9a-fk-or])/g);
-    
-    segments.forEach(segment => {
-        if (segment === '\n') {
-            if (currentText) {
-                rawText.push({ "text": currentText, ...currentFormat });
-                currentText = "";
-            }
-            if (!node) return;
-
-            if (node.nodeType === Node.TEXT_NODE) {
-                rawText.push({ "text": currentText });
-                currentText = "";
-            }
-            const code = segment[1];
-            switch(code) {
-                //删除后有bug
-                case 'k': currentFormat.obfuscated = true; break;
-                case 'l': currentFormat.bold = true; break;
-                case 'm': currentFormat.strikethrough = true; break;
-                case 'n': currentFormat.underline = true; break;
-                case 'o': currentFormat.italic = true; break;
-                case 'r': currentFormat = {}; break;
-                default:
-                    if ('0123456789abcdef'.includes(code)) {
-                        currentFormat.color = code;
-                    }
-            }
-        } else if (segment) {
-            currentText += segment;
-        }
-    });
 }
 
 // 更新教程切换功能

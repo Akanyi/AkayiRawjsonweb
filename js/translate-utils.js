@@ -53,26 +53,34 @@ function processTranslateData(data) {
         translate: translate
     };
 
-    if (!withValue) return result;
+    // 如果没有参数值，直接返回基本结构
+    if (!withValue || withValue.trim() === '') {
+        return result;
+    }
 
     try {
+        let withArray = [];
         if (mode === 'simple') {
-            // 使用数组存储参数
-            const params = withValue.split(',')
-                .map(p => p.trim())
-                .filter(Boolean);
-            
-            // 直接设置为数组，而不是包装在parameters对象中
-            result.with = params;
+            // 改进简单模式的参数处理
+            withArray = withValue.split(',')
+                .map(param => param.trim())
+                .filter(Boolean)
+                .map(param => ({ text: param }));
         } else if (mode === 'rawtext') {
             if (rawtextMode === 'advanced') {
-                // 直接使用完整JSON
-                result.with = JSON.parse(withValue);
+                const parsedValue = JSON.parse(withValue);
+                withArray = Array.isArray(parsedValue) ? parsedValue : [parsedValue];
             } else {
-                result.with = simpleToRawtext(withValue);
+                withArray = simpleToRawtext(withValue);
             }
         }
+
+        // 添加 rawtext 包装
+        result.with = {
+            rawtext: withArray
+        };
     } catch (e) {
+        console.error('处理参数失败:', e);
         throw new Error(`处理参数失败: ${e.message}`);
     }
 
@@ -146,26 +154,32 @@ const TranslateUtils = {
             translate: translate
         };
     
-        if (!withValue) return result;
+        if (!withValue || withValue.trim() === '') {
+            return result;
+        }
     
         try {
+            let withArray = [];
             if (mode === 'simple') {
-                // 使用数组存储参数
-                const params = withValue.split(',')
-                    .map(p => p.trim())
-                    .filter(Boolean);
-                
-                // 直接设置为数组，而不是包装在parameters对象中
-                result.with = params;
+                withArray = withValue.split(',')
+                    .map(param => param.trim())
+                    .filter(Boolean)
+                    .map(param => ({ text: param }));
             } else if (mode === 'rawtext') {
                 if (rawtextMode === 'advanced') {
-                    // 直接使用完整JSON
-                    result.with = JSON.parse(withValue);
+                    const parsedValue = JSON.parse(withValue);
+                    withArray = Array.isArray(parsedValue) ? parsedValue : [parsedValue];
                 } else {
-                    result.with = simpleToRawtext(withValue);
+                    withArray = simpleToRawtext(withValue);
                 }
             }
+    
+            // 添加 rawtext 包装
+            result.with = {
+                rawtext: withArray
+            };
         } catch (e) {
+            console.error('处理参数失败:', e);
             throw new Error(`处理参数失败: ${e.message}`);
         }
     

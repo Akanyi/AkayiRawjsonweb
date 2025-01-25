@@ -18,37 +18,11 @@ function switchMode(mode, isInit = false) {
         let content = '';
         switch(mode) {
             case 'simple':
-                // 获取当前标签的with属性，并适当处理
-                let currentParams = '';
-                if (isInit) {
-                    const withValue = currentEditingTag.getAttribute('data-with');
-                    // 如果是初始加载且有with属性值
-                    if (withValue) {
-                        try {
-                            // 尝试解析JSON格式（处理从其他模式切换过来的情况）
-                            if (withValue.startsWith('[')) {
-                                const jsonData = JSON.parse(withValue);
-                                currentParams = jsonData.map(item => {
-                                    if (typeof item === 'string') return item;
-                                    if (item.text) return item.text;
-                                    if (item.score) return `${item.score.name}的${item.score.objective}`;
-                                    if (item.selector) return item.selector;
-                                    return '';
-                                }).join(', ');
-                            } else {
-                                // 直接使用已有的文本格式
-                                currentParams = withValue;
-                            }
-                        } catch (e) {
-                            currentParams = withValue; // 如果解析失败，使用原始值
-                        }
-                    }
-                }
-
+                const currentParams = isInit ? (currentEditingTag.getAttribute('data-with') || '') : '';
                 content = `
                     <div class="form-group">
                         <label>参数列表（用逗号分隔）:</label>
-                        <input type="text" id="simple_params" 
+                        <input type="text" id="simple_params" class="form-control"
                             placeholder="示例: text1, text2, text3"
                             value="${escapeHtml(currentParams)}">
                         <div class="hint">多个参数用逗号分隔，将按顺序替换占位符</div>
