@@ -225,6 +225,558 @@ const RichTextEditor = (() => {
         return div.innerHTML;
     }
 
+    function insertFeature(type) {
+        const editor = document.getElementById("richTextEditor");
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        
+        // 创建新的功能标签容器
+        const container = document.createElement('span');
+        container.className = 'function-tag';
+        container.setAttribute('contenteditable', 'false');
+        container.setAttribute('data-type', type);
+        
+        // 创建内部预览容器
+        const preview = document.createElement('span');
+        preview.className = 'tag-preview';
+        container.appendChild(preview);
+
+        // 根据类型设置属性
+        switch(type) {
+            case 'score':
+                container.setAttribute('data-name', '@p');
+                container.setAttribute('data-objective', 'score');
+                preview.textContent = '[计分板]';
+                break;
+            case 'selector':
+                container.setAttribute('data-selector', '@p');
+                preview.textContent = '[选择器]';
+                break;
+            case 'translate':
+                container.setAttribute('data-translate', '');
+                container.setAttribute('data-translate-mode', 'simple');
+                preview.textContent = '[翻译]';
+                break;
+        }
+        
+        // 创建编辑图标
+        const editIcon = document.createElement('span');
+        editIcon.className = 'tag-edit-icon';
+        editIcon.textContent = '✎';
+        container.appendChild(editIcon);
+
+        // 插入到编辑器中
+        range.deleteContents();
+        range.insertNode(container);
+        
+        // 确保标签周围有空格
+        container.before('\u200B');
+        container.after('\u200B');
+        
+        // 将光标移到标签后面
+        range.setStartAfter(container);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        // 添加点击事件
+        container.addEventListener('click', () => editFunction(container));
+        
+        // 更新预览
+        updateTagPreview(container);
+    }
+
+    function updateTagPreview(element) {
+        const preview = element.querySelector('.tag-preview');
+        if (!preview) return;
+
+        const type = element.getAttribute('data-type');
+        let previewText = '';
+        
+        switch(type) {
+            case 'score':
+                const name = element.getAttribute('data-name') || '@p';
+                const objective = element.getAttribute('data-objective') || 'score';
+                previewText = `[${name}的${objective}]`;
+                break;
+            case 'selector':
+                previewText = `[${element.getAttribute('data-selector') || '@p'}]`;
+                break;
+            case 'translate':
+                const translate = element.getAttribute('data-translate') || '';
+                const withParams = element.getAttribute('data-with') || '';
+                previewText = translate;
+                if (withParams) {
+                    try {
+                        if (element.getAttribute('data-translate-mode') === 'simple') {
+                            const params = withParams.split(',').map(p => p.trim());
+                            previewText = translate.replace(/%%s/g, () => params.shift() || '?');
+                        }
+                    } catch (e) {
+                        previewText = '[翻译错误]';
+                    }
+                }
+                break;
+        }
+        
+        preview.textContent = previewText;
+    }
+
+    // 添加新的恢复选择方法
+    function restoreSelection(range) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    // 添加新的标签清理方法
+    function cleanupTags() {
+        const editor = document.getElementById("richTextEditor");
+        const tags = editor.getElementsByClassName('function-tag');
+        
+        // 转换为数组以避免实时集合的问题
+        Array.from(tags).forEach(tag => {
+            // 检查标签前后是否有零宽空格
+            const prev = tag.previousSibling;
+            const next = tag.nextSibling;
+            
+            if (!prev || prev.nodeType !== Node.TEXT_NODE || !prev.nodeValue.endsWith('\u200B')) {
+                tag.before('\u200B');
+            }
+            if (!next || next.nodeType !== Node.TEXT_NODE || !next.nodeValue.startsWith('\u200B')) {
+                tag.after('\u200B');
+            }
+        });
+    }
+
+    // 修改编辑器的input事件处理
+    document.addEventListener('DOMContentLoaded', function() {
+        const editor = document.getElementById("richTextEditor");
+        
+        // 修改input事件监听
+        editor.addEventListener('input', function(e) {
+            // 检查编辑器是否为空
+            if (editor.innerHTML.trim() === '') {
+                // 重置编辑器内容
+                editor.innerHTML = '';
+                // 移除所有样式和状态
+                editor.removeAttribute('style');
+                Array.from(editor.classList).forEach(cls => {
+                    if (cls !== 'richTextEditor') {
+                        editor.classList.remove(cls);
+                    }
+                });
+            } else {
+                // 正常的清理操作
+                setTimeout(cleanupTags, 0);
+            }
+        });
+
+        // 添加监听以防止空编辑器失去占位符
+        editor.addEventListener('blur', function() {
+            if (editor.innerHTML.trim() === '') {
+                editor.innerHTML = '';
+            }
+        });
+
+        // 更新删除事件处理
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                
+                // 处理选中范围内的所有标签
+                const range = selection.getRangeAt(0);
+                const container = document.createElement('div');
+                container.appendChild(range.cloneContents());
+                
+                // 查找选中范围内的所有功能标签
+                const tags = container.getElementsByClassName('function-tag');
+                const hasTags = tags.length > 0;
+                
+                if (hasTags) {
+                    e.preventDefault();
+                    
+                    // 保存选区的开始和结束位置
+                    const startContainer = range.startContainer;
+                    const startOffset = range.startOffset;
+                    const endContainer = range.endContainer;
+                    const endOffset = range.endOffset;
+                    
+                    // 删除选中内容
+                    range.deleteContents();
+                    
+                    // 插入光标占位符
+                    const cursorNode = document.createTextNode('');
+                    range.insertNode(cursorNode);
+                    
+                    // 设置新的光标位置
+                    range.setStart(cursorNode, 0);
+                    range.setEnd(cursorNode, 0);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    // 清理和规范化编辑器内容
+                    setTimeout(() => {
+                        editor.normalize();
+                        // 移除所有可能的空文本节点
+                        const walker = document.createTreeWalker(
+                            editor,
+                            NodeFilter.SHOW_TEXT,
+                            null,
+                            false
+                        );
+                        const emptyNodes = [];
+                        let node;
+                        while (node = walker.nextNode()) {
+                            if (!node.textContent.trim()) {
+                                emptyNodes.push(node);
+                            }
+                        }
+                        emptyNodes.forEach(node => node.remove());
+                        
+                        // 重置编辑器内容以清除任何残留样式
+                        const content = editor.innerHTML;
+                        editor.innerHTML = content;
+                        
+                        // 恢复光标位置
+                        const newRange = document.createRange();
+                        newRange.setStart(cursorNode, 0);
+                        newRange.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(newRange);
+                    }, 0);
+                }
+            }
+        });
+
+        // 处理删除事件
+        editor.addEventListener('keydown', function(e) {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const node = range.startContainer;
+            const parentNode = node.parentNode;
+
+            // 处理退格键和删除键
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                // 查找最近的功能标签
+                const tag = parentNode.closest('.function-tag') || 
+                            (parentNode.previousElementSibling && parentNode.previousElementSibling.classList.contains('function-tag') ? 
+                            parentNode.previousElementSibling : null);
+
+                if (tag) {
+                    e.preventDefault();
+                    
+                    // 创建新的光标位置
+                    const newNode = document.createTextNode('\u200B');
+                    tag.parentNode.insertBefore(newNode, tag);
+                    tag.remove();
+
+                    // 设置光标位置
+                    const newRange = document.createRange();
+                    newRange.setStart(newNode, 1);
+                    newRange.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                }
+            }
+        });
+
+        // 修改删除事件处理
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                
+                const range = selection.getRangeAt(0);
+                const container = document.createElement('div');
+                container.appendChild(range.cloneContents());
+                
+                // 查找要删除的功能标签
+                const tag = range.startContainer.parentNode.closest('.function-tag') || 
+                           (range.startContainer.previousElementSibling && 
+                            range.startContainer.previousElementSibling.classList.contains('function-tag') ? 
+                            range.startContainer.previousElementSibling : null);
+
+                if (tag) {
+                    e.preventDefault();
+                    
+                    // 创建新的文本节点作为光标占位符
+                    const cursor = document.createTextNode('\u200B');
+                    
+                    // 插入光标占位符并删除标签
+                    tag.parentNode.insertBefore(cursor, tag);
+                    tag.remove();
+                    
+                    // 设置新的选区
+                    const newRange = document.createRange();
+                    newRange.setStart(cursor, 0);
+                    newRange.setEnd(cursor, 0);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                    
+                    // 强制清理编辑器内容
+                    requestAnimationFrame(() => {
+                        // 清理所有空文本节点和多余的样式
+                        cleanupEditor(editor);
+                        
+                        // 重新规范化文本节点
+                        editor.normalize();
+                        
+                        // 通过临时更改内容来重置样式
+                        const content = editor.innerHTML;
+                        editor.textContent = '';  // 完全清空内容
+                        editor.innerHTML = content;  // 重新插入内容
+                        
+                        // 恢复光标位置
+                        const nodes = editor.childNodes;
+                        for (let i = 0; i < nodes.length; i++) {
+                            if (nodes[i].nodeType === 3 && nodes[i].nodeValue === '\u200B') {
+                                const finalRange = document.createRange();
+                                finalRange.setStart(nodes[i], 0);
+                                finalRange.collapse(true);
+                                selection.removeAllRanges();
+                                selection.addRange(finalRange);
+                                break;
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        // 添加新的编辑器清理函数
+        function cleanupEditor(editor) {
+            // 移除所有空文本节点
+            const walker = document.createTreeWalker(
+                editor,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+            
+            const emptyNodes = [];
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.nodeValue === '' || (node.nodeValue === '\u200B' && node.nextSibling)) {
+                    emptyNodes.push(node);
+                }
+            }
+            emptyNodes.forEach(node => node.remove());
+
+            // 移除所有未使用的样式属性
+            const elements = editor.getElementsByTagName('*');
+            for (let element of elements) {
+                if (!element.classList.contains('function-tag')) {
+                    // 保留必要的属性，移除其他所有属性
+                    const attrs = element.attributes;
+                    const attrsToRemove = [];
+                    
+                    for (let attr of attrs) {
+                        if (!['class', 'id', 'contenteditable', 'data-type'].includes(attr.name)) {
+                            attrsToRemove.push(attr.name);
+                        }
+                    }
+                    
+                    attrsToRemove.forEach(attr => element.removeAttribute(attr));
+                }
+            }
+        }
+
+        // 修改粘贴事件
+        editor.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+        editor.addEventListener('drop', function(e) {
+            e.preventDefault();
+        });
+
+        editor.addEventListener('beforeinput', function(e) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const container = document.createElement('div');
+            container.appendChild(range.cloneContents());
+            
+            // 检查选区
+            const hasFunctionTag = container.querySelector('.function-tag');
+            
+            if (hasFunctionTag) {
+                e.preventDefault();
+                
+                // 获取输入的文本
+                let insertText = '';
+                if (e.inputType === 'insertText') {
+                    insertText = e.data;
+                } else if (e.inputType === 'insertFromPaste') {
+                    insertText = e.dataTransfer.getData('text/plain');
+                }
+                
+                if (insertText) {
+                    // 创建新的文本节点
+                    const textNode = document.createTextNode(insertText);
+                    
+                    // 删除选中内容并插入新文本
+                    range.deleteContents();
+                    range.insertNode(textNode);
+                    
+                    // 移动光标到插入文本的末尾
+                    range.setStartAfter(textNode);
+                    range.setEndAfter(textNode);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    // 清理和规范化编辑器内容
+                    setTimeout(() => {
+                        editor.normalize();
+                        // 移除所有可能的空文本节点
+                        const walker = document.createTreeWalker(
+                            editor,
+                            NodeFilter.SHOW_TEXT,
+                            null,
+                            false
+                        );
+                        const emptyNodes = [];
+                        let node;
+                        while (node = walker.nextNode()) {
+                            if (!node.textContent.trim()) {
+                                emptyNodes.push(node);
+                            }
+                        }
+                        emptyNodes.forEach(node => node.remove());
+                        
+                        // 重置编辑器内容以清除任何残留样式
+                        const content = editor.innerHTML;
+                        editor.innerHTML = content;
+                        
+                        // 恢复光标位置到文本末尾
+                        const selection = window.getSelection();
+                        const range = document.createRange();
+                        const lastNode = editor.lastChild;
+                        if (lastNode) {
+                            range.setStartAfter(lastNode);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    }, 0);
+                }
+            }
+        });
+    });
+
+    // 添加输入事件监听器
+    editor.addEventListener('input', function(e) {
+        // 首先检查编辑器是否为空
+        if (editor.innerHTML.trim() === '') {
+            editor.innerHTML = '';
+            editor.removeAttribute('style');
+            return;
+        }
+
+        // 延迟执行以确保内容已更新
+        requestAnimationFrame(() => {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            const node = range.startContainer;
+
+            // 如果是文本节点且不在功能标签内
+            if (node.nodeType === Node.TEXT_NODE && 
+                !node.parentElement.classList.contains('function-tag')) {
+                
+                // 获取当前节点的父元素
+                let parent = node.parentElement;
+                
+                // 如果父元素不是编辑器本身，说明文本可能带有样式
+                if (parent && parent !== editor) {
+                    // 保存当前光标位置
+                    const offset = range.startOffset;
+                    
+                    // 创建新的文本节点，保持原始内容
+                    const newText = document.createTextNode(node.textContent);
+                    
+                    // 替换带样式的节点
+                    parent.parentNode.replaceChild(newText, parent);
+                    
+                    // 恢复光标位置
+                    const newRange = document.createRange();
+                    newRange.setStart(newText, offset);
+                    newRange.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                }
+            }
+
+            // 清理空节点和多余属性
+            cleanupEditor(editor);
+        });
+    });
+
+    // 优化 cleanupEditor 函数
+    function cleanupEditor(editor) {
+        // 规范化文本节点
+        editor.normalize();
+
+        // 移除所有空文本节点和不必要的 span 标签
+        const walker = document.createTreeWalker(
+            editor,
+            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        const nodesToRemove = [];
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            
+            // 处理文本节点
+            if (node.nodeType === Node.TEXT_NODE) {
+                if (!node.textContent.trim() && node.textContent !== '\u200B') {
+                    nodesToRemove.push(node);
+                }
+            }
+            // 处理元素节点
+            else if (node.nodeType === Node.ELEMENT_NODE) {
+                // 如果不是功能标签，移除所有样式相关属性
+                if (!node.classList.contains('function-tag')) {
+                    // 保留必要的属性，移除其他所有属性
+                    const attrs = Array.from(node.attributes);
+                    attrs.forEach(attr => {
+                        if (!['contenteditable', 'id', 'class'].includes(attr.name)) {
+                            node.removeAttribute(attr.name);
+                        }
+                    });
+
+                    // 如果是空的 span 标签，标记为移除
+                    if (node.tagName === 'SPAN' && !node.hasAttributes()) {
+                        nodesToRemove.push(node);
+                    }
+                }
+            }
+        }
+
+        // 移除标记的节点
+        nodesToRemove.forEach(node => {
+            if (node.parentNode) {
+                if (node.nodeType === Node.ELEMENT_NODE && node.childNodes.length > 0) {
+                    // 如果是元素节点且有子节点，保留子节点
+                    while (node.firstChild) {
+                        node.parentNode.insertBefore(node.firstChild, node);
+                    }
+                }
+                node.parentNode.removeChild(node);
+            }
+        });
+
+        // 最后再次规范化，合并相邻的文本节点
+        editor.normalize();
+    }
+
     return {
         generateJson,
         updatePreview

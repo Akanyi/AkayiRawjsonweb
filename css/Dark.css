@@ -1,0 +1,241 @@
+/* 深色模式的基础变量 */
+body.dark-mode {
+    --primary-color: #4a90e2;
+    --primary-dark: #3679c7;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --danger-color: #e74c3c;
+    --text-color: #e0e0e0;
+    --background-color: #1a1a1a;
+    --card-background: #2d2d2d;
+    --input-background: #333333;
+    --input-border: #4a4a4a;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 深色模式的基础样式 */
+body.dark-mode {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+/* 卡片和容器 */
+body.dark-mode #inputArea,
+body.dark-mode .modal-content,
+body.dark-mode .preview-area {
+    background: var(--card-background);
+    box-shadow: var(--box-shadow);
+}
+
+/* 输入框和文本区域 */
+body.dark-mode #richTextEditor,
+body.dark-mode input,
+body.dark-mode textarea {
+    background: var(--input-background);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+/* 按钮样式 */
+body.dark-mode button:not(.function-tag):not(.menu-button) {
+    background: var(--primary-color);
+    color: white;
+}
+
+body.dark-mode button:not(.function-tag):hover {
+    background: var(--primary-dark);
+}
+
+/* 颜色按钮区域 */
+body.dark-mode #colorButtons {
+    background: var(--card-background);
+}
+
+/* 模态框样式 */
+body.dark-mode .modal-content {
+    background: var(--card-background);
+    color: var(--text-color);
+}
+
+/* 菜单样式 */
+body.dark-mode .menu-content {
+    background: var(--card-background);
+    border: 1px solid var(--input-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .menu-content button,
+body.dark-mode .menu-content a {
+    display: block;
+    width: 100%;
+    padding: 10px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-bottom: 1px solid var(--input-border);
+    transition: all 0.2s ease;
+    background: none;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+body.dark-mode .menu-content button:last-of-type,
+body.dark-mode .menu-content a:last-of-type {
+    border-bottom: none;
+}
+
+body.dark-mode .menu-content button:hover,
+body.dark-mode .menu-content a:hover {
+    background: var(--input-background);
+    color: var(--primary-color);
+}
+
+/* 深色模式菜单样式 */
+body.dark-mode .menu {
+    /* 菜单容器 */
+    background: transparent;
+}
+
+body.dark-mode .menu-button {
+    /* 菜单按钮 */
+    color: var(--text-color);
+    background: var(--card-background);
+    border: 1px solid var(--input-border);
+    transition: all 0.3s ease;
+}
+
+body.dark-mode .menu-button:hover {
+    background: var(--input-background);
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .menu-content {
+    /* 菜单内容区域 */
+    background: var(--card-background);
+    border: 1px solid var(--input-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .menu-content button,
+body.dark-mode .menu-content a {
+    /* 菜单项 */
+    color: var(--text-color);
+    border-bottom: 1px solid var(--input-border);
+    transition: all 0.2s ease;
+}
+
+body.dark-mode .menu-content button:last-child,
+body.dark-mode .menu-content a:last-child {
+    border-bottom: none;
+}
+
+body.dark-mode .menu-content button:hover,
+body.dark-mode .menu-content a:hover {
+    /* 悬停效果 */
+    background: var(--input-background);
+    color: var(--primary-color);
+}
+
+body.dark-mode .dark-mode-icon {
+    /* 深色模式图标 */
+    opacity: 0.9;
+}
+
+/* 菜单动画效果 */
+body.dark-mode .menu.show .menu-content {
+    background: var(--card-background);
+    border-color: var(--primary-color);
+}
+
+/* 修改深色模式下的分隔线 */
+body.dark-mode .menu-content button:not(:last-child)::after,
+body.dark-mode .menu-content a:not(:last-child)::after {
+    background: var(--input-border);
+}
+
+/* 教程区域 */
+body.dark-mode .tutorial {
+    background: var(--card-background);
+}
+
+body.dark-mode .tutorial-content {
+    background: var(--card-background);
+}
+
+body.dark-mode .tutorial-section pre {
+    background: var(--input-background);
+}
+
+/* JSON输出区域 */
+body.dark-mode #jsonOutput {
+    background: var(--input-background);
+    color: var(--text-color);
+}
+
+/* 功能标签 */
+body.dark-mode .function-tag {
+    opacity: 0.9;
+}
+
+/* 模式选择器 */
+body.dark-mode .mode-btn {
+    background: var(--input-background);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+body.dark-mode .mode-btn.active {
+    border-color: var(--primary-color);
+    background: var(--input-background);
+}
+
+/* 预览区域 */
+body.dark-mode .preview-area {
+    background: var(--input-background);
+}
+
+body.dark-mode .preview-note {
+    color: #888;
+}
+
+/* 参数编辑区域 */
+body.dark-mode .param-row {
+    background: var(--input-background);
+}
+
+body.dark-mode .param-preview {
+    background: var(--card-background);
+}
+
+/* Beta提示样式 */
+body.dark-mode .beta-notice {
+    background: #2c2c2c;
+    color: #ddd;
+}
+
+body.dark-mode .beta-notice a {
+    color: #4a90e2;
+}
+
+/* 菜单按钮 */
+body.dark-mode .menu-button {
+    color: var(--text-color);
+}
+
+/* 深色模式下的滚动条样式 */
+body.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: var(--input-background);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 4px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}

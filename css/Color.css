@@ -1,0 +1,89 @@
+/* Minecraft 默认颜色 */
+#colorButtons button[onclick*="§0"] { background-color: #000000; color: white; } /* 黑色 */
+#colorButtons button[onclick*="§1"] { background-color: #0000AA; color: white; } /* 深蓝色 */
+#colorButtons button[onclick*="§2"] { background-color: #00AA00; color: white; } /* 深绿色 */
+#colorButtons button[onclick*="§3"] { background-color: #00AAAA; color: white; } /* 湖蓝色 */
+#colorButtons button[onclick*="§4"] { background-color: #AA0000; color: white; } /* 深红色 */
+#colorButtons button[onclick*="§5"] { background-color: #AA00AA; color: white; } /* 深紫色 */
+#colorButtons button[onclick*="§6"] { background-color: #FFAA00; color: white; } /* 金色 */
+#colorButtons button[onclick*="§7"] { background-color: #AAAAAA; color: white; } /* 灰色 */
+#colorButtons button[onclick*="§8"] { background-color: #555555; color: white; } /* 深灰色 */
+#colorButtons button[onclick*="§9"] { background-color: #5555FF; color: white; } /* 蓝色 */
+#colorButtons button[onclick*="§a"] { background-color: #55FF55; color: black; } /* 绿色 */
+#colorButtons button[onclick*="§b"] { background-color: #55FFFF; color: black; } /* 天蓝色 */
+#colorButtons button[onclick*="§c"] { background-color: #FF5555; color: white; } /* 红色 */
+#colorButtons button[onclick*="§d"] { background-color: #FF55FF; color: white; } /* 粉色 */
+#colorButtons button[onclick*="§e"] { background-color: #FFFF55; color: black; } /* 黄色 */
+#colorButtons button[onclick*="§f"] { background-color: #FFFFFF; color: black; border: 1px solid #ddd; } /* 白色 */
+
+/* 材质颜色 */
+#colorButtons button[onclick*="§g"] { background-color: #DDD605; color: black; } /* 金币 */
+#colorButtons button[onclick*="§h"] { background-color: #E3D4D1; color: black; } /* 石英 */
+#colorButtons button[onclick*="§i"] { background-color: #CECACA; color: black; } /* 铁 */
+#colorButtons button[onclick*="§j"] { background-color: #443A3B; color: white; } /* 下界砖 */
+#colorButtons button[onclick*="§m"] { background-color: #971607; color: white; } /* 红石 */
+#colorButtons button[onclick*="§n"] { background-color: #B4684D; color: white; } /* 铜 */
+#colorButtons button[onclick*="§p"] { background-color: #DEB12D; color: black; } /* 金 */
+#colorButtons button[onclick*="§q"] { background-color: #47A036; color: white; } /* 绿宝石 */
+#colorButtons button[onclick*="§s"] { background-color: #2CBAA8; color: white; } /* 钻石 */
+#colorButtons button[onclick*="§t"] { background-color: #21497B; color: white; } /* 青金石 */
+#colorButtons button[onclick*="§u"] { background-color: #9A5CC6; color: white; } /* 紫水晶 */
+#colorButtons button[onclick*="§v"] { background-color: #EB7114; color: white; } /* 树脂 */
+
+/* 格式化按钮 */
+#colorButtons button[onclick*="§k"] { background-color: #333333; color: white; } /* 随机 */
+#colorButtons button[onclick*="§l"] { background-color: #333333; color: white; font-weight: bold; } /* 粗体 */
+#colorButtons button[onclick*="§o"] { background-color: #333333; color: white; font-style: italic; } /* 斜体 */
+#colorButtons button[onclick*="§r"] { background-color: #666666; color: white; } /* 重置 */
+
+/* 颜色预览样式 */
+.color-0 { color: #000000; }
+.color-1 { color: #0000AA; }
+.color-2 { color: #00AA00; }
+.color-3 { color: #00AAAA; }
+.color-4 { color: #AA0000; }
+.color-5 { color: #AA00AA; }
+.color-6 { color: #FFAA00; }
+.color-7 { color: #AAAAAA; }
+.color-8 { color: #555555; }
+.color-9 { color: #5555FF; }
+.color-a { color: #55FF55; }
+.color-b { color: #55FFFF; }
+.color-c { color: #FF5555; }
+.color-d { color: #FF55FF; }
+.color-e { color: #FFFF55; }
+.color-f { color: #FFFFFF; }
+.color-g { color: #DDD605; }
+.color-h { color: #E3D4D1; }
+.color-i { color: #CECACA; }
+.color-j { color: #443A3B; }
+.color-m { color: #971607; }
+.color-n { color: #B4684D; }
+.color-p { color: #DEB12D; }
+.color-q { color: #47A036; }
+.color-s { color: #2CBAA8; }
+.color-t { color: #21497B; }
+.color-u { color: #9A5CC6; }
+.color-v { color: #EB7114; }
+
+/* 未选中的translate模式按钮样式 */
+.mode-btn {
+    opacity: 0.85; /* 提高透明度 */
+    filter: grayscale(20%); /* 降低灰度 */
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    opacity: 0.95;
+    filter: grayscale(10%);
+}
+
+.mode-btn.active {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
+/* 为不同类型的按钮设置更易读的颜色 */
+.mode-btn:first-child:not(.active) { color: #2d9a6f; }  /* 更深的绿色 */
+.mode-btn:nth-child(2):not(.active) { color: #d67d3e; } /* 更深的橙色 */
+.mode-btn:last-child:not(.active) { color: #8e44ad; }   /* 更深的紫色 */
