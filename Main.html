@@ -5,7 +5,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="css/Main.css">
-<link rel="stylesheet" href="css/Main2.css">
+<link rel="stylesheet" href="css/Color.css">
+<link rel="stylesheet" href="css/Dark.css"> <!-- 添加深色模式样式表 -->
 </head>
 <body>
 
@@ -16,7 +17,7 @@
 
 <!-- 提示 -->
 <div class="beta-notice">
-    <p>Build 10034-Test</p>
+    <p>Build 10087-Test</p>
     <p>这个版本有未更正的问题，如果发现请大家原谅，可以去 <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">GitHub</a> 提交问题。</p>
 </div>
 
@@ -75,9 +76,14 @@
 <h2>Raw JSON:</h2>
 <pre id="jsonOutput"></pre>
 
+<!-- 修改菜单结构 -->
 <div class="menu">
-    <button class="menu-button" onclick="toggleMenu()">⋮</button>
-    <div class="menu-content" id="menuContent">
+    <button class="menu-button" type="button" onclick="toggleMenu()">⋮</button>
+    <div class="menu-content">
+        <button onclick="toggleDarkMode()">
+            <span class="dark-mode-icon">🌓</span>
+            <span class="dark-mode-text">深色模式</span>
+        </button>
         <button onclick="openDecodeModal()">解析 JSON</button>
         <button onclick="openAboutModal()">关于</button>
         <button onclick="openChangelogModal()">更新日志</button>
@@ -85,12 +91,17 @@
     </div>
 </div>
 
+<!-- 调整解析JSON模态框 -->
 <div id="decodeModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeDecodeModal()">&times;</span>
-        <h3 id="modalTitle">解析 JSON(Preview)</h3>
-        <textarea id="jsonInput" placeholder="在此输入 JSON"></textarea>
-        <button onclick="decodeJson()">解析</button>
+        <h3 id="modalTitle">解析 JSON</h3>
+        <div class="beta-indicator"></div>
+        <p class="beta-tip">此功能正在测试中，如有问题请反馈</p>
+        <textarea id="jsonInput" placeholder="在此输入要解析的 JSON"></textarea>
+        <div class="decode-options">
+            <button onclick="decodeJson()">解析</button>
+        </div>
     </div>
 </div>
 
@@ -116,8 +127,7 @@
             <li>版本 0.1.3 - 修正部分设定</li>
             <li>版本 0.1.4 - 添加颜色，修复jsondecode，修复换行</li>
             <li>版本 0.1.5 - 添加教程，动画改进，预览改进，修复了json生成的小问题</li>
-            <li>版本 0.1.6 - 改进用户界面，改进translate</li>
-            
+            <li>版本 0.1.6 - 改进用户界面，改进translate，修复一堆问题</li>
         </ul>
             </div>
 </div>
@@ -224,6 +234,33 @@ function copyExampleJsonPlain(elementId) {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('generateJsonBtn').addEventListener('click', RichTextEditor.generateJson);
     bindInsertButtons();
+});
+
+// 从AppConfig更新版本号和状态
+document.addEventListener('DOMContentLoaded', function() {
+    const betaNotice = document.querySelector('.beta-notice p:first-child');
+    if (betaNotice && AppConfig) {
+        const { buildNumber, status } = AppConfig.betaFeatures.buildInfo;
+        betaNotice.textContent = `Build ${buildNumber}-${status}`;
+    }
+
+    // 控制Beta水印显示
+    const betaWatermark = document.querySelector('.beta-watermark');
+    if (betaWatermark && AppConfig) {
+        betaWatermark.style.display = AppConfig.betaFeatures.showBetaWatermark ? 'block' : 'none';
+    }
+
+    // 控制Beta提示显示
+    const betaNoticeElement = document.querySelector('.beta-notice');
+    if (betaNoticeElement && AppConfig) {
+        betaNoticeElement.style.display = AppConfig.betaFeatures.showTestNotice ? 'block' : 'none';
+    }
+});
+
+// 在DOMContentLoaded事件中初始化深色模式
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+    initDarkMode(); // 确保深色模式初始化
 });
 </script>
 

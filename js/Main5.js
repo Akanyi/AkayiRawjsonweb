@@ -49,54 +49,48 @@ function closeAboutModal() {
 function toggleMenu() {
     const menu = document.querySelector('.menu');
     const menuButton = menu.querySelector('.menu-button');
-    const menuItems = menu.querySelectorAll('.menu-content button, .menu-content a');
     
-    menu.classList.toggle('show');
+    if (!menu) return;
     
-    // 添加按钮旋转动画
-    if (menu.classList.contains('show')) {
-        menuButton.style.transform = 'rotate(180deg)';
-        // 重置所有菜单项的过渡延迟
-        menuItems.forEach((item, index) => {
-            item.style.transitionDelay = `${index * 0.05}s`;
+    // 检查当前状态
+    const isOpening = !menu.classList.contains('show');
+    
+    // 如果正在打开菜单
+    if (isOpening) {
+        menu.classList.add('show');
+        menuButton.style.transform = 'rotate(90deg)';
+        
+        // 添加点击外部关闭事件
+        const closeMenu = function(e) {
+            if (!menu.contains(e.target) && e.target !== menuButton) {
+                menu.classList.remove('show');
+                menuButton.style.transform = 'rotate(0deg)';
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        
+        // 延迟添加事件监听器，避免立即触发
+        requestAnimationFrame(() => {
+            document.addEventListener('click', closeMenu);
         });
     } else {
+        // 如果正在关闭菜单
+        menu.classList.remove('show');
         menuButton.style.transform = 'rotate(0deg)';
-        // 关闭时移除延迟
-        menuItems.forEach(item => {
-            item.style.transitionDelay = '0s';
-        });
     }
 }
 
-// 添加自动收起菜单功能
+// 移除原有的DOMContentLoaded事件监听器
 document.addEventListener('DOMContentLoaded', () => {
     const menu = document.querySelector('.menu');
-    const menuButton = menu.querySelector('.menu-button');
-
-    // 处理点击事件
-    document.addEventListener('click', (event) => {
-        // 如果菜单是展开的，并且点击的不是菜单内的元素
-        if (menu.classList.contains('show') && 
-            !menu.contains(event.target) && 
-            event.target !== menuButton) {
-            // 收起菜单
-            menu.classList.remove('show');
-            menuButton.style.transform = 'rotate(0deg)';
-            // 重置所有菜单项的过渡延迟
-            const menuItems = menu.querySelectorAll('.menu-content button, .menu-content a');
-            menuItems.forEach(item => {
-                item.style.transitionDelay = '0s';
-            });
-        }
-    });
+    if (!menu) return;
 
     // 阻止菜单内的点击事件冒泡
     menu.addEventListener('click', (event) => {
-        if (event.target !== menuButton) {
-            event.stopPropagation();
-        }
+        event.stopPropagation();
     });
+
+    initDarkMode();
 });
 
 function editFunction(element) {
