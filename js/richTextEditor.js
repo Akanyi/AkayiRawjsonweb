@@ -1,6 +1,166 @@
-const RichTextEditor = (() => {
+window.RichTextEditor = (() => {
     let currentText = "";
     let rawText = [];
+    
+    function getEditor() {
+        return document.getElementById("richTextEditor");
+    }
+    editor = getEditor();
+    // 修改事件处理逻辑
+    document.addEventListener('DOMContentLoaded', function() {
+        const editor = getEditor();
+        if (!editor) return;
+        
+        bindEditorEvents(editor);
+    });
+
+    // 移除独立的事件监听器
+    // 删除这段代码:
+    // editor.addEventListener('input', function(e) {...});
+
+    // 修改成在bindEditorEvents中统一处理所有事件
+    function bindEditorEvents(editor) {
+        if (!editor) return;
+
+        // 基础事件
+        editor.addEventListener('input', handleInput);
+        editor.addEventListener('blur', handleBlur);
+        editor.addEventListener('keydown', handleKeyDown);
+        editor.addEventListener('paste', handlePaste);
+        editor.addEventListener('drop', handleDrop);
+        editor.addEventListener('beforeinput', handleBeforeInput);
+
+        // 添加额外的输入处理事件
+        editor.addEventListener('input', function(e) {
+            // 首先检查编辑器是否为空
+            if (editor.innerHTML.trim() === '') {
+                editor.innerHTML = '';
+                editor.removeAttribute('style');
+                return;
+            }
+
+            // 延迟执行以确保内容已更新
+            requestAnimationFrame(() => {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                
+                const range = selection.getRangeAt(0);
+                const node = range.startContainer;
+
+                // 如果是文本节点且不在功能标签内
+                if (node.nodeType === Node.TEXT_NODE && 
+                    !node.parentElement.classList.contains('function-tag')) {
+                    
+                    // 获取当前节点的父元素
+                    let parent = node.parentElement;
+                    
+                    // 如果父元素不是编辑器本身，说明文本可能带有样式
+                    if (parent && parent !== editor) {
+                        // 保存当前光标位置
+                        const offset = range.startOffset;
+                        
+                        // 创建新的文本节点，保持原始内容
+                        const newText = document.createTextNode(node.textContent);
+                        
+                        // 替换带样式的节点
+                        parent.parentNode.replaceChild(newText, parent);
+                        
+                        // 恢复光标位置
+                        const newRange = document.createRange();
+                        newRange.setStart(newText, offset);
+                        newRange.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(newRange);
+                    }
+                }
+
+                // 清理空节点和多余属性
+                cleanupEditor(editor);
+            });
+        });
+    }
+
+    function handleInput(e) {
+        const editor = getEditor();
+        if (editor.innerHTML.trim() === '') {
+            resetEditor();
+        } else {
+            cleanupContent();
+        }
+    }
+
+    function handleBlur(e) {
+        const editor = getEditor();
+        if (editor.innerHTML.trim() === '') {
+            editor.innerHTML = '';
+        }
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+            handleDelete(e);
+        }
+    }
+
+    function handlePaste(e) {
+        e.preventDefault();
+        const text = e.clipboardData.getData('text/plain');
+        document.execCommand('insertText', false, text);
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+    }
+
+    function handleBeforeInput(e) {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        if (isWithinFunctionTag(range)) {
+            handleFunctionTagInput(e, range);
+        }
+    }
+
+    function resetEditor() {
+        const editor = getEditor();
+        editor.innerHTML = '';
+        editor.removeAttribute('style');
+    }
+
+    function cleanupContent() {
+        requestAnimationFrame(() => {
+            removeInheritedStyles();
+            cleanupEditor(getEditor());
+        });
+    }
+
+    function isWithinFunctionTag(range) {
+        const container = document.createElement('div');
+        container.appendChild(range.cloneContents());
+        return container.querySelector('.function-tag') !== null;
+    }
+
+    function handleFunctionTagInput(e, range) {
+        e.preventDefault();
+        const text = e.data || '';
+        if (text) {
+            insertPlainText(text, range);
+        }
+    }
+
+    function insertPlainText(text, range) {
+        const textNode = document.createTextNode(text);
+        range.deleteContents();
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        range.collapse(false);
+        
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
 
     function processTextContent(text) {
         if (!text) return;
@@ -30,37 +190,70 @@ const RichTextEditor = (() => {
         if (node.nodeType === Node.TEXT_NODE) {
             processTextContent(node.textContent);
         } else if (node.classList && node.classList.contains('function-tag')) {
-            // 处理功能标签
             const type = node.getAttribute('data-type');
-            switch(type) {
-                case 'score':
-                    rawText.push({
-                        score: {
-                            name: node.getAttribute('data-name') || '@p',
-                            objective: node.getAttribute('data-objective') || 'score'
-                        }
-                    });
-                    break;
-                case 'selector':
-                    rawText.push({
-                        selector: node.getAttribute('data-selector') || '@p'
-                    });
-                    break;
-                case 'translate':
-                    try {
+            try {
+                switch(type) {
+                    case 'score':
+                        rawText.push({
+                            score: {
+                                name: node.getAttribute('data-name') || '@p',
+                                objective: node.getAttribute('data-objective') || 'score'
+                            }
+                        });
+                        break;
+                    case 'selector':
+                        rawText.push({
+                            selector: node.getAttribute('data-selector') || '@p'
+                        });
+                        break;
+                    case 'translate':
                         const translateData = {
                             translate: node.getAttribute('data-translate') || '',
                             mode: node.getAttribute('data-translate-mode') || 'simple',
-                            rawtextMode: node.getAttribute('data-rawtext-mode') || 'advanced',
-                            withValue: node.getAttribute('data-with')
+                            rawtextMode: node.getAttribute('data-rawtext-mode') || 'simple',
+                            withValue: node.getAttribute('data-with') || ''
                         };
-                        // 使用全局对象
-                        rawText.push(TranslateUtils.processTranslateData(translateData));
-                    } catch (e) {
-                        console.error('处理翻译数据失败:', e);
-                        rawText.push({ text: '[翻译处理错误]' });
-                    }
-                    break;
+
+                        // 根据模式直接处理参数
+                        if (translateData.mode === 'rawtext' && translateData.rawtextMode === 'visual') {
+                            // 直接处理可视化模式的参数，不需要JSON解析
+                            const withParams = translateData.withValue.split(',')
+                                .filter(Boolean)
+                                .map(param => {
+                                    param = param.trim();
+                                    if (param.startsWith('计分板:')) {
+                                        const [name, objective] = param.substring(4).split('|');
+                                        return {
+                                            score: {
+                                                name: name.trim() || '@p',
+                                                objective: objective.trim() || 'score'
+                                            }
+                                        };
+                                    } else if (param.startsWith('选择器:')) {
+                                        return { selector: param.substring(4).trim() || '@p' };
+                                    } else if (param.startsWith('文本:')) {
+                                        return { text: param.substring(3).trim() };
+                                    }
+                                    return { text: param };
+                                });
+
+                            rawText.push({
+                                translate: translateData.translate,
+                                with: withParams
+                            });
+                        } else {
+                            // 使用现有的处理函数处理其他模式
+                            const translatedData = TranslateUtils.processTranslateData({
+                                ...translateData,
+                                withValue: translateData.withValue || '[]'
+                            });
+                            rawText.push(translatedData);
+                        }
+                        break;
+                }
+            } catch (error) {
+                console.error(`处理${type}标签时出错:`, error);
+                rawText.push({ text: `[${type}处理错误]` });
             }
         } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
             rawText.push({ "text": "\n" });
@@ -71,45 +264,29 @@ const RichTextEditor = (() => {
 
     function generateJson() {
         try {
-            const editor = document.getElementById("richTextEditor");
-            rawText = [];
-            currentText = "";
+            const editor = getEditor();
+            if (!editor) throw new Error('找不到编辑器元素');
 
-            // 处理编辑器内容
-            processNodes(editor);
-
-            // 移除末尾的空换行
-            while (rawText.length > 0 && 
-                   rawText[rawText.length - 1].text === "\n" && 
-                   rawText[rawText.length - 2]?.text === "\n") {
-                rawText.pop();
-            }
-
-            // 处理最后的文本
-            if (currentText) {
-                rawText.push({ "text": currentText });
-            }
-
-            // 确保内容不为空
-            if (rawText.length === 0) {
-                throw new Error('没有可用的文本内容');
-            }
-
-            const jsonOutput = { "rawtext": rawText };
+            // 使用JsonBuilder构建JSON
+            const jsonData = JsonBuilder.build(editor);
+            
+            // 更新输出
             const outputElement = document.getElementById("jsonOutput");
             outputElement.innerHTML = `
                 <div class="copy-buttons">
                     <button class="copy-button" onclick="copyJson()">复制</button>
                     <button class="copy-plain-button" onclick="copyPlainJson()">复制纯文本</button>
                 </div>
-                <pre>${JSON.stringify(jsonOutput, null, 2)}</pre>
+                <pre>${JSON.stringify(jsonData, null, 2)}</pre>
             `;
 
             outputElement.classList.add('expanded');
-            updatePreview(rawText);
+            
+            // 更新预览
+            updatePreview(jsonData.rawtext);
             
         } catch (error) {
-            console.error('JSON生成错误:', error);
+            console.error('生成JSON失败:', error);
             document.getElementById("jsonOutput").innerHTML = `
                 <div class="error">错误：${error.message}</div>
             `;
@@ -179,7 +356,7 @@ const RichTextEditor = (() => {
                 if (item.with) {
                     // 支持数组和对象两种格式
                     const params = Array.isArray(item.with) ? item.with : 
-                                 (item.with.parameters || []);
+                                (item.with.parameters || []);
                     
                     if (Array.isArray(params)) {
                         // 改进占位符处理逻辑
@@ -226,7 +403,11 @@ const RichTextEditor = (() => {
     }
 
     function insertFeature(type) {
-        const editor = document.getElementById("richTextEditor");
+        const editor = getEditor();
+        if (!editor) {
+            console.error('找不到编辑器元素');
+            return;
+        }
         const selection = window.getSelection();
         const range = selection.getRangeAt(0);
         
@@ -304,17 +485,61 @@ const RichTextEditor = (() => {
                 break;
             case 'translate':
                 const translate = element.getAttribute('data-translate') || '';
-                const withParams = element.getAttribute('data-with') || '';
+                const withValue = element.getAttribute('data-with') || '';
+                const mode = element.getAttribute('data-translate-mode') || 'simple';
+                
                 previewText = translate;
-                if (withParams) {
+                
+                if (withValue && translate) {
                     try {
-                        if (element.getAttribute('data-translate-mode') === 'simple') {
-                            const params = withParams.split(',').map(p => p.trim());
-                            previewText = translate.replace(/%%s/g, () => params.shift() || '?');
+                        if (mode === 'simple') {
+                            // 简单模式处理
+                            const params = withValue.split(',').map(p => p.trim());
+                            previewText = translate.replace(/%%([0-9sdf])/g, (match, p1) => {
+                                let index;
+                                if (p1 === 's' || p1 === 'd' || p1 === 'f') {
+                                    index = 0; // %%s, %%d, %%f 使用第一个参数
+                                } else {
+                                    index = parseInt(p1) - 1; // %%1, %%2 等使用对应索引
+                                }
+                                
+                                if (index < 0 || index >= params.length) {
+                                    return '?';
+                                }
+                                
+                                const param = params[index];
+                                if (param.startsWith('计分板:')) {
+                                    const [name, obj] = param.substring(4).split('|');
+                                    return `[${name.trim()}的${obj.trim()}]`;
+                                }
+                                if (param.startsWith('选择器:')) {
+                                    return `[${param.substring(4).trim()}]`;
+                                }
+                                if (param.startsWith('文本:')) {
+                                    return param.substring(3).trim();
+                                }
+                                return param;
+                            });
+                        } else {
+                            // rawtext模式处理
+                            const data = JSON.parse(withValue);
+                            if (data && data.rawtext) {
+                                previewText = data.rawtext.map(item => {
+                                    if (item.text) return item.text;
+                                    if (item.score) return `[${item.score.name}的${item.score.objective}]`;
+                                    if (item.selector) return `[${item.selector}]`;
+                                    return '';
+                                }).join('');
+                            }
                         }
                     } catch (e) {
-                        previewText = '[翻译错误]';
+                        console.error('翻译预览处理错误:', e);
+                        previewText = '[预览错误]';
                     }
+                }
+                
+                if (!previewText) {
+                    previewText = '[空翻译]';
                 }
                 break;
         }
@@ -331,7 +556,7 @@ const RichTextEditor = (() => {
 
     // 添加新的标签清理方法
     function cleanupTags() {
-        const editor = document.getElementById("richTextEditor");
+        const editor = getEditor();
         const tags = editor.getElementsByClassName('function-tag');
         
         // 转换为数组以避免实时集合的问题
@@ -351,7 +576,7 @@ const RichTextEditor = (() => {
 
     // 修改编辑器的input事件处理
     document.addEventListener('DOMContentLoaded', function() {
-        const editor = document.getElementById("richTextEditor");
+        const editor = getEditor();
         
         // 修改input事件监听
         editor.addEventListener('input', function(e) {
@@ -489,19 +714,6 @@ const RichTextEditor = (() => {
                 if (!selection.rangeCount) return;
                 
                 const range = selection.getRangeAt(0);
-                const container = document.createElement('div');
-                container.appendChild(range.cloneContents());
-                
-                // 查找要删除的功能标签
-                const tag = range.startContainer.parentNode.closest('.function-tag') || 
-                           (range.startContainer.previousElementSibling && 
-                            range.startContainer.previousElementSibling.classList.contains('function-tag') ? 
-                            range.startContainer.previousElementSibling : null);
-
-                if (tag) {
-                    e.preventDefault();
-                    
-                    // 创建新的文本节点作为光标占位符
                     const cursor = document.createTextNode('\u200B');
                     
                     // 插入光标占位符并删除标签
@@ -543,7 +755,7 @@ const RichTextEditor = (() => {
                     });
                 }
             }
-        });
+        );
 
         // 添加新的编辑器清理函数
         function cleanupEditor(editor) {
@@ -668,6 +880,7 @@ const RichTextEditor = (() => {
         });
     });
 
+
     // 添加输入事件监听器
     editor.addEventListener('input', function(e) {
         // 首先检查编辑器是否为空
@@ -779,6 +992,12 @@ const RichTextEditor = (() => {
 
     return {
         generateJson,
-        updatePreview
+        updatePreview,
+        insertFeature(type) {
+            const editor = getEditor();
+            if (editor) {
+                insertFeature(type);
+            }
+        }
     };
 })();
