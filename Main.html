@@ -11,15 +11,9 @@
 <body>
 
 <!-- beta水印 -->
-<div class="beta-watermark">BETA</div>
+<div class="beta-watermark">BETA 10135-Test</div>
 
 <h2>Minecraft基岩版 文本转JSON工具 </h2>
-
-<!-- 提示 -->
-<div class="beta-notice">
-    <p>Build 10087-Test</p>
-    <p>这个版本有未更正的问题，如果发现请大家原谅，可以去 <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank">GitHub</a> 提交问题。</p>
-</div>
 
 <div id="inputArea">
     <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本。使用下方按钮插入格式代码或功能。"></div>
@@ -70,7 +64,7 @@
         <button onclick="insertCode('§v')">§v 材料：树脂（1.22）</button>
     </div>
 
-    <button id="generateJsonBtn" onclick="RichTextEditor.generateJson()">生成 JSON</button>
+    <button id="generateJsonBtn">生成 JSON</button>
 </div>
 
 <h2>Raw JSON:</h2>
@@ -258,67 +252,17 @@
     </div>
 </div>
 
+<!-- 修改脚本加载顺序,确保核心功能优先加载 -->
+<script src="js/translate-utils.js"></script>
+<script src="js/translate-mode.js"></script>
+<script src="js/buildJson.js"></script>
+<script src="js/richTextEditor.js"></script>
+<script src="js/Main5.js"></script>
 <script src="js/Main.js"></script>
 <script src="js/Main2.js"></script>
 <script src="js/Main3.js"></script>
 <script src="js/Main4.js"></script>
-<script src="js/Main5.js"></script>
-<script src="js/richTextEditor.js"></script>
 <script src="js/Decodejson.js"></script>
-<script src="js/translate-utils.js"></script>
-<script src="js/translate-mode.js"></script>
-
-<script>
-function copyExampleJson(elementId) {
-    const jsonText = document.getElementById(elementId).textContent;
-    navigator.clipboard.writeText(jsonText).then(() => {
-        alert('JSON 已复制到剪贴板');
-    });
-}
-
-function copyExampleJsonPlain(elementId) {
-    const jsonText = document.getElementById(elementId).textContent;
-    const plainText = JSON.stringify(JSON.parse(jsonText));
-    navigator.clipboard.writeText(plainText).then(() => {
-        alert('纯文本 JSON 已复制到剪贴板');
-    });
-}
-
-// 使用事件监听器绑定生成按钮
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('generateJsonBtn').addEventListener('click', RichTextEditor.generateJson);
-    bindInsertButtons();
-});
-
-// 从AppConfig更新版本号和状态
-document.addEventListener('DOMContentLoaded', function() {
-    const betaNotice = document.querySelector('.beta-notice p:first-child');
-    if (betaNotice && AppConfig) {
-        const { buildNumber, status } = AppConfig.betaFeatures.buildInfo;
-        betaNotice.textContent = `Build ${buildNumber}-${status}`;
-    }
-
-    // 控制Beta水印显示
-    const betaWatermark = document.querySelector('.beta-watermark');
-    if (betaWatermark && AppConfig) {
-        betaWatermark.style.display = AppConfig.betaFeatures.showBetaWatermark ? 'block' : 'none';
-    }
-
-    // 控制Beta提示显示
-    const betaNoticeElement = document.querySelector('.beta-notice');
-    if (betaNoticeElement && AppConfig) {
-        betaNoticeElement.style.display = AppConfig.betaFeatures.showTestNotice ? 'block' : 'none';
-    }
-});
-
-// 在DOMContentLoaded事件中初始化深色模式
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-    initDarkMode(); // 确保深色模式初始化
-});
-</script>
-
-<!--服了，PowerJsDebuger免费版最多300行，拆开js好烦！-->
 
 </body>
 </html>

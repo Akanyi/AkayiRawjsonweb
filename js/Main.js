@@ -107,7 +107,6 @@ function toggleTutorial(button) {
 const AppConfig = {
     betaFeatures: {
         showBetaWatermark: false,     // 控制BETA水印显示
-        showTestNotice: false,        // 控制测试提示显示
         noticeVersion: '10135-Test', // 测试版本号
         decodeBeta: true,           // JSON解析功能的beta标记
         buildInfo: {
@@ -118,33 +117,26 @@ const AppConfig = {
     }
 };
 
-// 修改初始化函数以支持更多功能
-function initializeApp() {
-    // 处理BETA水印
+// 替换为直接的功能检查
+function checkBetaFeatures() {
     const betaWatermark = document.querySelector('.beta-watermark');
+    const betaNotice = document.querySelector('.beta-notice');
+    
     if (betaWatermark) {
         betaWatermark.style.display = AppConfig.betaFeatures.showBetaWatermark ? 'block' : 'none';
     }
-
-    // 处理测试提示
-    const betaNotice = document.querySelector('.beta-notice');
-    if (betaNotice) {
-        if (AppConfig.betaFeatures.showTestNotice) {
-            betaNotice.style.display = 'block';
-            const versionElement = betaNotice.querySelector('p:first-child');
-            if (versionElement) {
-                versionElement.textContent = `Build ${AppConfig.betaFeatures.buildInfo.buildNumber}-${AppConfig.betaFeatures.buildInfo.status}`;
-            }
-        } else {
-            betaNotice.style.display = 'none';
+    
+    if (betaNotice && AppConfig.betaFeatures.showTestNotice) {
+        betaNotice.style.display = 'block';
+        const versionElement = betaNotice.querySelector('p:first-child');
+        if (versionElement) {
+            versionElement.textContent = `Build ${AppConfig.betaFeatures.buildInfo.buildNumber}-${AppConfig.betaFeatures.buildInfo.status}`;
         }
     }
 }
 
-// 在DOM加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
+// 自动进行功能检查
+checkBetaFeatures();
 
 // 添加切换功能的方法
 function toggleBetaFeatures(feature) {
