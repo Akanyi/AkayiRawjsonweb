@@ -19,16 +19,6 @@
 5. 使用“复制”按钮复制 JSON。
 6. 使用“解析 JSON”解析你的 JSON。
 
-### 文件结构
-
-- `Main.html`：主页面
-- `Main.css`：主样式文件
-- `Main.js`：主脚本文件
-- `Main2.js`：功能编辑脚本
-- `Main3.js`：JSON 生成脚本
-- `Main4.js`：插入功能脚本
-- `Main5.js`：模态框脚本
-- `Decodejson.js`：JSON 解析脚本
 
 ### 贡献
 

@@ -1,13 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=Main.html">
-    <title>重定向中...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft 基岩版文本转 JSON</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 功能标签样式 */
+        .function-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 2px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 14px;
+            color: white;
+            border: 1px solid rgba(0,0,0,0.1);
+            vertical-align: middle;
+        }
+        .function-tag[data-type="score"] { background-color: #e53e3e; }
+        .function-tag[data-type="selector"] { background-color: #38a169; }
+        .function-tag[data-type="translate"] { background-color: #d69e2e; }
+        .function-tag[data-type="conditional"] { background-color: #805ad5; }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .dark ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #555; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        /* 动画 */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+    </style>
 </head>
-<body>
-    <h2>重定向中...</h2>
-    正在重定向到 <a href="Main.html">Main.html</a>，
-    如果没有自动跳转，请 <a href="Main.html">点击这里</a>。
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Minecraft 基岩版文本转 JSON</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">一个现代、高效的 RawJSON 编辑器</p>
+        </header>
+
+        <div class="fixed top-4 right-4 z-50">
+            <div id="menu" class="relative">
+                <button id="menu-button" class="bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div id="menu-content" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-xl hidden">
+                    <a href="#" id="toggle-dark-mode" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">切换主题</a>
+                    <a href="#" id="decode-json-btn" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">解析 JSON</a>
+                    <a href="#" id="about-btn" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">关于</a>
+                    <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">GitHub</a>
+                </div>
+            </div>
+        </div>
+
+        <main class="space-y-6">
+            <!-- 编辑器区域 -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本..." class="w-full min-h-[150px] p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 whitespace-pre-wrap"></div>
+                
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <button onclick="App.RichTextEditor.insertFeature('score')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">计分板</button>
+                    <button onclick="App.RichTextEditor.insertFeature('selector')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">选择器</button>
+                    <button onclick="App.RichTextEditor.insertFeature('translate')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">翻译</button>
+                    <button onclick="App.RichTextEditor.insertFeature('conditional')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">条件</button>
+                </div>
+            </div>
+
+            <!-- 颜色和格式 -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">颜色 & 格式</h3>
+                <div id="colorButtons" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2"></div>
+            </div>
+
+            <!-- 预览区域 -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">实时预览</h3>
+                <div id="preview" class="p-3 rounded-md bg-gray-900 text-white min-h-[50px] font-mono whitespace-pre-wrap break-words"></div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">注意：此预览仅供参考，实际游戏内效果可能略有不同。</p>
+            </div>
+            
+            <!-- JSON 输出 -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                 <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">生成的 JSON</h3>
+                    <button id="copy-json-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm">复制</button>
+                </div>
+                <pre id="jsonOutput" class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 p-3 rounded-md text-sm overflow-x-auto min-h-[100px]"></pre>
+            </div>
+        </main>
+    </div>
+
+    <!-- 模态框容器 -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <!-- 模态框内容将动态注入此处 -->
+    </div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
