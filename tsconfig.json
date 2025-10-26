@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./script",
+    "rootDir": "./script",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "script/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
