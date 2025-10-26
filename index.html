@@ -70,10 +70,10 @@
                 <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本..." class="w-full min-h-[150px] p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 whitespace-pre-wrap"></div>
                 
                 <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-2">
-                    <button onclick="App.RichTextEditor.insertFeature('score')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">计分板</button>
-                    <button onclick="App.RichTextEditor.insertFeature('selector')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">选择器</button>
-                    <button onclick="App.RichTextEditor.insertFeature('translate')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">翻译</button>
-                    <button onclick="App.RichTextEditor.insertFeature('conditional')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">条件</button>
+                    <button onclick="window.App.RichTextEditor.insertFeature('score')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">计分板</button>
+                    <button onclick="window.App.RichTextEditor.insertFeature('selector')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">选择器</button>
+                    <button onclick="window.App.RichTextEditor.insertFeature('translate')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">翻译</button>
+                    <button onclick="window.App.RichTextEditor.insertFeature('conditional')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition-transform transform hover:scale-105">条件</button>
                 </div>
             </div>
 
@@ -94,20 +94,26 @@
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
                  <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">生成的 JSON</h3>
-                    <button id="copy-json-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm">复制</button>
+                    <button id="copy-json-btn" onclick="window.App.UI.copyJson()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm">复制</button>
                 </div>
                 <pre id="jsonOutput" class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 p-3 rounded-md text-sm overflow-x-auto min-h-[100px]"></pre>
             </div>
         </main>
     </div>
 
-    <!-- 模态框容器 -->
+    <!-- 主模态框容器 -->
     <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
     <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <!-- 模态框内容将动态注入此处 -->
+        <!-- 主模态框内容将动态注入此处 -->
     </div>
 
-<script src="script.js"></script>
+    <!-- 子模态框容器 (用于嵌套模态框，如帮助文档) -->
+    <div id="sub-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-25 z-50 hidden"></div>
+    <div id="sub-modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <!-- 子模态框内容将动态注入此处 -->
+    </div>
+
+<script type="module" src="script/main.js"></script>
 
 </body>
 </html>
