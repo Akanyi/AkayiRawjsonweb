@@ -1,7 +1,47 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft 基岩版文本转 JSON</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 功能标签样式 */
+        .function-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 2px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 14px;
+            color: white;
+            border: 1px solid rgba(0,0,0,0.1);
+            vertical-align: middle;
+        }
+        .function-tag[data-type="score"] { background-color: #e53e3e; }
+        .function-tag[data-type="selector"] { background-color: #38a169; }
+        .function-tag[data-type="translate"] { background-color: #d69e2e; }
+        .function-tag[data-type="conditional"] { background-color: #805ad5; }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .dark ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #555; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        /* 动画 */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft 基岩版文本转 JSON</title>
     <script src="https://cdn.tailwindcss.com"></script>
