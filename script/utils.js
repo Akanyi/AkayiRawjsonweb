@@ -124,7 +124,7 @@ export const FAMILY_TYPES = [
     { name: 'zombie_villager', translation: '僵尸村民' },
 ];
 export let ITEMS = {};
-export let SLOTS = {}; // 新增 SLOTS 变量
+export let SLOTS = {};
 export async function loadItems() {
     try {
         const response = await fetch('static/data/items.json');
@@ -151,7 +151,7 @@ export async function loadSlots() {
         console.error('Failed to load slots:', error);
     }
 }
-// 新增 ModalManager 类
+// ModalManager 类
 export class ModalManager {
     constructor() {
         this.modalStack = [];

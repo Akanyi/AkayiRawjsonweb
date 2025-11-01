@@ -8,7 +8,7 @@
     <style>
         /* 功能标签样式 */
         .function-tag {
-            display: inline-flex;
+            display: inline-block; /* 改为 inline-block 以支持 max-width */
             align-items: center;
             gap: 4px;
             padding: 2px 8px;
@@ -20,6 +20,10 @@
             color: white;
             border: 1px solid rgba(0,0,0,0.1);
             vertical-align: middle;
+            max-width: 17.5%; /* 设置最大宽度 */
+            overflow: hidden; /* 隐藏超出部分 */
+            text-overflow: ellipsis; /* 显示省略号 */
+            white-space: nowrap; /* 不换行 */
         }
         .function-tag[data-type="score"] { background-color: #e53e3e; }
         .function-tag[data-type="selector"] { background-color: #38a169; }

@@ -177,9 +177,6 @@ export class RichTextEditor {
         window.App.UI.hideCurrentModal(); // 使用新的隐藏方法
     }
     applySelectorEdit() {
-        const tag = this.appState.currentEditingTag;
-        if (!tag)
-            return;
         const advancedForm = document.getElementById('selector-advanced-form');
         const manualForm = document.getElementById('selector-manual-form');
         let selector = '';
@@ -288,8 +285,18 @@ export class RichTextEditor {
                 selector += `[${params.join(',')}]`;
             }
         }
-        tag.dataset.selector = selector;
-        this.updateTagContent(tag);
+        // 根据 currentSelectorTargetInputId 更新对应的输入框
+        if (this.ui.isSelectorTargetSet()) { // 使用公共方法判断
+            this.ui.fillSelectorInput(selector); // 调用 UI 的公共方法
+        }
+        else {
+            // 否则，保持原有逻辑，更新 tag.dataset.selector
+            const tag = this.appState.currentEditingTag;
+            if (!tag)
+                return; // 确保 tag 存在
+            tag.dataset.selector = selector;
+            this.updateTagContent(tag);
+        }
         this.jsonConverter.generateJson();
         window.App.UI.hideCurrentModal();
     }
