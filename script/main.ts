@@ -1,5 +1,5 @@
 // script/main.ts
-import { AppState, loadItems, ITEMS, ItemData, ModalManager } from './utils.js';
+import { AppState, loadItems, ITEMS, ItemData, loadSlots, SLOTS, SlotData, ModalManager } from './utils.js';
 import { UI } from './ui.js';
 import { RichTextEditor } from './editor.js';
 import { JsonConverter } from './converter.js';
@@ -26,6 +26,7 @@ declare global {
             RichTextEditor: RichTextEditor;
             JsonLogic: JsonConverter; // 保持原有的命名以兼容 HTML
             ITEMS: ItemData; // 添加 ITEMS
+            SLOTS: SlotData; // 添加 SLOTS
         };
     }
 }
@@ -34,12 +35,16 @@ window.App = {
     UI: ui,
     RichTextEditor: richTextEditor,
     JsonLogic: jsonConverter,
-    ITEMS: ITEMS, // 暴露 ITEMS
+    ITEMS: ITEMS, // 暴露 ITEMS (初始为空，将在加载后更新)
+    SLOTS: SLOTS, // 暴露 SLOTS (初始为空，将在加载后更新)
 };
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', async () => {
     await loadItems(); // 确保物品数据在初始化UI前加载
+    await loadSlots(); // 确保槽位数据在初始化UI前加载
+    window.App.ITEMS = ITEMS; // 在物品数据加载完成后，更新全局的 ITEMS 对象
+    window.App.SLOTS = SLOTS; // 在槽位数据加载完成后，更新全局的 SLOTS 对象
     ui.initTheme();
     ui.initMenu();
     ui.initModals();

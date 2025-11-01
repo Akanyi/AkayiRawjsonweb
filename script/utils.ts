@@ -20,6 +20,10 @@ export interface ItemData {
     [key: string]: string;
 }
 
+export interface SlotData {
+    [key: string]: string;
+}
+
 // 定义 RawTextComponent 接口
 export interface RawTextComponent {
     text?: string;
@@ -171,6 +175,7 @@ export const FAMILY_TYPES = [
 ];
 
 export let ITEMS: ItemData = {};
+export let SLOTS: SlotData = {}; // 新增 SLOTS 变量
 
 export async function loadItems(): Promise<void> {
     try {
@@ -182,6 +187,19 @@ export async function loadItems(): Promise<void> {
         console.log('Items loaded successfully:', Object.keys(ITEMS).length);
     } catch (error) {
         console.error('Failed to load items:', error);
+    }
+}
+
+export async function loadSlots(): Promise<void> { // 新增 loadSlots 函数
+    try {
+        const response = await fetch('static/data/slots.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        SLOTS = await response.json();
+        console.log('Slots loaded successfully:', Object.keys(SLOTS).length);
+    } catch (error) {
+        console.error('Failed to load slots:', error);
     }
 }
 

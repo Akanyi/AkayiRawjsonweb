@@ -68,6 +68,16 @@ export class RichTextEditor {
         selection.addRange(range);
         this.jsonConverter.generateJson();
     }
+    // 新增一个辅助函数来格式化hasitem条件对象
+    formatHasitemCondition(condition) {
+        const parts = [];
+        for (const key in condition) {
+            if (Object.prototype.hasOwnProperty.call(condition, key)) {
+                parts.push(`${key}=${condition[key]}`);
+            }
+        }
+        return `{${parts.join(',')}}`;
+    }
     updateTagContent(tag) {
         let text = `[${tag.dataset.type}]`;
         switch (tag.dataset.type) {
@@ -77,16 +87,39 @@ export class RichTextEditor {
             case 'selector':
                 let selectorText = tag.dataset.selector || '@p';
                 // 检查并解析hasitem参数，以便在显示时进行美化
-                const hasitemMatch = selectorText.match(/hasitem=({.*?}|\[.*?\])/);
+                const hasitemMatch = selectorText.match(/hasitem=({[^}]*}|\[.*?\])/); // 匹配 hasitem={...} 或 hasitem=[...]
                 if (hasitemMatch) {
                     try {
-                        const hasitemValue = JSON.parse(hasitemMatch[1]);
+                        const hasitemString = hasitemMatch[1];
                         let displayValue = '';
-                        if (Array.isArray(hasitemValue)) {
-                            displayValue = `[${hasitemValue.map(item => `{item=${item.item || '?'}}`).join(',')}]`;
+                        const parseKeyValueString = (str) => {
+                            const obj = {};
+                            str.split(',').forEach(part => {
+                                const [key, value] = part.split('=');
+                                if (key && value) {
+                                    obj[key.trim()] = value.trim();
+                                }
+                            });
+                            return obj;
+                        };
+                        if (hasitemString.startsWith('[') && hasitemString.endsWith(']')) {
+                            // 处理数组形式：[{k=v,...},{k=v,...}]
+                            const innerContent = hasitemString.substring(1, hasitemString.length - 1);
+                            const parsedArray = innerContent.split('},{').map(itemStr => {
+                                const cleanedItemStr = itemStr.replace(/^{|}$/g, ''); // 移除可能存在的花括号
+                                return parseKeyValueString(cleanedItemStr);
+                            });
+                            displayValue = `[${parsedArray.map(item => this.formatHasitemCondition(item)).join(',')}]`;
                         }
-                        else if (typeof hasitemValue === 'object') {
-                            displayValue = `{item=${hasitemValue.item || '?'}}`;
+                        else if (hasitemString.startsWith('{') && hasitemString.endsWith('}')) {
+                            // 处理单个对象形式：{k=v,...}
+                            const innerContent = hasitemString.substring(1, hasitemString.length - 1);
+                            const parsedObject = parseKeyValueString(innerContent);
+                            displayValue = this.formatHasitemCondition(parsedObject);
+                        }
+                        else {
+                            // 如果格式不符合预期，直接使用原始字符串
+                            displayValue = hasitemString;
                         }
                         selectorText = selectorText.replace(hasitemMatch[0], `hasitem=${displayValue}`);
                     }
@@ -168,14 +201,80 @@ export class RichTextEditor {
             const hasitemInput = document.getElementById('sel-hasitem')?.value;
             if (hasitemInput && hasitemInput.trim() !== '') {
                 try {
-                    // 尝试解析为JSON，确保格式正确
-                    const parsedHasitem = JSON.parse(hasitemInput);
-                    // 如果解析成功，将其作为字符串添加到参数中
-                    params.push(`hasitem=${JSON.stringify(parsedHasitem)}`);
+                    // 自定义解析hasitem参数
+                    const parseKeyValueString = (str) => {
+                        const obj = {};
+                        str.split(',').forEach(part => {
+                            const [key, value] = part.split('=');
+                            if (key && value) {
+                                obj[key.trim()] = value.trim();
+                            }
+                        });
+                        return obj;
+                    };
+                    let parsedHasitem;
+                    const trimmedInput = hasitemInput.trim();
+                    if (trimmedInput.startsWith('[') && trimmedInput.endsWith(']')) {
+                        // 处理数组形式：[{k=v,...},{k=v,...}]
+                        const innerContent = trimmedInput.substring(1, trimmedInput.length - 1);
+                        parsedHasitem = innerContent.split('},{').map(itemStr => {
+                            const cleanedItemStr = itemStr.replace(/^{|}$/g, ''); // 移除可能存在的花括号
+                            return parseKeyValueString(cleanedItemStr);
+                        });
+                    }
+                    else if (trimmedInput.startsWith('{') && trimmedInput.endsWith('}')) {
+                        // 处理单个对象形式：{k=v,...}
+                        const innerContent = trimmedInput.substring(1, trimmedInput.length - 1);
+                        parsedHasitem = parseKeyValueString(innerContent);
+                    }
+                    else {
+                        throw new Error("hasitem 参数格式不正确，必须用 {} 或 []{} 框起来。");
+                    }
+                    // 检查hasitem参数是否包含必要的'item'字段
+                    let isValidHasitem = true;
+                    if (Array.isArray(parsedHasitem)) {
+                        for (const condition of parsedHasitem) {
+                            if (typeof condition !== 'object' || condition === null || !condition.hasOwnProperty('item') || condition.item === '') {
+                                isValidHasitem = false;
+                                break;
+                            }
+                        }
+                    }
+                    else if (typeof parsedHasitem === 'object' && parsedHasitem !== null) {
+                        if (!parsedHasitem.hasOwnProperty('item') || parsedHasitem.item === '') {
+                            isValidHasitem = false;
+                        }
+                    }
+                    else {
+                        isValidHasitem = false; // 既不是对象也不是数组，格式不正确
+                    }
+                    if (!isValidHasitem) {
+                        alert("hasitem 参数中缺少必要的 'item' 字段或格式不正确，请检查！");
+                        return; // 阻止应用编辑，等待用户修正
+                    }
+                    // 如果解析成功且通过验证，将其作为字符串添加到参数中
+                    // 这里需要将解析后的对象/数组重新格式化回 hasitem 的字符串形式
+                    const formatKeyValueObject = (obj) => {
+                        const parts = [];
+                        for (const key in obj) {
+                            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                                parts.push(`${key}=${obj[key]}`);
+                            }
+                        }
+                        return `{${parts.join(',')}}`;
+                    };
+                    let formattedHasitem = '';
+                    if (Array.isArray(parsedHasitem)) {
+                        formattedHasitem = `[${parsedHasitem.map(item => formatKeyValueObject(item)).join(',')}]`;
+                    }
+                    else if (typeof parsedHasitem === 'object') {
+                        formattedHasitem = formatKeyValueObject(parsedHasitem);
+                    }
+                    params.push(`hasitem=${formattedHasitem}`);
                 }
                 catch (e) {
-                    console.error("hasitem 参数解析失败，请检查JSON格式", e);
-                    alert("hasitem 参数解析失败，请检查JSON格式！");
+                    console.error("hasitem 参数解析失败，请检查格式", e);
+                    alert("hasitem 参数解析失败: " + e.message);
                     return; // 阻止应用编辑，等待用户修正
                 }
             }
