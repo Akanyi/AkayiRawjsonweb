@@ -66,8 +66,19 @@ export class UI {
         `).join('');
     }
     copyJson() {
-        const jsonText = document.getElementById('jsonOutput')?.textContent;
-        if (jsonText) {
+        const jsonOutputElement = document.getElementById('jsonOutput');
+        const jsonText = jsonOutputElement?.textContent?.trim(); // 获取文本内容并去除首尾空白
+        if (!jsonText) {
+            console.warn('没有内容可以复制。');
+            const btn = document.getElementById('copy-json-btn');
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = '没有内容可复制!';
+                setTimeout(() => btn.textContent = originalText, 3000);
+            }
+            return; // 没有内容，直接返回
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(jsonText).then(() => {
                 const btn = document.getElementById('copy-json-btn');
                 if (btn) {
@@ -76,6 +87,23 @@ export class UI {
                     setTimeout(() => btn.textContent = originalText, 2000);
                 }
             }).catch(err => console.error('复制失败:', err));
+        }
+        else {
+            // Fallback for environments where navigator.clipboard is not available
+            console.warn('浏览器不支持 Clipboard API，请手动复制。');
+            const btn = document.getElementById('copy-json-btn');
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = '复制失败，请手动复制!';
+                setTimeout(() => btn.textContent = originalText, 3000);
+            }
+            // 可以考虑提供一个备用方案，例如创建一个临时的textarea来复制
+            // const tempTextArea = document.createElement('textarea');
+            // tempTextArea.value = jsonText;
+            // document.body.appendChild(tempTextArea);
+            // tempTextArea.select();
+            // document.execCommand('copy');
+            // document.body.removeChild(tempTextArea);
         }
     }
     getAboutModalContent() {
