@@ -192,21 +192,10 @@ export class UI {
 
     public getSelectorModalContent(tag: HTMLElement): string {
         const selectorStr = tag.dataset.selector || '@p';
-        const baseMatch = selectorStr.match(/^@([prsaen])/) || [, 'p'];
-        const base = baseMatch[1];
-        const paramsMatch = selectorStr.match(/\[(.*)\]/);
-        const params: { [key: string]: string } = {};
-        if (paramsMatch && paramsMatch[1]) {
-            paramsMatch[1].split(',').forEach(p => {
-                const [key, value] = p.split('=');
-                if (key && value) {
-                    params[key] = value;
-                }
-            });
-        }
+        const { base, params } = this.parseSelectorString(selectorStr);
 
         // Determine initial mode based on whether the selector string is complex
-        const isAdvancedMode = !selectorStr.match(/^@[prsaen]$/) || paramsMatch;
+        const isAdvancedMode = !selectorStr.match(/^@[prsaen]$/) || selectorStr.includes('[');
 
         return `
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -336,7 +325,7 @@ export class UI {
                             <div class="col-span-full">
                                 <textarea id="sel-hasitem" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{item=apple,quantity=1..}\n或者\n[{item=diamond,quantity=3..},{item=stick,quantity=2..}]'>${params.hasitem || ''}</textarea>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    输入 JSON 格式的物品条件。单个条件用 {}，多个条件用 [] 包裹并用逗号分隔。
+                                    输入 \`key=value\` 格式的物品条件。单个条件用 {}，多个条件用 [] 包裹并用逗号分隔。
                                     例如: <code>{item=apple}</code> 或 <code>[{item=diamond,quantity=3..},{item=stick,quantity=2..}]</code>
                                 </p>
                             </div>
@@ -503,22 +492,24 @@ export class UI {
 
     // Helper to parse selector string into base and parameters
     private parseSelectorString(selectorStr: string): { base: string; params: { [key: string]: string } } {
+        console.log('parseSelectorString input:', selectorStr); // DEBUG
         const baseMatch = selectorStr.match(/^@([prsaen])/) || [, 'p'];
         const base = baseMatch[1];
         const params: { [key: string]: string } = {};
         const paramsMatch = selectorStr.match(/\[(.*)\]/);
         if (paramsMatch && paramsMatch[1]) {
             // 使用更复杂的正则表达式来处理hasitem参数，因为它可能包含逗号和方括号
-            const paramRegex = /([a-zA-Z0-9_]+)=({.*?}|\[.*?\]|[^,\]]+)/g;
-            let match;
-            while ((match = paramRegex.exec(paramsMatch[1])) !== null) {
+            // 匹配 key=value，其中 value 可以是 {key=value,...} 或 [{...},{...}] 或普通字符串
+            // 改进的正则表达式，以正确处理嵌套的 {} 和 []
+            const paramRegex = /([a-zA-Z0-9_]+)=((?:\{[^{}]*\}|\[(?:[^\[\]]*\{[^{}]*\}[^\[\]]*)*\]|[^,\]]+))/g;
+            let match;while ((match = paramRegex.exec(paramsMatch[1])) !== null) {
                 const key = match[1];
                 const value = match[2];
                 if (key && value) {
                     params[key] = value;
                 }
-            }
-        }
+            }}
+        console.log('parseSelectorString output params:', params); // DEBUG
         return { base, params };
     }
 
@@ -576,31 +567,53 @@ export class UI {
         this.modalManager.show(content); // 使用 ModalManager
     }
 
+    // Helper to parse key=value string into an object
+    private parseKeyValueStringToObject(str: string): { [key: string]: string } {
+        const obj: { [key: string]: string } = {};
+        str.split(',').forEach(part => {
+            const [key, value] = part.split('=');
+            if (key && value) {
+                obj[key.trim()] = value.trim();
+            }
+        });
+        return obj;
+    }
+
     public showHasitemEditorModal(): void {
         const tag = this.appState.currentEditingTag;
         if (!tag) return;
 
         const selectorStr = tag.dataset.selector || '';
-        const hasitemMatch = selectorStr.match(/hasitem=({.*?}|\[.*?\])/);
+        console.log('showHasitemEditorModal selectorStr:', selectorStr); // DEBUG
+        const hasitemMatch = selectorStr.match(/hasitem=({[^}]*}|\[.*?\])/); // 匹配 hasitem={...} 或 hasitem=[...]
         let currentHasitem: any[] = [];
 
         if (hasitemMatch) {
+            const hasitemString = hasitemMatch[1];
+            console.log('showHasitemEditorModal hasitemString:', hasitemString); // DEBUG
             try {
-                const parsed = JSON.parse(hasitemMatch[1]);
-                if (Array.isArray(parsed)) {
-                    currentHasitem = parsed;
-                } else if (typeof parsed === 'object') {
-                    currentHasitem = [parsed];
+                if (hasitemString.startsWith('[') && hasitemString.endsWith(']')) {
+                    // 处理数组形式：[{k=v,...},{k=v,...}]
+                    const innerContent = hasitemString.substring(1, hasitemString.length - 1);
+                    currentHasitem = innerContent.split('},{').map(itemStr => {
+                        const cleanedItemStr = itemStr.replace(/^{|}$/g, ''); // 移除可能存在的花括号
+                        return this.parseKeyValueStringToObject(cleanedItemStr);
+                    });
+                } else if (hasitemString.startsWith('{') && hasitemString.endsWith('}')) {
+                    // 处理单个对象形式：{k=v,...}
+                    const innerContent = hasitemString.substring(1, hasitemString.length - 1);
+                    currentHasitem = [this.parseKeyValueStringToObject(innerContent)];
                 }
             } catch (e) {
                 console.error("解析现有 hasitem 参数失败", e);
             }
         }
-
+        console.log('showHasitemEditorModal currentHasitem:', currentHasitem); // DEBUG
         this.modalManager.show(this.getHasitemEditorModalContent(currentHasitem)); // 使用 ModalManager
     }
 
     private currentItemSearchTargetIndex: number | null = null;
+    private currentLocationSearchTargetIndex: number | null = null; // 新增 location 搜索的目标索引
 
     public showItemSearchModal(targetIndex: number): void {
         this.currentItemSearchTargetIndex = targetIndex;
@@ -660,6 +673,64 @@ export class UI {
         this.modalManager.hide(); // 使用 ModalManager 隐藏
     }
 
+    // 新增 location 搜索模态框相关方法
+    public showLocationSearchModal(targetIndex: number): void {
+        this.currentLocationSearchTargetIndex = targetIndex;
+        this.modalManager.show(this.getLocationSearchModalContent());
+    }
+
+    public getLocationSearchModalContent(): string {
+        const allSlotsHtml = Object.keys(window.App.SLOTS).map(slotId => `
+            <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                  onclick="window.App.UI.fillLocation('${slotId}', ${this.currentLocationSearchTargetIndex})">
+                ${window.App.SLOTS[slotId]} <span class="text-gray-500 dark:text-gray-400">(${slotId})</span>
+            </span>
+        `).join('');
+
+        return `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">槽位查询</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+                <input type="text" id="location-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索槽位ID或名称..." oninput="window.App.UI.filterLocations(this.value)">
+                <div id="location-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    ${allSlotsHtml}
+                </div>
+                <div class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                    点击槽位可快速填入。
+                </div>
+            </div>
+        `;
+    }
+
+    public filterLocations(query: string): void {
+        const listContainer = document.getElementById('location-list-container');
+        if (!listContainer) return;
+
+        const filteredSlots = Object.keys(window.App.SLOTS).filter(slotId =>
+            slotId.toLowerCase().includes(query.toLowerCase()) ||
+            window.App.SLOTS[slotId].toLowerCase().includes(query.toLowerCase())
+        );
+
+        listContainer.innerHTML = filteredSlots.map(slotId => `
+            <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                  onclick="window.App.UI.fillLocation('${slotId}', ${this.currentLocationSearchTargetIndex})">
+                ${window.App.SLOTS[slotId]} <span class="text-gray-500 dark:text-gray-400">(${slotId})</span>
+            </span>
+        `).join('');
+    }
+
+    public fillLocation(slotId: string, targetIndex: number | null): void {
+        if (targetIndex !== null) {
+            const locationInput = document.getElementById(`hasitem-location-${targetIndex}`) as HTMLInputElement;
+            if (locationInput) {
+                locationInput.value = slotId;
+            }
+        }
+        this.modalManager.hide();
+    }
+
     public getHasitemEditorModalContent(hasitemConditions: any[]): string {
         const conditionHtml = hasitemConditions.map((condition, index) => `
             <div class="hasitem-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
@@ -684,7 +755,10 @@ export class UI {
                     </div>
                     <div>
                         <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
-                        <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="slot.hotbar">
+                        <div class="flex">
+                            <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
+                            <button type="button" onclick="window.App.UI.showLocationSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                        </div>
                     </div>
                     <div>
                         <label class="${MODAL_LABEL_CLASSES}">槽位 (slot)</label>
@@ -743,7 +817,10 @@ export class UI {
                     </div>
                     <div>
                         <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
-                        <input id="hasitem-location-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="slot.hotbar">
+                        <div class="flex">
+                            <input id="hasitem-location-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
+                            <button type="button" onclick="window.App.UI.showLocationSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                        </div>
                     </div>
                     <div>
                         <label class="${MODAL_LABEL_CLASSES}">槽位 (slot)</label>
@@ -766,6 +843,17 @@ export class UI {
             // Re-index remaining items if necessary, or handle dynamically
             // For simplicity, we'll just remove it. Re-indexing can be complex.
         }
+    }
+
+    // Helper to format an object into a key=value string
+    private formatObjectToKeyValueString(obj: { [key: string]: string | number }): string {
+        const parts: string[] = [];
+        for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                parts.push(`${key}=${obj[key]}`);
+            }
+        }
+        return `{${parts.join(',')}}`;
     }
 
     public applyHasitemEditorChanges(): void {
@@ -791,12 +879,20 @@ export class UI {
                 conditions.push(condition);
             }
         });
+        console.log('applyHasitemEditorChanges collected conditions:', conditions); // DEBUG
 
         const tag = this.appState.currentEditingTag;
         if (tag) {
             const selectorInput = document.getElementById('sel-hasitem') as HTMLTextAreaElement;
             if (selectorInput) {
-                selectorInput.value = JSON.stringify(conditions.length > 1 ? conditions : conditions[0] || {});
+                let formattedHasitem = '';
+                if (conditions.length > 1) {
+                    formattedHasitem = `[${conditions.map(item => this.formatObjectToKeyValueString(item)).join(',')}]`;
+                } else if (conditions.length === 1) {
+                    formattedHasitem = this.formatObjectToKeyValueString(conditions[0]);
+                }
+                selectorInput.value = formattedHasitem;
+                console.log('applyHasitemEditorChanges formattedHasitem:', formattedHasitem); // DEBUG
             }
         }
         this.modalManager.hide(); // 关闭子模态框
