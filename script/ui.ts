@@ -1,16 +1,18 @@
 // script/ui.ts
-import { AppState, COLORS, MODAL_INPUT_CLASSES, MODAL_LABEL_CLASSES, MODAL_GRID_CLASSES, MODAL_SECTION_TITLE_CLASSES, FAMILY_TYPES } from './utils.js';
+import { AppState, COLORS, MODAL_INPUT_CLASSES, MODAL_LABEL_CLASSES, MODAL_GRID_CLASSES, MODAL_SECTION_TITLE_CLASSES, FAMILY_TYPES, ModalManager } from './utils.js';
 import { JsonConverter } from './converter.js';
 
 export class UI {
     private appState: AppState;
     private jsonConverter: JsonConverter;
+    public modalManager: ModalManager; // 新增 ModalManager 实例，改为 public
     private updateTagContent: (tag: HTMLElement) => void;
     private editFeature: (tag: HTMLElement) => void;
 
-    constructor(appState: AppState, jsonConverter: JsonConverter, updateTagContent: (tag: HTMLElement) => void, editFeature: (tag: HTMLElement) => void) {
+    constructor(appState: AppState, jsonConverter: JsonConverter, modalManager: ModalManager, updateTagContent: (tag: HTMLElement) => void, editFeature: (tag: HTMLElement) => void) {
         this.appState = appState;
         this.jsonConverter = jsonConverter;
+        this.modalManager = modalManager; // 初始化 ModalManager
         this.updateTagContent = updateTagContent;
         this.editFeature = editFeature;
     }
@@ -52,66 +54,16 @@ export class UI {
     }
 
     public initModals(): void {
-        document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.showModal(this.getAboutModalContent()); });
-        document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.showModal(this.getDecodeModalContent()); });
-        document.getElementById('modal-backdrop')?.addEventListener('click', () => this.hideModal());
+        document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getAboutModalContent()); });
+        document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getDecodeModalContent()); });
+        // 移除旧的模态框背景监听，因为现在由 ModalManager 管理
+        // document.getElementById('modal-backdrop')?.addEventListener('click', () => this.hideModal());
         document.getElementById('copy-json-btn')?.addEventListener('click', () => this.copyJson());
     }
 
-    public showModal(content: string, isSubModal: boolean = false): void {
-        const modalContainerId = isSubModal ? 'sub-modal-container' : 'modal-container';
-        const modalBackdropId = isSubModal ? 'sub-modal-backdrop' : 'modal-backdrop';
-
-        const modalContainer = document.getElementById(modalContainerId);
-        const modalBackdrop = document.getElementById(modalBackdropId);
-
-        if (!modalContainer || !modalBackdrop) return;
-
-        // 如果是主模态框，检查是否已经有模态框打开
-        if (!isSubModal && this.appState.isModalOpen) return;
-        // 如果是子模态框，确保主模态框是打开的
-        if (isSubModal && !this.appState.isModalOpen) return;
-
-        if (!isSubModal) {
-            this.appState.isModalOpen = true;
-        }
-
-        modalContainer.innerHTML = content;
-        modalContainer.classList.remove('hidden');
-        modalBackdrop.classList.remove('hidden');
-
-        modalContainer.querySelector('.modal-content')?.classList.add('fade-in');
-
-        modalContainer.querySelector('.close-modal-btn')?.addEventListener('click', () => this.hideModal(isSubModal));
-    }
-
-    public hideModal(isSubModal: boolean = false): void {
-        const modalContainerId = isSubModal ? 'sub-modal-container' : 'modal-container';
-        const modalBackdropId = isSubModal ? 'sub-modal-backdrop' : 'modal-backdrop';
-
-        const modalContainer = document.getElementById(modalContainerId);
-        const modalBackdrop = document.getElementById(modalBackdropId);
-        const modalContent = modalContainer?.querySelector('.modal-content');
-
-        if (!modalContainer || !modalBackdrop) return;
-
-        if (!isSubModal && !this.appState.isModalOpen) return;
-
-        if (modalContent) {
-            modalContent.classList.remove('fade-in');
-            modalContent.classList.add('fade-out');
-        }
-
-        setTimeout(() => {
-            modalContainer.classList.add('hidden');
-            modalBackdrop.classList.add('hidden');
-            modalContainer.innerHTML = '';
-            if (!isSubModal) {
-                this.appState.isModalOpen = false;
-                this.appState.currentEditingTag = null;
-            }
-        }, 300);
-    }
+    // showModal 和 hideModal 方法将被 ModalManager 替代
+    // public showModal(content: string, isSubModal: boolean = false): void { ... }
+    // public hideModal(isSubModal: boolean = false): void { ... }
 
     public renderColorButtons(insertCode: (code: string) => void): void {
         const container = document.getElementById('colorButtons');
@@ -316,19 +268,46 @@ export class UI {
 
                         <!-- 旋转角度 -->
                         <div class="${MODAL_GRID_CLASSES}">
-                            <h3 class="${MODAL_SECTION_TITLE_CLASSES}">旋转角度</h3>
-                            <div><label for="sel-rx" class="${MODAL_LABEL_CLASSES}">最大垂直旋转 (rx)</label><input id="sel-rx" type="number" value="${params.rx || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="90"></div>
-                            <div><label for="sel-rxm" class="${MODAL_LABEL_CLASSES}">最小垂直旋转 (rxm)</label><input id="sel-rxm" type="number" value="${params.rxm || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-90"></div>
-                            <div><label for="sel-ry" class="${MODAL_LABEL_CLASSES}">最大水平旋转 (ry)</label><input id="sel-ry" type="number" value="${params.ry || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="180"></div>
-                            <div><label for="sel-rym" class="${MODAL_LABEL_CLASSES}">最小水平旋转 (rym)</label><input id="sel-rym" type="number" value="${params.rym || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-180"></div>
+                            <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center">
+                                旋转角度
+                                <button type="button" onclick="window.App.UI.showRotationHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
+                            </h3>
+                            <div>
+                                <label for="sel-rx" class="${MODAL_LABEL_CLASSES}">最大垂直旋转 (rx)</label>
+                                <input id="sel-rx" type="number" value="${params.rx || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="90">
+                            </div>
+                            <div>
+                                <label for="sel-rxm" class="${MODAL_LABEL_CLASSES}">最小垂直旋转 (rxm)</label>
+                                <input id="sel-rxm" type="number" value="${params.rxm || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-90">
+                            </div>
+                            <div>
+                                <label for="sel-ry" class="${MODAL_LABEL_CLASSES}">最大水平旋转 (ry)</label>
+                                <input id="sel-ry" type="number" value="${params.ry || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="180">
+                            </div>
+                            <div>
+                                <label for="sel-rym" class="${MODAL_LABEL_CLASSES}">最小水平旋转 (rym)</label>
+                                <input id="sel-rym" type="number" value="${params.rym || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-180">
+                            </div>
                         </div>
 
                         <!-- 维度选择 -->
                         <div class="${MODAL_GRID_CLASSES}">
-                            <h3 class="${MODAL_SECTION_TITLE_CLASSES}">维度选择 (dx, dy, dz)</h3>
-                            <div><label for="sel-dx" class="${MODAL_LABEL_CLASSES}">X维度 (dx)</label><input id="sel-dx" type="text" value="${params.dx || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10.5"></div>
-                            <div><label for="sel-dy" class="${MODAL_LABEL_CLASSES}">Y维度 (dy)</label><input id="sel-dy" type="text" value="${params.dy || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-5"></div>
-                            <div><label for="sel-dz" class="${MODAL_LABEL_CLASSES}">Z维度 (dz)</label><input id="sel-dz" type="text" value="${params.dz || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="20"></div>
+                            <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center">
+                                维度选择 (dx, dy, dz)
+                                <button type="button" onclick="window.App.UI.showDimensionHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
+                            </h3>
+                            <div>
+                                <label for="sel-dx" class="${MODAL_LABEL_CLASSES}">X维度 (dx)</label>
+                                <input id="sel-dx" type="text" value="${params.dx || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10.5">
+                            </div>
+                            <div>
+                                <label for="sel-dy" class="${MODAL_LABEL_CLASSES}">Y维度 (dy)</label>
+                                <input id="sel-dy" type="text" value="${params.dy || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-5">
+                            </div>
+                            <div>
+                                <label class="${MODAL_LABEL_CLASSES}">Z维度 (dz)</label>
+                                <input id="sel-dz" type="text" value="${params.dz || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="20">
+                            </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400 col-span-full mt-1">
                                 定义一个长方体区域。可为负数和小数。
                                 如果未指定 x, y, z 坐标，则以命令执行位置为原点。
@@ -341,6 +320,25 @@ export class UI {
                             <div class="col-span-full">
                                 <input id="sel-tag" type="text" value="${params.tag || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="vip, !member, ...">
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">用逗号分隔多个标签. 例如: vip,!newbie</p>
+                            </div>
+                        </div>
+
+                        <!-- 物品栏 (hasitem) -->
+                        <div class="${MODAL_GRID_CLASSES}">
+                            <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
+                                <span>物品栏 (hasitem)</span>
+                                <button type="button" onclick="window.App.UI.showHasitemEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                    </svg>
+                                </button>
+                            </h3>
+                            <div class="col-span-full">
+                                <textarea id="sel-hasitem" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{item=apple,quantity=1..}\n或者\n[{item=diamond,quantity=3..},{item=stick,quantity=2..}]'>${params.hasitem || ''}</textarea>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    输入 JSON 格式的物品条件。单个条件用 {}，多个条件用 [] 包裹并用逗号分隔。
+                                    例如: <code>{item=apple}</code> 或 <code>[{item=diamond,quantity=3..},{item=stick,quantity=2..}]</code>
+                                </p>
                             </div>
                         </div>
 
@@ -383,7 +381,34 @@ export class UI {
         const manualButton = document.getElementById('selector-mode-manual');
 
         if (advancedForm && manualForm && advancedButton && manualButton) {
+            const manualInput = document.getElementById('manual-selector-input') as HTMLTextAreaElement;
+
             if (isAdvanced) {
+                // Manual to Advanced
+                if (manualInput) {
+                    const { base, params } = this.parseSelectorString(manualInput.value);
+                    (document.getElementById('sel-base') as HTMLSelectElement).value = base;
+                    (document.getElementById('sel-type') as HTMLInputElement).value = params.type || '';
+                    (document.getElementById('sel-name') as HTMLInputElement).value = params.name || '';
+                    (document.getElementById('sel-c') as HTMLInputElement).value = params.c || '';
+                    (document.getElementById('sel-family') as HTMLInputElement).value = params.family || '';
+                    (document.getElementById('sel-x') as HTMLInputElement).value = params.x || '';
+                    (document.getElementById('sel-y') as HTMLInputElement).value = params.y || '';
+                    (document.getElementById('sel-z') as HTMLInputElement).value = params.z || '';
+                    (document.getElementById('sel-r') as HTMLInputElement).value = params.r || '';
+                    (document.getElementById('sel-rm') as HTMLInputElement).value = params.rm || '';
+                    (document.getElementById('sel-rx') as HTMLInputElement).value = params.rx || '';
+                    (document.getElementById('sel-rxm') as HTMLInputElement).value = params.rxm || '';
+                    (document.getElementById('sel-ry') as HTMLInputElement).value = params.ry || '';
+                    (document.getElementById('sel-rym') as HTMLInputElement).value = params.rym || '';
+                    (document.getElementById('sel-dx') as HTMLInputElement).value = params.dx || '';
+                    (document.getElementById('sel-dy') as HTMLInputElement).value = params.dy || '';
+                    (document.getElementById('sel-dz') as HTMLInputElement).value = params.dz || '';
+                    (document.getElementById('sel-tag') as HTMLInputElement).value = params.tag || '';
+                    (document.getElementById('sel-m') as HTMLSelectElement).value = params.m || '';
+                    (document.getElementById('sel-lm') as HTMLInputElement).value = params.lm || '';
+                    (document.getElementById('sel-l') as HTMLInputElement).value = params.l || '';
+                }
                 advancedForm.classList.remove('hidden');
                 manualForm.classList.add('hidden');
                 advancedButton.classList.add('bg-blue-500', 'text-white');
@@ -391,6 +416,32 @@ export class UI {
                 manualButton.classList.remove('bg-blue-500', 'text-white');
                 manualButton.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
             } else {
+                // Advanced to Manual
+                const base = (document.getElementById('sel-base') as HTMLSelectElement).value;
+                const params: { [key: string]: string } = {
+                    type: (document.getElementById('sel-type') as HTMLInputElement).value,
+                    name: (document.getElementById('sel-name') as HTMLInputElement).value,
+                    c: (document.getElementById('sel-c') as HTMLInputElement).value,
+                    family: (document.getElementById('sel-family') as HTMLInputElement).value,
+                    x: (document.getElementById('sel-x') as HTMLInputElement).value,
+                    y: (document.getElementById('sel-y') as HTMLInputElement).value,
+                    z: (document.getElementById('sel-z') as HTMLInputElement).value,
+                    r: (document.getElementById('sel-r') as HTMLInputElement).value,
+                    rm: (document.getElementById('sel-rm') as HTMLInputElement).value,
+                    rx: (document.getElementById('sel-rx') as HTMLInputElement).value,
+                    rxm: (document.getElementById('sel-rxm') as HTMLInputElement).value,
+                    ry: (document.getElementById('sel-ry') as HTMLInputElement).value,
+                    rym: (document.getElementById('sel-rym') as HTMLInputElement).value,
+                    dx: (document.getElementById('sel-dx') as HTMLInputElement).value,
+                    dy: (document.getElementById('sel-dy') as HTMLInputElement).value,
+                    dz: (document.getElementById('sel-dz') as HTMLInputElement).value,
+                    tag: (document.getElementById('sel-tag') as HTMLInputElement).value,
+                    m: (document.getElementById('sel-m') as HTMLSelectElement).value,
+                    lm: (document.getElementById('sel-lm') as HTMLInputElement).value,
+                    l: (document.getElementById('sel-l') as HTMLInputElement).value,
+                };
+                manualInput.value = this.buildSelectorString(base, params);
+
                 manualForm.classList.remove('hidden');
                 advancedForm.classList.add('hidden');
                 manualButton.classList.add('bg-blue-500', 'text-white');
@@ -422,7 +473,7 @@ export class UI {
                 </div>
             </div>
         `;
-        this.showModal(content, true); // 标记为子模态框
+        this.modalManager.show(content); // 使用 ModalManager
     }
 
     public filterFamilyTypes(query: string): void {
@@ -447,6 +498,312 @@ export class UI {
         if (familyInput) {
             familyInput.value = familyName;
         }
-        this.hideModal(true); // 隐藏子模态框
+        this.modalManager.hide(); // 使用 ModalManager 隐藏
+    }
+
+    // Helper to parse selector string into base and parameters
+    private parseSelectorString(selectorStr: string): { base: string; params: { [key: string]: string } } {
+        const baseMatch = selectorStr.match(/^@([prsaen])/) || [, 'p'];
+        const base = baseMatch[1];
+        const params: { [key: string]: string } = {};
+        const paramsMatch = selectorStr.match(/\[(.*)\]/);
+        if (paramsMatch && paramsMatch[1]) {
+            // 使用更复杂的正则表达式来处理hasitem参数，因为它可能包含逗号和方括号
+            const paramRegex = /([a-zA-Z0-9_]+)=({.*?}|\[.*?\]|[^,\]]+)/g;
+            let match;
+            while ((match = paramRegex.exec(paramsMatch[1])) !== null) {
+                const key = match[1];
+                const value = match[2];
+                if (key && value) {
+                    params[key] = value;
+                }
+            }
+        }
+        return { base, params };
+    }
+
+    // Helper to build selector string from base and parameters
+    private buildSelectorString(base: string, params: { [key: string]: string }): string {
+        let selector = `@${base}`;
+        const paramParts: string[] = [];
+        for (const key in params) {
+            if (params.hasOwnProperty(key) && params[key]) {
+                // 对于hasitem参数，直接使用其值，因为它已经是JSON字符串
+                if (key === 'hasitem') {
+                    paramParts.push(`${key}=${params[key]}`);
+                } else {
+                    paramParts.push(`${key}=${params[key]}`);
+                }
+            }
+        }
+        if (paramParts.length > 0) {
+            selector += `[${paramParts.join(',')}]`;
+        }
+        return selector;
+    }
+
+    public showRotationHelp(): void {
+        const content = `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">旋转角度帮助</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <p>黄色空心箭头Zlocal代表当前实体朝向；如图绿色区域为rxm=-90,rx=90时（x_rotation=-90..90）所表示的角度范围。由于实体朝向处在绿色角度范围内，故可选中该实体；</p>
+                    <img src="static/The_x_rotation_rxm_rx_Of_Entity_Selector.png" alt="rx/rxm explanation" class="w-full h-auto rounded-md">
+                    <p>黄色空心箭头Zlocal代表当前实体朝向，Z'代表实体朝向在XZ平面上的投影；绿色区域为rym=-45,ry=45时（y_rotation=-45..45）所表示的角度范围。由于Z'投影处在绿色角度范围内，故该实体可被选中</p>
+                    <img src="static/The_y_rotation_rym_ry_Of_Entity_Selector.png" alt="ry/rym explanation" class="w-full h-auto rounded-md">
+                </div>
+            </div>
+        `;
+        this.modalManager.show(content); // 使用 ModalManager
+    }
+
+    public showDimensionHelp(): void {
+        const content = `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">维度选择帮助</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <p>绿色方块即dx dy dz所形成的检测区域，蓝色方块表示某实体的判定箱，紫色区域即它们的相交部分；</p>
+                    <img src="static/The_dx_dy_dz_Of_Entity_Selector.png" alt="dx/dy/dz explanation" class="w-full h-auto rounded-md">
+                </div>
+            </div>
+        `;
+        this.modalManager.show(content); // 使用 ModalManager
+    }
+
+    public showHasitemEditorModal(): void {
+        const tag = this.appState.currentEditingTag;
+        if (!tag) return;
+
+        const selectorStr = tag.dataset.selector || '';
+        const hasitemMatch = selectorStr.match(/hasitem=({.*?}|\[.*?\])/);
+        let currentHasitem: any[] = [];
+
+        if (hasitemMatch) {
+            try {
+                const parsed = JSON.parse(hasitemMatch[1]);
+                if (Array.isArray(parsed)) {
+                    currentHasitem = parsed;
+                } else if (typeof parsed === 'object') {
+                    currentHasitem = [parsed];
+                }
+            } catch (e) {
+                console.error("解析现有 hasitem 参数失败", e);
+            }
+        }
+
+        this.modalManager.show(this.getHasitemEditorModalContent(currentHasitem)); // 使用 ModalManager
+    }
+
+    private currentItemSearchTargetIndex: number | null = null;
+
+    public showItemSearchModal(targetIndex: number): void {
+        this.currentItemSearchTargetIndex = targetIndex;
+        this.modalManager.show(this.getItemSearchModalContent()); // 使用 ModalManager
+    }
+
+    public getItemSearchModalContent(): string {
+        // 初始显示所有物品
+        const allItemsHtml = Object.keys(window.App.ITEMS).map(itemId => `
+            <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                  onclick="window.App.UI.fillItem('${itemId}', ${this.currentItemSearchTargetIndex})">
+                ${window.App.ITEMS[itemId]} <span class="text-gray-500 dark:text-gray-400">(${itemId})</span>
+            </span>
+        `).join('');
+
+        return `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">物品查询</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+                <input type="text" id="item-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索物品ID或名称..." oninput="window.App.UI.filterItems(this.value)">
+                <div id="item-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    ${allItemsHtml}
+                </div>
+                <div class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                    点击物品可快速填入。
+                </div>
+            </div>
+        `;
+    }
+
+    public filterItems(query: string): void {
+        const listContainer = document.getElementById('item-list-container');
+        if (!listContainer) return;
+
+        const filteredItems = Object.keys(window.App.ITEMS).filter(itemId =>
+            itemId.toLowerCase().includes(query.toLowerCase()) ||
+            window.App.ITEMS[itemId].toLowerCase().includes(query.toLowerCase())
+        );
+
+        listContainer.innerHTML = filteredItems.map(itemId => `
+            <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                  onclick="window.App.UI.fillItem('${itemId}', ${this.currentItemSearchTargetIndex})">
+                ${window.App.ITEMS[itemId]} <span class="text-gray-500 dark:text-gray-400">(${itemId})</span>
+            </span>
+        `).join('');
+    }
+
+    public fillItem(itemId: string, targetIndex: number | null): void {
+        if (targetIndex !== null) {
+            const itemInput = document.getElementById(`hasitem-item-${targetIndex}`) as HTMLInputElement;
+            if (itemInput) {
+                itemInput.value = itemId;
+            }
+        }
+        this.modalManager.hide(); // 使用 ModalManager 隐藏
+    }
+
+    public getHasitemEditorModalContent(hasitemConditions: any[]): string {
+        const conditionHtml = hasitemConditions.map((condition, index) => `
+            <div class="hasitem-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
+                <div class="flex justify-end">
+                    <button type="button" onclick="window.App.UI.removeHasitemCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
+                        <div class="flex">
+                            <input id="hasitem-item-${index}" type="text" value="${condition.item || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
+                            <button type="button" onclick="window.App.UI.showItemSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">数据值 (data)</label>
+                        <input id="hasitem-data-${index}" type="number" value="${condition.data || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="0-32767">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">数量 (quantity)</label>
+                        <input id="hasitem-quantity-${index}" type="text" value="${condition.quantity || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="1.., 1-10, !0">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
+                        <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="slot.hotbar">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">槽位 (slot)</label>
+                        <input id="hasitem-slot-${index}" type="text" value="${condition.slot || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="0..8">
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        return `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">hasitem 可视化编辑器</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+
+                <div id="hasitem-conditions-container" class="space-y-4">
+                    ${conditionHtml}
+                </div>
+
+                <button type="button" onclick="window.App.UI.addHasitemCondition()" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">添加条件</button>
+
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
+                    <button onclick="window.App.UI.applyHasitemEditorChanges()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存</button>
+                </div>
+            </div>
+        `;
+    }
+
+    public addHasitemCondition(): void {
+        const container = document.getElementById('hasitem-conditions-container');
+        if (!container) return;
+
+        const newIndex = container.children.length;
+        const newConditionHtml = `
+            <div class="hasitem-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${newIndex}">
+                <div class="flex justify-end">
+                    <button type="button" onclick="window.App.UI.removeHasitemCondition(${newIndex})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
+                        <div class="flex">
+                            <input id="hasitem-item-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
+                            <button type="button" onclick="window.App.UI.showItemSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">数据值 (data)</label>
+                        <input id="hasitem-data-${newIndex}" type="number" value="" class="${MODAL_INPUT_CLASSES}" placeholder="0-32767">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">数量 (quantity)</label>
+                        <input id="hasitem-quantity-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="1.., 1-10, !0">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
+                        <input id="hasitem-location-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="slot.hotbar">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">槽位 (slot)</label>
+                        <input id="hasitem-slot-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="0..8">
+                    </div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', newConditionHtml);
+        // Re-attach event listeners if necessary, or ensure they are handled by delegation
+    }
+
+    public removeHasitemCondition(index: number): void {
+        const container = document.getElementById('hasitem-conditions-container');
+        if (!container) return;
+
+        const itemToRemove = container.querySelector(`.hasitem-condition-item[data-index="${index}"]`);
+        if (itemToRemove) {
+            itemToRemove.remove();
+            // Re-index remaining items if necessary, or handle dynamically
+            // For simplicity, we'll just remove it. Re-indexing can be complex.
+        }
+    }
+
+    public applyHasitemEditorChanges(): void {
+        const container = document.getElementById('hasitem-conditions-container');
+        if (!container) return;
+
+        const conditions: any[] = [];
+        Array.from(container.children).forEach(itemElement => {
+            const itemInput = itemElement.querySelector('[id^="hasitem-item-"]') as HTMLInputElement;
+            const dataInput = itemElement.querySelector('[id^="hasitem-data-"]') as HTMLInputElement;
+            const quantityInput = itemElement.querySelector('[id^="hasitem-quantity-"]') as HTMLInputElement;
+            const locationInput = itemElement.querySelector('[id^="hasitem-location-"]') as HTMLInputElement;
+            const slotInput = itemElement.querySelector('[id^="hasitem-slot-"]') as HTMLInputElement;
+
+            const condition: any = {};
+            if (itemInput?.value) condition.item = itemInput.value;
+            if (dataInput?.value) condition.data = parseInt(dataInput.value);
+            if (quantityInput?.value) condition.quantity = quantityInput.value;
+            if (locationInput?.value) condition.location = locationInput.value;
+            if (slotInput?.value) condition.slot = slotInput.value;
+
+            if (Object.keys(condition).length > 0) {
+                conditions.push(condition);
+            }
+        });
+
+        const tag = this.appState.currentEditingTag;
+        if (tag) {
+            const selectorInput = document.getElementById('sel-hasitem') as HTMLTextAreaElement;
+            if (selectorInput) {
+                selectorInput.value = JSON.stringify(conditions.length > 1 ? conditions : conditions[0] || {});
+            }
+        }
+        this.modalManager.hide(); // 关闭子模态框
+    }
+
+    // 新增一个方法用于隐藏当前模态框，供 HTML 中的 onclick 调用
+    public hideCurrentModal(): void {
+        this.modalManager.hide();
     }
 }

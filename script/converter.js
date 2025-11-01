@@ -123,17 +123,20 @@ export class JsonConverter {
                 if (item.text) {
                     editor.appendChild(document.createTextNode(item.text));
                 }
-                else if (item.translate === "%%2" && Array.isArray(item.with) && item.with.length === 2 && item.with[1].rawtext) {
-                    const type = 'conditional';
-                    const tag = document.createElement('span');
-                    tag.className = 'function-tag';
-                    tag.contentEditable = 'false';
-                    tag.dataset.type = type;
-                    tag.dataset.condition = JSON.stringify(item.with[0] || {});
-                    tag.dataset.then = JSON.stringify(item.with[1].rawtext || []);
-                    updateTagContent(tag);
-                    tag.addEventListener('click', () => editFeature(tag));
-                    editor.appendChild(tag);
+                else if (item.translate === "%%2" && Array.isArray(item.with) && item.with.length === 2) {
+                    const conditionalContent = item.with[1];
+                    if (typeof conditionalContent === 'object' && conditionalContent !== null && 'rawtext' in conditionalContent) {
+                        const type = 'conditional';
+                        const tag = document.createElement('span');
+                        tag.className = 'function-tag';
+                        tag.contentEditable = 'false';
+                        tag.dataset.type = type;
+                        tag.dataset.condition = JSON.stringify(item.with[0] || {});
+                        tag.dataset.then = JSON.stringify(conditionalContent.rawtext || []);
+                        updateTagContent(tag);
+                        tag.addEventListener('click', () => editFeature(tag));
+                        editor.appendChild(tag);
+                    }
                 }
                 else if (item.score || item.selector || item.translate) {
                     const type = Object.keys(item)[0];
