@@ -75,7 +75,26 @@ export class RichTextEditor {
                 text = `[${tag.dataset.name}:${tag.dataset.objective}]`;
                 break;
             case 'selector':
-                text = `[${tag.dataset.selector}]`;
+                let selectorText = tag.dataset.selector || '@p';
+                // 检查并解析hasitem参数，以便在显示时进行美化
+                const hasitemMatch = selectorText.match(/hasitem=({.*?}|\[.*?\])/);
+                if (hasitemMatch) {
+                    try {
+                        const hasitemValue = JSON.parse(hasitemMatch[1]);
+                        let displayValue = '';
+                        if (Array.isArray(hasitemValue)) {
+                            displayValue = `[${hasitemValue.map(item => `{item=${item.item || '?'}}`).join(',')}]`;
+                        }
+                        else if (typeof hasitemValue === 'object') {
+                            displayValue = `{item=${hasitemValue.item || '?'}}`;
+                        }
+                        selectorText = selectorText.replace(hasitemMatch[0], `hasitem=${displayValue}`);
+                    }
+                    catch (e) {
+                        console.error("hasitem 显示解析失败", e);
+                    }
+                }
+                text = `[${selectorText}]`;
                 break;
             case 'translate':
                 text = `[t:${tag.dataset.translate}]`;
@@ -96,10 +115,10 @@ export class RichTextEditor {
     editFeature(tag) {
         this.appState.currentEditingTag = tag;
         if (tag.dataset.type === 'selector') {
-            this.ui.showModal(this.ui.getSelectorModalContent(tag));
+            window.App.UI.modalManager.show(window.App.UI.getSelectorModalContent(tag));
         }
         else {
-            this.ui.showModal(this.ui.getEditModalContent(tag.dataset.type || ''));
+            window.App.UI.modalManager.show(window.App.UI.getEditModalContent(tag.dataset.type || ''));
         }
     }
     applyEdit() {
@@ -122,7 +141,7 @@ export class RichTextEditor {
         }
         this.updateTagContent(tag);
         this.jsonConverter.generateJson();
-        this.ui.hideModal();
+        window.App.UI.hideCurrentModal(); // 使用新的隐藏方法
     }
     applySelectorEdit() {
         const tag = this.appState.currentEditingTag;
@@ -146,6 +165,20 @@ export class RichTextEditor {
                     params.push(`${id}=${el.value}`);
                 }
             });
+            const hasitemInput = document.getElementById('sel-hasitem')?.value;
+            if (hasitemInput && hasitemInput.trim() !== '') {
+                try {
+                    // 尝试解析为JSON，确保格式正确
+                    const parsedHasitem = JSON.parse(hasitemInput);
+                    // 如果解析成功，将其作为字符串添加到参数中
+                    params.push(`hasitem=${JSON.stringify(parsedHasitem)}`);
+                }
+                catch (e) {
+                    console.error("hasitem 参数解析失败，请检查JSON格式", e);
+                    alert("hasitem 参数解析失败，请检查JSON格式！");
+                    return; // 阻止应用编辑，等待用户修正
+                }
+            }
             const tagsInput = document.getElementById('sel-tag')?.value;
             const tags = tagsInput ? tagsInput.split(',').filter(t => t.trim() !== '') : [];
             tags.forEach(t => {
@@ -159,6 +192,6 @@ export class RichTextEditor {
         tag.dataset.selector = selector;
         this.updateTagContent(tag);
         this.jsonConverter.generateJson();
-        this.ui.hideModal();
+        window.App.UI.hideCurrentModal();
     }
 }

@@ -1,153 +1,224 @@
-// script/utils.ts
 export const COLORS = [
-    { name: '§0 黑', code: '§0', bg: '#000000', text: 'white' }, { name: '§1 深蓝', code: '§1', bg: '#0000AA', text: 'white' },
-    { name: '§2 深绿', code: '§2', bg: '#00AA00', text: 'white' }, { name: '§3 湖蓝', code: '§3', bg: '#00AAAA', text: 'white' },
-    { name: '§4 深红', code: '§4', bg: '#AA0000', text: 'white' }, { name: '§5 紫', code: '§5', bg: '#AA00AA', text: 'white' },
-    { name: '§6 金', code: '§6', bg: '#FFAA00', text: 'white' }, { name: '§7 灰', code: '§7', bg: '#AAAAAA', text: 'black' },
-    { name: '§8 深灰', code: '§8', bg: '#555555', text: 'white' }, { name: '§9 蓝', code: '§9', bg: '#5555FF', text: 'white' },
-    { name: '§a 绿', code: '§a', bg: '#55FF55', text: 'black' }, { name: '§b 水蓝', code: '§b', bg: '#55FFFF', text: 'black' },
-    { name: '§c 红', code: '§c', bg: '#FF5555', text: 'white' }, { name: '§d 粉', code: '§d', bg: '#FF55FF', text: 'white' },
-    { name: '§e 黄', code: '§e', bg: '#FFFF55', text: 'black' }, { name: '§f 白', code: '§f', bg: '#FFFFFF', text: 'black', border: true },
-    { name: '§k 随机', code: '§k', bg: '#555555', text: 'white' }, { name: '§l 粗体', code: '§l', bg: '#555555', text: 'white', bold: true },
-    { name: '§o 斜体', code: '§o', bg: '#555555', text: 'white', italic: true }, { name: '§r 重置', code: '§r', bg: '#888888', text: 'white' }
+    { name: '黑色', code: '§0', bg: '#000000', text: '#FFFFFF' },
+    { name: '深蓝色', code: '§1', bg: '#0000AA', text: '#FFFFFF' },
+    { name: '深绿色', code: '§2', bg: '#00AA00', text: '#FFFFFF' },
+    { name: '深青色', code: '§3', bg: '#00AAAA', text: '#FFFFFF' },
+    { name: '深红色', code: '§4', bg: '#AA0000', text: '#FFFFFF' },
+    { name: '深紫色', code: '§5', bg: '#AA00AA', text: '#FFFFFF' },
+    { name: '金色', code: '§6', bg: '#FFAA00', text: '#000000' },
+    { name: '灰色', code: '§7', bg: '#AAAAAA', text: '#000000' },
+    { name: '深灰色', code: '§8', bg: '#555555', text: '#FFFFFF' },
+    { name: '蓝色', code: '§9', bg: '#5555FF', text: '#FFFFFF' },
+    { name: '绿色', code: '§a', bg: '#55FF55', text: '#000000' },
+    { name: '青色', code: '§b', bg: '#55FFFF', text: '#000000' },
+    { name: '红色', code: '§c', bg: '#FF5555', text: '#000000' },
+    { name: '品红色', code: '§d', bg: '#FF55FF', text: '#000000' },
+    { name: '黄色', code: '§e', bg: '#FFFF55', text: '#000000' },
+    { name: '白色', code: '§f', bg: '#FFFFFF', text: '#000000', border: true },
+    { name: '清除', code: '§r', bg: '#E2E8F0', text: '#2D3748', border: true },
+    { name: '粗体', code: '§l', bg: '#4A5568', text: '#FFFFFF', bold: true },
+    { name: '斜体', code: '§o', bg: '#4A5568', text: '#FFFFFF', italic: true },
+    { name: '下划线', code: '§n', bg: '#4A5568', text: '#FFFFFF', underline: true },
+    { name: '删除线', code: '§m', bg: '#4A5568', text: '#FFFFFF', strikethrough: true },
+    { name: '随机', code: '§k', bg: '#4A5568', text: '#FFFFFF', obfuscated: true },
 ];
-export const MODAL_INPUT_CLASSES = "w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200";
-export const MODAL_LABEL_CLASSES = "block mb-1 font-semibold text-gray-700 dark:text-gray-300";
-export const MODAL_GRID_CLASSES = "grid grid-cols-1 sm:grid-cols-2 gap-4";
-export const MODAL_SECTION_TITLE_CLASSES = "text-lg font-bold mb-2 text-gray-900 dark:text-white col-span-full";
+export const MODAL_INPUT_CLASSES = "w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500";
+export const MODAL_LABEL_CLASSES = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
+export const MODAL_GRID_CLASSES = "grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-md";
+export const MODAL_SECTION_TITLE_CLASSES = "text-lg font-semibold text-gray-900 dark:text-white col-span-full mb-2";
 export const FAMILY_TYPES = [
-    { name: "adult_piglin", translation: "成年猪灵" },
-    { name: "allay", translation: "悦灵" },
-    { name: "animal", translation: "动物" },
-    { name: "aquatic", translation: "水生生物" },
-    { name: "armadillo", translation: "犰狳" },
-    { name: "armor_stand", translation: "盔甲架" },
-    { name: "armorer", translation: "盔甲匠" },
-    { name: "arthropod", translation: "节肢动物" },
-    { name: "artisan", translation: "工匠" },
-    { name: "axolotl", translation: "美西螈" },
-    { name: "baby_turtle", translation: "小海龟" },
-    { name: "bat", translation: "蝙蝠" },
-    { name: "bee", translation: "蜜蜂" },
-    { name: "blacksmith", translation: "铁匠" },
-    { name: "blaze", translation: "烈焰人" },
-    { name: "boat", translation: "船" },
-    { name: "bogged", translation: "滞留者" },
-    { name: "breeze", translation: "旋风" },
-    { name: "butcher", translation: "屠夫" },
-    { name: "camel", translation: "骆驼" },
-    { name: "cartographer", translation: "制图师" },
-    { name: "cat", translation: "猫" },
-    { name: "cavespider", translation: "洞穴蜘蛛" },
-    { name: "chicken", translation: "鸡" },
-    { name: "cleric", translation: "牧师" },
-    { name: "cod", translation: "鳕鱼" },
-    { name: "cow", translation: "牛" },
-    { name: "creaking", translation: "吱吱作响" },
-    { name: "creeper", translation: "爬行者" },
-    { name: "dolphin", translation: "海豚" },
-    { name: "donkey", translation: "驴" },
-    { name: "dragon", translation: "龙" },
-    { name: "drowned", translation: "溺尸" },
-    { name: "enderman", translation: "末影人" },
-    { name: "endermite", translation: "末影螨" },
-    { name: "evocation_illager", translation: "唤魔者" },
-    { name: "farmer", translation: "农民" },
-    { name: "fish", translation: "鱼" },
-    { name: "fisherman", translation: "渔夫" },
-    { name: "fletcher", translation: "制箭师" },
-    { name: "fox", translation: "狐狸" },
-    { name: "frog", translation: "青蛙" },
-    { name: "ghast", translation: "恶魂" },
-    { name: "goat", translation: "山羊" },
-    { name: "guardian", translation: "守卫者" },
-    { name: "guardian_elder", translation: "远古守卫者" },
-    { name: "happy_ghast", translation: "快乐恶魂" },
-    { name: "hoglin", translation: "疣猪兽" },
-    { name: "hoglin_adult", translation: "成年疣猪兽" },
-    { name: "hoglin_baby", translation: "幼年疣猪兽" },
-    { name: "hoglin_huntable", translation: "可狩猎疣猪兽" },
-    { name: "horse", translation: "马" },
-    { name: "husk", translation: "尸壳" },
-    { name: "illager", translation: "掠夺者" },
-    { name: "inanimate", translation: "无生命" },
-    { name: "irongolem", translation: "铁傀儡" },
-    { name: "leatherworker", translation: "皮革匠" },
-    { name: "librarian", translation: "图书管理员" },
-    { name: "lightning", translation: "闪电" },
-    { name: "lightweight", translation: "轻量级" },
-    { name: "llama", translation: "羊驼" },
-    { name: "magmacube", translation: "岩浆怪" },
-    { name: "mason", translation: "石匠" },
-    { name: "minecart", translation: "矿车" },
-    { name: "mob", translation: "生物" },
-    { name: "monster", translation: "怪物" },
-    { name: "mule", translation: "骡" },
-    { name: "mushroomcow", translation: "哞菇" },
-    { name: "nitwit", translation: "傻子" },
-    { name: "npc", translation: "NPC" },
-    { name: "ocelot", translation: "豹猫" },
-    { name: "pacified", translation: "被驯服的" },
-    { name: "panda", translation: "熊猫" },
-    { name: "panda_aggressive", translation: "好斗熊猫" },
-    { name: "parrot_tame", translation: "驯服鹦鹉" },
-    { name: "parrot_wild", translation: "野生鹦鹉" },
-    { name: "peasant", translation: "村民" },
-    { name: "phantom", translation: "幻翼" },
-    { name: "pig", translation: "猪" },
-    { name: "piglin", translation: "猪灵" },
-    { name: "piglin_brute", translation: "猪灵蛮兵" },
-    { name: "piglin_hunter", translation: "猪灵猎人" },
-    { name: "pillager", translation: "掠夺者" },
-    { name: "player", translation: "玩家" },
-    { name: "polarbear", translation: "北极熊" },
-    { name: "priest", translation: "牧师" },
-    { name: "pufferfish", translation: "河豚" },
-    { name: "rabbit", translation: "兔子" },
-    { name: "ravager", translation: "劫掠兽" },
-    { name: "salmon", translation: "鲑鱼" },
-    { name: "sheep", translation: "羊" },
-    { name: "shepherd", translation: "牧羊人" },
-    { name: "shulker", translation: "潜影贝" },
-    { name: "silverfish", translation: "蠹虫" },
-    { name: "skeleton", translation: "骷髅" },
-    { name: "skeletonhorse", translation: "骷髅马" },
-    { name: "slime", translation: "史莱姆" },
-    { name: "sniffer", translation: "嗅探兽" },
-    { name: "snowgolem", translation: "雪傀儡" },
-    { name: "spider", translation: "蜘蛛" },
-    { name: "squid", translation: "鱿鱼" },
-    { name: "stone_mason", translation: "石匠" },
-    { name: "stray", translation: "流浪者" },
-    { name: "strider", translation: "炽足兽" },
-    { name: "strider_adult", translation: "成年炽足兽" },
-    { name: "strider_baby", translation: "幼年炽足兽" },
-    { name: "tadpole", translation: "蝌蚪" },
-    { name: "tnt", translation: "TNT" },
-    { name: "toolsmith", translation: "工具匠" },
-    { name: "trader_llama", translation: "行商羊驼" },
-    { name: "tripodcamera", translation: "三脚架相机" },
-    { name: "tropicalfish", translation: "热带鱼" },
-    { name: "turtle", translation: "海龟" },
-    { name: "undead", translation: "亡灵" },
-    { name: "unskilled", translation: "无业村民" },
-    { name: "vex", translation: "恼鬼" },
-    { name: "villager", translation: "村民" },
-    { name: "vindicator", translation: "卫道士" },
-    { name: "wandering_trader", translation: "流浪商人" },
-    { name: "wandering_trader_despawning", translation: "流浪商人(消失中)" },
-    { name: "warden", translation: "循声守卫" },
-    { name: "weaponsmith", translation: "武器匠" },
-    { name: "wind_charge", translation: "风弹" },
-    { name: "wind_charge_projectile", translation: "风弹投射物" },
-    { name: "witch", translation: "女巫" },
-    { name: "wither", translation: "凋灵" },
-    { name: "wolf", translation: "狼" },
-    { name: "zoglin", translation: "僵尸疣猪兽" },
-    { name: "zoglin_adult", translation: "成年僵尸疣猪兽" },
-    { name: "zoglin_baby", translation: "幼年僵尸疣猪兽" },
-    { name: "zombie", translation: "僵尸" },
-    { name: "zombie_pigman", translation: "僵尸猪人" },
-    { name: "zombie_villager", translation: "僵尸村民" },
-    { name: "zombiehorse", translation: "僵尸马" }
+    { name: 'armor_stand', translation: '盔甲架' },
+    { name: 'arrow', translation: '箭' },
+    { name: 'axolotl', translation: '美西螈' },
+    { name: 'bat', translation: '蝙蝠' },
+    { name: 'bee', translation: '蜜蜂' },
+    { name: 'blaze', translation: '烈焰人' },
+    { name: 'boat', translation: '船' },
+    { name: 'cat', translation: '猫' },
+    { name: 'cave_spider', translation: '洞穴蜘蛛' },
+    { name: 'chicken', translation: '鸡' },
+    { name: 'cod', translation: '鳕鱼' },
+    { name: 'cow', translation: '牛' },
+    { name: 'creeper', translation: '苦力怕' },
+    { name: 'dolphin', translation: '海豚' },
+    { name: 'donkey', translation: '驴' },
+    { name: 'dragon', translation: '末影龙' },
+    { name: 'drowned', translation: '溺尸' },
+    { name: 'egg', translation: '鸡蛋' },
+    { name: 'elder_guardian', translation: '远古守卫者' },
+    { name: 'ender_crystal', translation: '末地水晶' },
+    { name: 'ender_pearl', translation: '末影珍珠' },
+    { name: 'enderman', translation: '末影人' },
+    { name: 'endermite', translation: '末影螨' },
+    { name: 'evocation_illager', translation: '唤魔者' },
+    { name: 'eye_of_ender', translation: '末影之眼' },
+    { name: 'falling_block', translation: '掉落方块' },
+    { name: 'fireball', translation: '火球' },
+    { name: 'fireworks_rocket', translation: '烟花火箭' },
+    { name: 'fishing_hook', translation: '钓鱼钩' },
+    { name: 'fox', translation: '狐狸' },
+    { name: 'ghast', translation: '恶魂' },
+    { name: 'glow_squid', translation: '发光鱿鱼' },
+    { name: 'goat', translation: '山羊' },
+    { name: 'guardian', translation: '守卫者' },
+    { name: 'hoglin', translation: '疣猪兽' },
+    { name: 'horse', translation: '马' },
+    { name: 'husk', translation: '尸壳' },
+    { name: 'iron_golem', translation: '铁傀儡' },
+    { name: 'item', translation: '物品' },
+    { name: 'leash_knot', translation: '拴绳结' },
+    { name: 'lightning_bolt', translation: '闪电' },
+    { name: 'llama', translation: '羊驼' },
+    { name: 'magma_cube', translation: '岩浆怪' },
+    { name: 'minecart', translation: '矿车' },
+    { name: 'mooshroom', translation: '哞菇' },
+    { name: 'mule', translation: '骡' },
+    { name: 'npc', translation: 'NPC' },
+    { name: 'ocelot', translation: '豹猫' },
+    { name: 'panda', translation: '熊猫' },
+    { name: 'parrot', translation: '鹦鹉' },
+    { name: 'phantom', translation: '幻翼' },
+    { name: 'pig', translation: '猪' },
+    { name: 'piglin', translation: '猪灵' },
+    { name: 'piglin_brute', translation: '猪灵蛮兵' },
+    { name: 'pillager', translation: '掠夺者' },
+    { name: 'player', translation: '玩家' },
+    { name: 'polar_bear', translation: '北极熊' },
+    { name: 'pufferfish', translation: '河豚' },
+    { name: 'rabbit', translation: '兔子' },
+    { name: 'ravager', translation: '劫掠兽' },
+    { name: 'salmon', translation: '鲑鱼' },
+    { name: 'sheep', translation: '绵羊' },
+    { name: 'shulker', translation: '潜影贝' },
+    { name: 'silverfish', translation: '蠹虫' },
+    { name: 'skeleton', translation: '骷髅' },
+    { name: 'skeleton_horse', translation: '骷髅马' },
+    { name: 'slime', translation: '史莱姆' },
+    { name: 'snow_golem', translation: '雪傀儡' },
+    { name: 'spider', translation: '蜘蛛' },
+    { name: 'splash_potion', translation: '喷溅药水' },
+    { name: 'squid', translation: '鱿鱼' },
+    { name: 'stray', translation: '流浪者' },
+    { name: 'strider', translation: '炽足兽' },
+    { name: 'tnt', translation: 'TNT' },
+    { name: 'tnt_minecart', translation: 'TNT矿车' },
+    { name: 'trader_llama', translation: '行商羊驼' },
+    { name: 'tripod_camera', translation: '三脚架相机' },
+    { name: 'tropicalfish', translation: '热带鱼' },
+    { name: 'turtle', translation: '海龟' },
+    { name: 'vex', translation: '恼鬼' },
+    { name: 'villager', translation: '村民' },
+    { name: 'vindicator', translation: '卫道士' },
+    { name: 'wandering_trader', translation: '流浪商人' },
+    { name: 'warden', translation: '监守者' },
+    { name: 'witch', translation: '女巫' },
+    { name: 'wither', translation: '凋灵' },
+    { name: 'wither_skeleton', translation: '凋灵骷髅' },
+    { name: 'wolf', translation: '狼' },
+    { name: 'xp_bottle', translation: '附魔之瓶' },
+    { name: 'xp_orb', translation: '经验球' },
+    { name: 'zoglin', translation: '僵尸疣猪兽' },
+    { name: 'zombie', translation: '僵尸' },
+    { name: 'zombie_horse', translation: '僵尸马' },
+    { name: 'zombie_pigman', translation: '僵尸猪灵' },
+    { name: 'zombie_villager', translation: '僵尸村民' },
 ];
+export let ITEMS = {};
+export async function loadItems() {
+    try {
+        const response = await fetch('static/data/items.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        ITEMS = await response.json();
+        console.log('Items loaded successfully:', Object.keys(ITEMS).length);
+    }
+    catch (error) {
+        console.error('Failed to load items:', error);
+    }
+}
+// 新增 ModalManager 类
+export class ModalManager {
+    constructor() {
+        this.modalStack = [];
+        this.baseZIndex = 1000; // 基础 z-index
+    }
+    show(content, options) {
+        const modalId = `modal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        // 创建模态框容器
+        const modalContainer = document.createElement('div');
+        modalContainer.id = `modal-container-${modalId}`;
+        modalContainer.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+        modalContainer.style.zIndex = `${this.baseZIndex + this.modalStack.length * 2}`; // 动态 z-index
+        modalContainer.innerHTML = content;
+        document.body.appendChild(modalContainer);
+        // 创建背景遮罩
+        const modalBackdrop = document.createElement('div');
+        modalBackdrop.id = `modal-backdrop-${modalId}`;
+        modalBackdrop.className = 'fixed inset-0 bg-black bg-opacity-50';
+        modalBackdrop.style.zIndex = `${this.baseZIndex + this.modalStack.length * 2 - 1}`; // 背景 z-index 略低于容器
+        document.body.appendChild(modalBackdrop);
+        // 将模态框实例推入堆栈
+        const newModal = {
+            id: modalId,
+            content: content,
+            container: modalContainer,
+            backdrop: modalBackdrop,
+            onClose: options?.onClose,
+        };
+        this.modalStack.push(newModal);
+        // 隐藏前一个模态框（如果存在）
+        if (this.modalStack.length > 1) {
+            const previousModal = this.modalStack[this.modalStack.length - 2];
+            previousModal.container.classList.add('hidden');
+            previousModal.backdrop.classList.add('hidden');
+        }
+        // 添加关闭事件监听
+        modalContainer.querySelector('.close-modal-btn')?.addEventListener('click', () => this.hide(modalId));
+        modalBackdrop.addEventListener('click', () => this.hide(modalId));
+        // 应用动画
+        modalContainer.querySelector('.modal-content')?.classList.add('fade-in');
+        return modalId;
+    }
+    hide(modalId) {
+        let modalToHide;
+        let indexToHide = -1;
+        if (modalId) {
+            indexToHide = this.modalStack.findIndex(m => m.id === modalId);
+            if (indexToHide !== -1) {
+                modalToHide = this.modalStack[indexToHide];
+            }
+        }
+        else {
+            // 如果没有指定 ID，则关闭最顶层的模态框
+            modalToHide = this.modalStack[this.modalStack.length - 1];
+            indexToHide = this.modalStack.length - 1;
+        }
+        if (!modalToHide)
+            return;
+        const { container, backdrop, onClose } = modalToHide;
+        const modalContent = container.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.classList.remove('fade-in');
+            modalContent.classList.add('fade-out');
+        }
+        setTimeout(() => {
+            // 移除 DOM 元素
+            container.remove();
+            backdrop.remove();
+            // 从堆栈中移除
+            this.modalStack.splice(indexToHide, 1);
+            // 如果堆栈中还有模态框，则显示最顶层的模态框
+            if (this.modalStack.length > 0) {
+                const topModal = this.modalStack[this.modalStack.length - 1];
+                topModal.container.classList.remove('hidden');
+                topModal.backdrop.classList.remove('hidden');
+            }
+            // 执行回调
+            onClose?.();
+        }, 300); // 动画持续时间
+    }
+    get currentModalCount() {
+        return this.modalStack.length;
+    }
+}
