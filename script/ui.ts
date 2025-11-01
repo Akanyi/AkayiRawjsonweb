@@ -5,7 +5,7 @@ import { JsonConverter } from './converter.js';
 export class UI {
     private appState: AppState;
     private jsonConverter: JsonConverter;
-    public modalManager: ModalManager; // 新增 ModalManager 实例，改为 public
+    public modalManager: ModalManager; // ModalManager 实例改为 public
     private updateTagContent: (tag: HTMLElement) => void;
     private editFeature: (tag: HTMLElement) => void;
 
@@ -56,12 +56,12 @@ export class UI {
     public initModals(): void {
         document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getAboutModalContent()); });
         document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getDecodeModalContent()); });
-        // 移除旧的模态框背景监听，因为现在由 ModalManager 管理
+        // 移除模态框背景监听，现在由 ModalManager 管理
         // document.getElementById('modal-backdrop')?.addEventListener('click', () => this.hideModal());
         document.getElementById('copy-json-btn')?.addEventListener('click', () => this.copyJson());
     }
 
-    // showModal 和 hideModal 方法将被 ModalManager 替代
+    // showModal 和 hideModal 方法被 ModalManager 替代
     // public showModal(content: string, isSubModal: boolean = false): void { ... }
     // public hideModal(isSubModal: boolean = false): void { ... }
 
@@ -132,7 +132,10 @@ export class UI {
                     <div class="space-y-4">
                         <div>
                             <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
-                            <input id="score-name" type="text" value="${tag.dataset.name || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="@p, 玩家名...">
+                            <div class="flex">
+                                <input id="score-name" type="text" value="${tag.dataset.name || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
+                                <button type="button" onclick="window.App.UI.showSelectorEditorForScoreName('score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            </div>
                         </div>
                         <div>
                             <label class="${MODAL_LABEL_CLASSES}">计分项</label>
@@ -373,7 +376,6 @@ export class UI {
             const manualInput = document.getElementById('manual-selector-input') as HTMLTextAreaElement;
 
             if (isAdvanced) {
-                // Manual to Advanced
                 if (manualInput) {
                     const { base, params } = this.parseSelectorString(manualInput.value);
                     (document.getElementById('sel-base') as HTMLSelectElement).value = base;
@@ -405,7 +407,6 @@ export class UI {
                 manualButton.classList.remove('bg-blue-500', 'text-white');
                 manualButton.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
             } else {
-                // Advanced to Manual
                 const base = (document.getElementById('sel-base') as HTMLSelectElement).value;
                 const params: { [key: string]: string } = {
                     type: (document.getElementById('sel-type') as HTMLInputElement).value,
@@ -613,7 +614,8 @@ export class UI {
     }
 
     private currentItemSearchTargetIndex: number | null = null;
-    private currentLocationSearchTargetIndex: number | null = null; // 新增 location 搜索的目标索引
+    private currentLocationSearchTargetIndex: number | null = null; // location 搜索的目标索引
+    private currentSelectorTargetInputId: string | null = null; // 选择器编辑器的目标输入框ID
 
     public showItemSearchModal(targetIndex: number): void {
         this.currentItemSearchTargetIndex = targetIndex;
@@ -673,7 +675,7 @@ export class UI {
         this.modalManager.hide(); // 使用 ModalManager 隐藏
     }
 
-    // 新增 location 搜索模态框相关方法
+    // location 搜索模态框相关方法
     public showLocationSearchModal(targetIndex: number): void {
         this.currentLocationSearchTargetIndex = targetIndex;
         this.modalManager.show(this.getLocationSearchModalContent());
@@ -898,8 +900,37 @@ export class UI {
         this.modalManager.hide(); // 关闭子模态框
     }
 
-    // 新增一个方法用于隐藏当前模态框，供 HTML 中的 onclick 调用
+    // 用于隐藏当前模态框，供 HTML 中的 onclick 调用
     public hideCurrentModal(): void {
         this.modalManager.hide();
+    }
+
+    // 为计分板名称显示选择器编辑器
+    public showSelectorEditorForScoreName(targetInputId: string): void {
+        this.currentSelectorTargetInputId = targetInputId;
+        // 创建一个临时的 HTMLElement 来传递给 getSelectorModalContent
+        // getSelectorModalContent 期望一个 tag.dataset.selector
+        // 这里从当前的 score-name input 获取值
+        const scoreNameInput = document.getElementById(targetInputId) as HTMLInputElement;
+        const tempTag = document.createElement('div');
+        tempTag.dataset.selector = scoreNameInput ? scoreNameInput.value : '@p';
+        this.modalManager.show(this.getSelectorModalContent(tempTag));
+    }
+
+    // 公共方法，填充选择器输入框
+    public fillSelectorInput(selector: string): void {
+        if (this.currentSelectorTargetInputId) {
+            const targetInput = document.getElementById(this.currentSelectorTargetInputId) as HTMLInputElement;
+            if (targetInput) {
+                targetInput.value = selector;
+            }
+            this.currentSelectorTargetInputId = null; // 重置
+        }
+        this.modalManager.hide(); // 关闭选择器模态框
+    }
+
+    // 公共方法，检查选择器目标是否已设置
+    public isSelectorTargetSet(): boolean {
+        return this.currentSelectorTargetInputId !== null;
     }
 }

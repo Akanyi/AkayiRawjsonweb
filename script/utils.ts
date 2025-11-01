@@ -175,7 +175,7 @@ export const FAMILY_TYPES = [
 ];
 
 export let ITEMS: ItemData = {};
-export let SLOTS: SlotData = {}; // 新增 SLOTS 变量
+export let SLOTS: SlotData = {}; 
 
 export async function loadItems(): Promise<void> {
     try {
@@ -190,7 +190,7 @@ export async function loadItems(): Promise<void> {
     }
 }
 
-export async function loadSlots(): Promise<void> { // 新增 loadSlots 函数
+export async function loadSlots(): Promise<void> { 
     try {
         const response = await fetch('static/data/slots.json');
         if (!response.ok) {
@@ -203,7 +203,7 @@ export async function loadSlots(): Promise<void> { // 新增 loadSlots 函数
     }
 }
 
-// 新增 ModalManager 类
+// ModalManager 类
 export class ModalManager {
     private modalStack: ModalInstance[] = [];
     private baseZIndex: number = 1000; // 基础 z-index
