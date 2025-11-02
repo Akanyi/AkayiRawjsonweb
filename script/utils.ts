@@ -28,7 +28,7 @@ export interface SlotData {
 export interface RawTextComponent {
     text?: string;
     translate?: string;
-    with?: (string | RawTextComponent)[];
+    with?: (string | RawTextComponent)[] | { rawtext: RawTextComponent[] };
     score?: { name: string; objective: string };
     selector?: string;
     // 其他可能的 RawTextComponent 属性
@@ -301,4 +301,28 @@ export class ModalManager {
     public get currentModalCount(): number {
         return this.modalStack.length;
     }
+}
+
+export function createFunctionTag(
+    type: string,
+    initialDataset: { [key: string]: string },
+    updateTagContent: (tag: HTMLElement) => void,
+    editFeature: (tag: HTMLElement) => void
+): HTMLElement {
+    const tag = document.createElement('span');
+    tag.className = 'function-tag';
+    tag.contentEditable = 'false';
+    tag.dataset.type = type;
+
+    // Copy initial dataset properties
+    for (const key in initialDataset) {
+        if (Object.prototype.hasOwnProperty.call(initialDataset, key)) {
+            tag.dataset[key] = initialDataset[key];
+        }
+    }
+
+    updateTagContent(tag);
+    tag.addEventListener('click', () => editFeature(tag));
+
+    return tag;
 }

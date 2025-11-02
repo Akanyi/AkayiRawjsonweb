@@ -1,5 +1,5 @@
 // script/converter.ts
-import { RawTextComponent } from './utils.js';
+import { RawTextComponent, createFunctionTag } from './utils.js';
 
 export class JsonConverter {
     private richTextEditor: HTMLElement;
@@ -52,10 +52,12 @@ export class JsonConverter {
                             const thenBlock = JSON.parse(data.then || '[]');
                             obj = {
                                 translate: "%%2",
-                                with: [
-                                    condition,
-                                    { rawtext: thenBlock }
-                                ]
+                                with: {
+                                    rawtext: [
+                                        condition,
+                                        { rawtext: thenBlock }
+                                    ]
+                                }
                             };
                         } catch (e) {
                             console.error("解析条件块失败", e);
@@ -123,42 +125,35 @@ export class JsonConverter {
             parsed.rawtext.forEach((item: RawTextComponent) => {
                 if (item.text) {
                     editor.appendChild(document.createTextNode(item.text));
-                } else if (item.translate === "%%2" && Array.isArray(item.with) && item.with.length === 2) {
-                    const conditionalContent = item.with[1];
-                    if (typeof conditionalContent === 'object' && conditionalContent !== null && 'rawtext' in conditionalContent) {
-                        const type = 'conditional';
-                        const tag = document.createElement('span');
-                        tag.className = 'function-tag';
-                        tag.contentEditable = 'false';
-                        tag.dataset.type = type;
+                } else {
+                    let type: string | undefined;
+                    let initialDataset: { [key: string]: string } = {};
 
-                        tag.dataset.condition = JSON.stringify(item.with[0] || {});
-                        tag.dataset.then = JSON.stringify(conditionalContent.rawtext || []);
+                    if (item.translate === "%%2" && item.with && typeof item.with === 'object' && 'rawtext' in item.with && Array.isArray((item.with as any).rawtext) && (item.with as any).rawtext.length === 2) {
+                        const withContent = (item.with as any).rawtext;
+                        const conditionalContent = withContent[1];
+                        if (typeof conditionalContent === 'object' && conditionalContent !== null && 'rawtext' in conditionalContent) {
+                            type = 'conditional';
+                            initialDataset = {
+                                condition: JSON.stringify(withContent[0] || {}),
+                                then: JSON.stringify(conditionalContent.rawtext || [])
+                            };
+                        }
+                    } else if (item.score) {
+                        type = 'score';
+                        initialDataset = { name: item.score.name, objective: item.score.objective };
+                    } else if (item.selector) {
+                        type = 'selector';
+                        initialDataset = { selector: item.selector };
+                    } else if (item.translate) {
+                        type = 'translate';
+                        initialDataset = { translate: item.translate, with: JSON.stringify(item.with || []) };
+                    }
 
-                        updateTagContent(tag);
-                        tag.addEventListener('click', () => editFeature(tag));
+                    if (type) {
+                        const tag = createFunctionTag(type, initialDataset, updateTagContent, editFeature);
                         editor.appendChild(tag);
                     }
-                } else if (item.score || item.selector || item.translate) {
-                    const type = Object.keys(item)[0];
-                    const tag = document.createElement('span');
-                    tag.className = 'function-tag';
-                    tag.contentEditable = 'false';
-                    tag.dataset.type = type;
-
-                    if (type === 'score' && item.score) {
-                        tag.dataset.name = item.score.name;
-                        tag.dataset.objective = item.score.objective;
-                    } else if (type === 'selector' && item.selector) {
-                        tag.dataset.selector = item.selector;
-                    } else if (type === 'translate' && item.translate) {
-                        tag.dataset.translate = item.translate;
-                        tag.dataset.with = JSON.stringify(item.with || []);
-                    }
-
-                    updateTagContent(tag);
-                    tag.addEventListener('click', () => editFeature(tag));
-                    editor.appendChild(tag);
                 }
             });
 
