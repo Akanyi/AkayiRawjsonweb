@@ -168,8 +168,57 @@ export class RichTextEditor {
                 tag.dataset.with = document.getElementById('translate-with')?.value || '';
                 break;
             case 'conditional':
-                tag.dataset.condition = document.getElementById('conditional-condition')?.value || '';
-                tag.dataset.then = document.getElementById('conditional-then')?.value || '';
+                const conditionType = document.getElementById('conditional-type-select')?.value;
+                let condition = {};
+                if (conditionType === 'selector') {
+                    const selectorInput = document.getElementById('conditional-selector-input')?.value;
+                    if (selectorInput) {
+                        condition.selector = selectorInput;
+                    }
+                }
+                else if (conditionType === 'score') {
+                    const scoreName = document.getElementById('conditional-score-name')?.value;
+                    const scoreObjective = document.getElementById('conditional-score-objective')?.value;
+                    const scoreValue = document.getElementById('conditional-score-value')?.value;
+                    const scoreObj = {};
+                    if (scoreName)
+                        scoreObj.name = scoreName;
+                    if (scoreObjective)
+                        scoreObj.objective = scoreObjective;
+                    if (scoreValue) {
+                        if (scoreValue.includes('..')) {
+                            const parts = scoreValue.split('..');
+                            if (parts[0] !== '')
+                                scoreObj.min = parseInt(parts[0]);
+                            if (parts[1] !== '')
+                                scoreObj.max = parseInt(parts[1]);
+                        }
+                        else if (scoreValue.startsWith('!')) {
+                            scoreObj.not = parseInt(scoreValue.substring(1));
+                        }
+                        else {
+                            scoreObj.value = parseInt(scoreValue);
+                        }
+                    }
+                    if (Object.keys(scoreObj).length > 0) {
+                        condition.score = scoreObj;
+                    }
+                }
+                else if (conditionType === 'rawjson') {
+                    const rawjsonInput = document.getElementById('conditional-rawjson-input')?.value;
+                    if (rawjsonInput) {
+                        try {
+                            condition = JSON.parse(rawjsonInput);
+                        }
+                        catch (e) {
+                            console.error("Invalid RawJSON condition:", e);
+                            alert("RawJSON 条件格式不正确，请检查！");
+                            return; // Stop applying edit if JSON is invalid
+                        }
+                    }
+                }
+                tag.dataset.condition = JSON.stringify(condition);
+                tag.dataset.then = document.getElementById('conditional-then-input')?.value || '';
                 break;
         }
         this.updateTagContent(tag);
@@ -272,6 +321,30 @@ export class RichTextEditor {
                 catch (e) {
                     console.error("hasitem 参数解析失败，请检查格式", e);
                     alert("hasitem 参数解析失败: " + e.message);
+                    return; // 阻止应用编辑，等待用户修正
+                }
+            }
+            const scoresInput = document.getElementById('sel-scores')?.value;
+            if (scoresInput && scoresInput.trim() !== '') {
+                try {
+                    // 验证 scores 参数的格式是否为 {key=value,...}
+                    const trimmedInput = scoresInput.trim();
+                    if (!trimmedInput.startsWith('{') || !trimmedInput.endsWith('}')) {
+                        throw new Error("scores 参数格式不正确，必须用 {} 框起来。");
+                    }
+                    // 进一步验证内部格式，确保是 key=value 对
+                    const innerContent = trimmedInput.substring(1, trimmedInput.length - 1);
+                    const scorePairs = innerContent.split(',');
+                    for (const pair of scorePairs) {
+                        if (!pair.includes('=')) {
+                            throw new Error(`scores 参数中的 "${pair}" 格式不正确，应为 key=value。`);
+                        }
+                    }
+                    params.push(`scores=${trimmedInput}`);
+                }
+                catch (e) {
+                    console.error("scores 参数解析失败，请检查格式", e);
+                    alert("scores 参数解析失败: " + e.message);
                     return; // 阻止应用编辑，等待用户修正
                 }
             }
