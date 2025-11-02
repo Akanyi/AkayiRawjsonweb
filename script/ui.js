@@ -170,21 +170,7 @@ export class UI {
                 `;
                 break;
             case 'conditional':
-                content = `
-                    <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">编辑条件块</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="${MODAL_LABEL_CLASSES}">IF (条件 - JSON 对象)</label>
-                            <textarea id="conditional-condition" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{"selector":"@p[tag=vip]"}\n或者\n{"score":{"name":"@p","objective":"money","min":100}}'>${tag.dataset.condition || ''}</textarea>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">输入单个 JSON 对象作为条件。</p>
-                        </div>
-                        <div>
-                            <label class="${MODAL_LABEL_CLASSES}">THEN (结果 - Rawtext JSON 数组)</label>
-                            <textarea id="conditional-then" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='[{"text":"You are a VIP!"}]'>${tag.dataset.then || ''}</textarea>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">输入一个 Rawtext 数组作为条件成功时显示的内容。</p>
-                        </div>
-                    </div>
-                `;
+                content = this.getConditionalEditorContent(tag);
                 break;
         }
         return `
@@ -195,7 +181,7 @@ export class UI {
                 </div>
                 ${content}
                 <div class="mt-6 flex justify-end space-x-2">
-                    <button onclick="window.App.UI.hideModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
+                    <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
                     <button onclick="window.App.RichTextEditor.applyEdit()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存</button>
                 </div>
             </div>
@@ -356,6 +342,25 @@ export class UI {
                         <div><label for="sel-lm" class="${MODAL_LABEL_CLASSES}">最小等级 (lm)</label><input id="sel-lm" type="number" value="${params.lm || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10"></div>
                         <div><label for="sel-l" class="${MODAL_LABEL_CLASSES}">最大等级 (l)</label><input id="sel-l" type="number" value="${params.l || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="50"></div>
                     </div>
+
+                    <!-- 计分板 (scores) -->
+                    <div class="${MODAL_GRID_CLASSES}">
+                        <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
+                            <span>计分板 (scores)</span>
+                            <button type="button" onclick="window.App.UI.showScoreEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                </svg>
+                            </button>
+                        </h3>
+                        <div class="col-span-full">
+                            <textarea id="sel-scores" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{myscore=10}\n或者\n{myscore=10..12,another_score=5..}'>${params.scores || ''}</textarea>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                输入 \`{记分项=值}\` 格式的计分板条件。支持范围和不等号。
+                                例如: <code>{myscore=10}</code> 或 <code>{myscore=10..12,another_score=!5}</code>
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="selector-manual-form" class="${isAdvancedMode ? 'hidden' : ''} space-y-4">
@@ -365,7 +370,7 @@ export class UI {
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-2">
-                    <button onclick="window.App.UI.hideModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
+                    <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
                     <button onclick="window.App.RichTextEditor.applySelectorEdit()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存</button>
                 </div>
             </div>
@@ -498,6 +503,7 @@ export class UI {
             // 使用更复杂的正则表达式来处理hasitem参数，因为它可能包含逗号和方括号
             // 匹配 key=value，其中 value 可以是 {key=value,...} 或 [{...},{...}] 或普通字符串
             // 改进的正则表达式，以正确处理嵌套的 {} 和 []
+            // 匹配 key=value，其中 value 可以是 {key=value,...} 或 [{...},{...}] 或普通字符串
             const paramRegex = /([a-zA-Z0-9_]+)=((?:\{[^{}]*\}|\[(?:[^\[\]]*\{[^{}]*\}[^\[\]]*)*\]|[^,\]]+))/g;
             let match;
             while ((match = paramRegex.exec(paramsMatch[1])) !== null) {
@@ -518,7 +524,7 @@ export class UI {
         for (const key in params) {
             if (params.hasOwnProperty(key) && params[key]) {
                 // 对于hasitem参数，直接使用其值，因为它已经是JSON字符串
-                if (key === 'hasitem') {
+                if (key === 'hasitem' || key === 'scores') { // 添加 scores 参数的处理
                     paramParts.push(`${key}=${params[key]}`);
                 }
                 else {
@@ -607,6 +613,35 @@ export class UI {
         console.log('showHasitemEditorModal currentHasitem:', currentHasitem); // DEBUG
         this.modalManager.show(this.getHasitemEditorModalContent(currentHasitem)); // 使用 ModalManager
     }
+    showScoreEditorModal() {
+        const tag = this.appState.currentEditingTag;
+        if (!tag)
+            return;
+        const selectorStr = tag.dataset.selector || '';
+        console.log('showScoreEditorModal selectorStr:', selectorStr); // DEBUG
+        const scoresMatch = selectorStr.match(/scores=({[^}]*})/); // 匹配 scores={...}
+        let currentScores = [];
+        if (scoresMatch) {
+            const scoresString = scoresMatch[1];
+            console.log('showScoreEditorModal scoresString:', scoresString); // DEBUG
+            try {
+                // 解析 scores={objective=value,objective2=value2} 这种格式
+                const innerContent = scoresString.substring(1, scoresString.length - 1); // 移除花括号
+                const scorePairs = innerContent.split(',');
+                scorePairs.forEach(pair => {
+                    const [objective, value] = pair.split('=');
+                    if (objective && value) {
+                        currentScores.push({ objective: objective.trim(), value: value.trim() });
+                    }
+                });
+            }
+            catch (e) {
+                console.error("解析现有 scores 参数失败", e);
+            }
+        }
+        console.log('showScoreEditorModal currentScores:', currentScores); // DEBUG
+        this.modalManager.show(this.getScoreEditorModalContent(currentScores)); // 使用 ModalManager
+    }
     showItemSearchModal(targetIndex) {
         this.currentItemSearchTargetIndex = targetIndex;
         this.modalManager.show(this.getItemSearchModalContent()); // 使用 ModalManager
@@ -631,6 +666,44 @@ export class UI {
                 </div>
                 <div class="mt-4 text-xs text-gray-500 dark:text-gray-400">
                     点击物品可快速填入。
+                </div>
+            </div>
+        `;
+    }
+    getScoreEditorModalContent(scoreConditions) {
+        const conditionHtml = scoreConditions.map((condition, index) => `
+            <div class="score-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
+                <div class="flex justify-end">
+                    <button type="button" onclick="window.App.UI.removeScoreCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">计分项 (objective)</label>
+                        <input id="score-objective-${index}" type="text" value="${condition.objective || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="money, kills...">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">分数 (value)</label>
+                        <input id="score-value-${index}" type="text" value="${condition.value || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        return `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">计分板可视化编辑器</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+
+                <div id="score-conditions-container" class="space-y-4">
+                    ${conditionHtml}
+                </div>
+
+                <button type="button" onclick="window.App.UI.addScoreCondition()" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">添加条件</button>
+
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
+                    <button onclick="window.App.UI.applyScoreEditorChanges()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存</button>
                 </div>
             </div>
         `;
@@ -806,6 +879,30 @@ export class UI {
         container.insertAdjacentHTML('beforeend', newConditionHtml);
         // Re-attach event listeners if necessary, or ensure they are handled by delegation
     }
+    addScoreCondition() {
+        const container = document.getElementById('score-conditions-container');
+        if (!container)
+            return;
+        const newIndex = container.children.length;
+        const newConditionHtml = `
+            <div class="score-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${newIndex}">
+                <div class="flex justify-end">
+                    <button type="button" onclick="window.App.UI.removeScoreCondition(${newIndex})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">计分项 (objective)</label>
+                        <input id="score-objective-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="money, kills...">
+                    </div>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">分数 (value)</label>
+                        <input id="score-value-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
+                    </div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', newConditionHtml);
+    }
     removeHasitemCondition(index) {
         const container = document.getElementById('hasitem-conditions-container');
         if (!container)
@@ -815,6 +912,15 @@ export class UI {
             itemToRemove.remove();
             // Re-index remaining items if necessary, or handle dynamically
             // For simplicity, we'll just remove it. Re-indexing can be complex.
+        }
+    }
+    removeScoreCondition(index) {
+        const container = document.getElementById('score-conditions-container');
+        if (!container)
+            return;
+        const itemToRemove = container.querySelector(`.score-condition-item[data-index="${index}"]`);
+        if (itemToRemove) {
+            itemToRemove.remove();
         }
     }
     // Helper to format an object into a key=value string
@@ -871,6 +977,39 @@ export class UI {
         }
         this.modalManager.hide(); // 关闭子模态框
     }
+    applyScoreEditorChanges() {
+        const container = document.getElementById('score-conditions-container');
+        if (!container)
+            return;
+        const conditions = [];
+        Array.from(container.children).forEach(itemElement => {
+            const objectiveInput = itemElement.querySelector('[id^="score-objective-"]');
+            const valueInput = itemElement.querySelector('[id^="score-value-"]');
+            const condition = {};
+            if (objectiveInput?.value)
+                condition.objective = objectiveInput.value;
+            if (valueInput?.value)
+                condition.value = valueInput.value;
+            if (condition.objective && condition.value) { // 确保计分项和值都存在
+                conditions.push({ objective: condition.objective, value: condition.value });
+            }
+        });
+        console.log('applyScoreEditorChanges collected conditions:', conditions); // DEBUG
+        const tag = this.appState.currentEditingTag;
+        if (tag) {
+            const selectorInput = document.getElementById('sel-scores');
+            if (selectorInput) {
+                let formattedScores = '';
+                if (conditions.length > 0) {
+                    const scoreParts = conditions.map(c => `${c.objective}=${c.value}`);
+                    formattedScores = `{${scoreParts.join(',')}}`;
+                }
+                selectorInput.value = formattedScores;
+                console.log('applyScoreEditorChanges formattedScores:', formattedScores); // DEBUG
+            }
+        }
+        this.modalManager.hide(); // 关闭子模态框
+    }
     // 用于隐藏当前模态框，供 HTML 中的 onclick 调用
     hideCurrentModal() {
         this.modalManager.hide();
@@ -900,5 +1039,129 @@ export class UI {
     // 公共方法，检查选择器目标是否已设置
     isSelectorTargetSet() {
         return this.currentSelectorTargetInputId !== null;
+    }
+    // Conditional Editor methods
+    getConditionalEditorContent(tag) {
+        const currentCondition = JSON.parse(tag.dataset.condition || '{}');
+        const currentThen = tag.dataset.then || '[{"text":"Success!"}]';
+        let conditionType = 'rawjson'; // Default to rawjson
+        if (currentCondition.score) {
+            conditionType = 'score';
+        }
+        else if (currentCondition.selector) {
+            conditionType = 'selector';
+        }
+        else if (Object.keys(currentCondition).length > 0) {
+            conditionType = 'rawjson'; // If it's not selector or score, assume rawjson
+        }
+        // Extract score value if it's a score condition
+        let scoreValue = '';
+        if (conditionType === 'score' && currentCondition.score) {
+            const scoreObj = currentCondition.score;
+            if (scoreObj.min !== undefined && scoreObj.max !== undefined) {
+                scoreValue = `${scoreObj.min}..${scoreObj.max}`;
+            }
+            else if (scoreObj.min !== undefined) {
+                scoreValue = `${scoreObj.min}..`;
+            }
+            else if (scoreObj.max !== undefined) {
+                scoreValue = `..${scoreObj.max}`;
+            }
+            else if (scoreObj.value !== undefined) {
+                scoreValue = `${scoreObj.value}`;
+            }
+            else if (scoreObj.not !== undefined) {
+                scoreValue = `!${scoreObj.not}`;
+            }
+        }
+        return `
+            <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">编辑条件块</h2>
+            <div class="space-y-4">
+                <!-- IF Condition Section -->
+                <div class="border border-gray-300 dark:border-gray-600 p-4 rounded-md">
+                    <h3 class="${MODAL_SECTION_TITLE_CLASSES} mb-3">IF (条件)</h3>
+                    <div class="mb-4">
+                        <label class="${MODAL_LABEL_CLASSES}">条件类型</label>
+                        <select id="conditional-type-select" class="${MODAL_INPUT_CLASSES}" onchange="window.App.UI.updateConditionalEditorConditionType(this.value)">
+                            <option value="selector" ${conditionType === 'selector' ? 'selected' : ''}>选择器 (selector)</option>
+                            <option value="score" ${conditionType === 'score' ? 'selected' : ''}>计分板 (score)</option>
+                            <option value="rawjson" ${conditionType === 'rawjson' ? 'selected' : ''}>RawJSON</option>
+                        </select>
+                    </div>
+
+                    <div id="conditional-selector-editor" class="${conditionType === 'selector' ? '' : 'hidden'} space-y-4">
+                        <div>
+                            <label class="${MODAL_LABEL_CLASSES}">选择器</label>
+                            <div class="flex">
+                                <input id="conditional-selector-input" type="text" value="${currentCondition.selector || '@p'}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p[tag=vip]">
+                                <button type="button" onclick="window.App.UI.showSelectorEditorForConditional('conditional-selector-input')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="conditional-score-editor" class="${conditionType === 'score' ? '' : 'hidden'} space-y-4">
+                        <div>
+                            <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
+                            <div class="flex">
+                                <input id="conditional-score-name" type="text" value="${currentCondition.score?.name || '@p'}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
+                                <button type="button" onclick="window.App.UI.showSelectorEditorForConditional('conditional-score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="${MODAL_LABEL_CLASSES}">计分项</label>
+                            <input id="conditional-score-objective" type="text" value="${currentCondition.score?.objective || 'money'}" class="${MODAL_INPUT_CLASSES}" placeholder="分数, 金钱...">
+                        </div>
+                        <div>
+                            <label class="${MODAL_LABEL_CLASSES}">分数 (支持范围, 例如: 10, 5.., ..15, 10..12, !10)</label>
+                            <input id="conditional-score-value" type="text" value="${scoreValue}" class="${MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
+                        </div>
+                    </div>
+
+                    <div id="conditional-rawjson-editor" class="${conditionType === 'rawjson' ? '' : 'hidden'} space-y-4">
+                        <div>
+                            <label class="${MODAL_LABEL_CLASSES}">RawJSON 条件</label>
+                            <textarea id="conditional-rawjson-input" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{"test":"value"}\n或者\n{"selector":"@a[tag=admin]"}' >${tag.dataset.condition || ''}</textarea>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">输入一个有效的 JSON 对象作为条件。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- THEN Result Section -->
+                <div class="border border-gray-300 dark:border-gray-600 p-4 rounded-md">
+                    <h3 class="${MODAL_SECTION_TITLE_CLASSES} mb-3">THEN (结果)</h3>
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">Rawtext JSON 数组</label>
+                        <textarea id="conditional-then-input" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='[{"text":"You are a VIP!"}]'>${currentThen}</textarea>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">输入一个 Rawtext 数组作为条件成功时显示的内容。</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    updateConditionalEditorConditionType(type) {
+        const selectorEditor = document.getElementById('conditional-selector-editor');
+        const scoreEditor = document.getElementById('conditional-score-editor');
+        const rawjsonEditor = document.getElementById('conditional-rawjson-editor');
+        if (selectorEditor && scoreEditor && rawjsonEditor) {
+            selectorEditor.classList.add('hidden');
+            scoreEditor.classList.add('hidden');
+            rawjsonEditor.classList.add('hidden');
+            if (type === 'selector') {
+                selectorEditor.classList.remove('hidden');
+            }
+            else if (type === 'score') {
+                scoreEditor.classList.remove('hidden');
+            }
+            else if (type === 'rawjson') {
+                rawjsonEditor.classList.remove('hidden');
+            }
+        }
+    }
+    showSelectorEditorForConditional(targetInputId) {
+        this.currentSelectorTargetInputId = targetInputId;
+        const targetInput = document.getElementById(targetInputId);
+        const tempTag = document.createElement('div');
+        tempTag.dataset.selector = targetInput ? targetInput.value : '@p';
+        this.modalManager.show(this.getSelectorModalContent(tempTag));
     }
 }
