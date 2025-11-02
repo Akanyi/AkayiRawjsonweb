@@ -1,5 +1,5 @@
 // script/editor.ts
-import { AppState } from './utils.js';
+import { AppState, createFunctionTag } from './utils.js';
 import { JsonConverter } from './converter.js';
 import { UI } from './ui.js';
 
@@ -50,31 +50,23 @@ export class RichTextEditor {
         if (!selection?.rangeCount) return;
         const range = selection.getRangeAt(0);
 
-        const tag = document.createElement('span');
-        tag.className = 'function-tag';
-        tag.contentEditable = 'false';
-        tag.dataset.type = type;
-
+        let initialDataset: { [key: string]: string } = {};
         switch (type) {
             case 'score':
-                tag.dataset.name = '@p';
-                tag.dataset.objective = 'score';
+                initialDataset = { name: '@p', objective: 'score' };
                 break;
             case 'selector':
-                tag.dataset.selector = '@p';
+                initialDataset = { selector: '@p' };
                 break;
             case 'translate':
-                tag.dataset.translate = 'key.example';
-                tag.dataset.with = '[{"text":"example"}]';
+                initialDataset = { translate: 'key.example', with: '[{"text":"example"}]' };
                 break;
             case 'conditional':
-                tag.dataset.condition = '{"selector":"@p"}';
-                tag.dataset.then = '[{"text":"Success!"}]';
+                initialDataset = { condition: '{"selector":"@p"}', then: '[{"text":"Success!"}]' };
                 break;
         }
 
-        this.updateTagContent(tag);
-        tag.addEventListener('click', () => this.editFeature(tag));
+        const tag = createFunctionTag(type, initialDataset, (tag) => this.updateTagContent(tag), (tag) => this.editFeature(tag));
 
         range.deleteContents();
         range.insertNode(tag);

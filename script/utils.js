@@ -236,3 +236,18 @@ export class ModalManager {
         return this.modalStack.length;
     }
 }
+export function createFunctionTag(type, initialDataset, updateTagContent, editFeature) {
+    const tag = document.createElement('span');
+    tag.className = 'function-tag';
+    tag.contentEditable = 'false';
+    tag.dataset.type = type;
+    // Copy initial dataset properties
+    for (const key in initialDataset) {
+        if (Object.prototype.hasOwnProperty.call(initialDataset, key)) {
+            tag.dataset[key] = initialDataset[key];
+        }
+    }
+    updateTagContent(tag);
+    tag.addEventListener('click', () => editFeature(tag));
+    return tag;
+}
