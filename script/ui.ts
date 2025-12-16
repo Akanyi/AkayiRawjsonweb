@@ -638,13 +638,11 @@ export class UI {
         if (!tag) return;
 
         const selectorStr = tag.dataset.selector || '';
-        console.log('showHasitemEditorModal selectorStr:', selectorStr); // DEBUG
         const hasitemMatch = selectorStr.match(/hasitem=({[^}]*}|\[.*?\])/); // 匹配 hasitem={...} 或 hasitem=[...]
         let currentHasitem: any[] = [];
 
         if (hasitemMatch) {
             const hasitemString = hasitemMatch[1];
-            console.log('showHasitemEditorModal hasitemString:', hasitemString); // DEBUG
             try {
                 if (hasitemString.startsWith('[') && hasitemString.endsWith(']')) {
                     // 处理数组形式：[{k=v,...},{k=v,...}]
@@ -662,7 +660,6 @@ export class UI {
                 console.error("解析现有 hasitem 参数失败", e);
             }
         }
-        console.log('showHasitemEditorModal currentHasitem:', currentHasitem); // DEBUG
         this.modalManager.show(this.getHasitemEditorModalContent(currentHasitem)); // 使用 ModalManager
     }
 
