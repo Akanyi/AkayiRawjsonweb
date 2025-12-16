@@ -1040,7 +1040,6 @@ export class UI {
                 conditions.push(condition);
             }
         });
-        console.log('applyHasitemEditorChanges collected conditions:', conditions); // DEBUG
 
         const tag = this.appState.currentEditingTag;
         if (tag) {
