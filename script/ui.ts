@@ -544,7 +544,6 @@ export class UI {
 
     // Helper to parse selector string into base and parameters
     private parseSelectorString(selectorStr: string): { base: string; params: { [key: string]: string } } {
-        console.log('parseSelectorString input:', selectorStr); // DEBUG
         const baseMatch = selectorStr.match(/^@([prsaen])/) || [, 'p'];
         const base = baseMatch[1];
         const params: { [key: string]: string } = {};
