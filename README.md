@@ -26,6 +26,6 @@
 
 ## 许可证
 
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)
+Apache 2.0
 
 版权所有 (c) 2025 Akanyi
