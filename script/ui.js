@@ -46,6 +46,7 @@ export class UI {
         document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getAboutModalContent()); });
         document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getDecodeModalContent()); });
         document.getElementById('settings-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.showSettingsModal(); });
+        document.getElementById('clear-all-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.clearAll(); });
         document.getElementById('copy-json-btn')?.addEventListener('click', () => this.copyJson());
     }
     renderColorButtons(insertCode) {
@@ -136,6 +137,7 @@ export class UI {
     }
     getSettingsModalContent() {
         const currentFormat = localStorage.getItem('copyJsonFormat') || 'formatted';
+        const autoSaveEnabled = localStorage.getItem('autoSaveEnabled') === 'true';
         return `
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
                 <div class="flex justify-between items-center mb-4">
@@ -151,6 +153,16 @@ export class UI {
                         </select>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">选择复制 JSON 时的默认格式</p>
                     </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="${MODAL_LABEL_CLASSES}">动态保存</label>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">自动保存编辑内容，避免刷新后丢失</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="settings-auto-save" class="sr-only peer" ${autoSaveEnabled ? 'checked' : ''}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
                 </div>
                 <div class="mt-6 flex justify-end space-x-2">
                     <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
@@ -161,8 +173,82 @@ export class UI {
     }
     saveSettings() {
         const formatSelect = document.getElementById('settings-copy-format');
+        const autoSaveCheckbox = document.getElementById('settings-auto-save');
         if (formatSelect) {
             localStorage.setItem('copyJsonFormat', formatSelect.value);
+        }
+        if (autoSaveCheckbox) {
+            localStorage.setItem('autoSaveEnabled', autoSaveCheckbox.checked.toString());
+        }
+        this.modalManager.hide();
+    }
+    initAutoSave() {
+        const autoSavePrompted = localStorage.getItem('autoSavePrompted');
+        const autoSaveEnabled = localStorage.getItem('autoSaveEnabled');
+        if (autoSavePrompted === null) {
+            this.showAutoSavePrompt();
+        }
+        else if (autoSaveEnabled === 'true') {
+            this.restoreContent();
+            this.setupAutoSave();
+        }
+    }
+    showAutoSavePrompt() {
+        const content = `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm">
+                <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">开启动态保存？</h2>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">开启后，编辑内容会自动保存到浏览器，刷新页面不会丢失。</p>
+                <div class="space-y-2">
+                    <button onclick="window.App.UI.setAutoSavePreference(true)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">开启</button>
+                    <button onclick="window.App.UI.setAutoSavePreference(false)" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">不用了</button>
+                </div>
+                <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">可在菜单 → 设置 中修改</p>
+            </div>
+        `;
+        this.modalManager.show(content);
+    }
+    setAutoSavePreference(enabled) {
+        localStorage.setItem('autoSavePrompted', 'true');
+        localStorage.setItem('autoSaveEnabled', enabled.toString());
+        this.modalManager.hide();
+        if (enabled) {
+            this.setupAutoSave();
+        }
+    }
+    setupAutoSave() {
+        const editor = document.getElementById('richTextEditor');
+        if (editor) {
+            editor.addEventListener('input', () => {
+                localStorage.setItem('editorContent', editor.innerHTML);
+            });
+        }
+    }
+    restoreContent() {
+        const savedContent = localStorage.getItem('editorContent');
+        const editor = document.getElementById('richTextEditor');
+        if (savedContent && editor) {
+            editor.innerHTML = savedContent;
+        }
+    }
+    clearAll() {
+        const content = `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm">
+                <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">确认清空？</h2>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">这将清除所有编辑内容，且无法恢复。</p>
+                <div class="flex space-x-2">
+                    <button onclick="window.App.UI.hideCurrentModal()" class="flex-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
+                    <button onclick="window.App.UI.confirmClear()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">清空</button>
+                </div>
+            </div>
+        `;
+        this.modalManager.show(content);
+    }
+    confirmClear() {
+        const editor = document.getElementById('richTextEditor');
+        if (editor) {
+            editor.innerHTML = '';
+            localStorage.removeItem('editorContent');
+            this.jsonConverter.generateJson();
         }
         this.modalManager.hide();
     }

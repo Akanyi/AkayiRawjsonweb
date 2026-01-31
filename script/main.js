@@ -33,5 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     ui.initModals();
     ui.renderColorButtons((code) => richTextEditor.insertCode(code));
     richTextEditor.init();
+    ui.initAutoSave();
     console.log("应用已初始化");
 });
