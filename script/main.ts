@@ -1,6 +1,6 @@
 // script/main.ts
 import { AppState, loadItems, ITEMS, ItemData, loadSlots, SLOTS, SlotData, ModalManager } from './utils.js';
-import { UI } from './ui.js';
+import { UI } from './ui/index.js';
 import { RichTextEditor } from './editor.js';
 import { JsonConverter } from './converter.js';
 

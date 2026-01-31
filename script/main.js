@@ -1,6 +1,6 @@
 // script/main.ts
 import { loadItems, ITEMS, loadSlots, SLOTS, ModalManager } from './utils.js';
-import { UI } from './ui.js';
+import { UI } from './ui/index.js';
 import { RichTextEditor } from './editor.js';
 import { JsonConverter } from './converter.js';
 // 全局状态

@@ -1,7 +1,7 @@
 // script/editor.ts
 import { AppState, createFunctionTag } from './utils.js';
 import { JsonConverter } from './converter.js';
-import { UI } from './ui.js';
+import { UI } from './ui/index.js';
 
 export class RichTextEditor {
     private appState: AppState;

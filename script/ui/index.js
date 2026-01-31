@@ -1,5 +1,6 @@
-// script/ui.ts
-import { COLORS, MODAL_INPUT_CLASSES, MODAL_LABEL_CLASSES, MODAL_GRID_CLASSES, MODAL_SECTION_TITLE_CLASSES, FAMILY_TYPES } from './utils.js';
+// script/ui/index.ts
+import { COLORS, MODAL_INPUT_CLASSES, MODAL_LABEL_CLASSES, MODAL_GRID_CLASSES, MODAL_SECTION_TITLE_CLASSES, FAMILY_TYPES } from '../utils.js';
+import * as Templates from './templates.js';
 export class UI {
     constructor(appState, jsonConverter, modalManager, updateTagContent, editFeature) {
         this.currentItemSearchTargetIndex = null;
@@ -80,18 +81,7 @@ export class UI {
         }
     }
     showCopyPreferencePrompt(jsonText) {
-        const content = `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm">
-                <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">选择复制格式</h2>
-                <p class="mb-4 text-gray-600 dark:text-gray-400">你希望如何复制 JSON？此偏好将被记住。</p>
-                <div class="space-y-2">
-                    <button onclick="window.App.UI.setCopyPreferenceAndCopy('formatted')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">格式化（易读）</button>
-                    <button onclick="window.App.UI.setCopyPreferenceAndCopy('compressed')" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">压缩（单行）</button>
-                </div>
-                <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">可在菜单 → 设置 中修改此偏好</p>
-            </div>
-        `;
-        this.modalManager.show(content);
+        this.modalManager.show(Templates.getCopyPreferencePromptTemplate());
         // 临时存储待复制的文本
         window.__pendingCopyText = jsonText;
     }
@@ -162,38 +152,7 @@ export class UI {
     getSettingsModalContent() {
         const currentFormat = localStorage.getItem('copyJsonFormat') || 'formatted';
         const autoSaveEnabled = localStorage.getItem('autoSaveEnabled') === 'true';
-        return `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">设置</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="${MODAL_LABEL_CLASSES}">复制 JSON 格式</label>
-                        <select id="settings-copy-format" class="${MODAL_INPUT_CLASSES}">
-                            <option value="formatted" ${currentFormat === 'formatted' ? 'selected' : ''}>格式化（易读）</option>
-                            <option value="compressed" ${currentFormat === 'compressed' ? 'selected' : ''}>压缩（单行）</option>
-                        </select>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">选择复制 JSON 时的默认格式</p>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label class="${MODAL_LABEL_CLASSES}">动态保存</label>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">自动保存编辑内容，避免刷新后丢失</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="settings-auto-save" class="sr-only peer" ${autoSaveEnabled ? 'checked' : ''}>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                </div>
-                <div class="mt-6 flex justify-end space-x-2">
-                    <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
-                    <button onclick="window.App.UI.saveSettings()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存</button>
-                </div>
-            </div>
-        `;
+        return Templates.getSettingsModalTemplate(currentFormat, autoSaveEnabled);
     }
     saveSettings() {
         const formatSelect = document.getElementById('settings-copy-format');
@@ -218,18 +177,7 @@ export class UI {
         }
     }
     showAutoSavePrompt() {
-        const content = `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm">
-                <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">开启动态保存？</h2>
-                <p class="mb-4 text-gray-600 dark:text-gray-400">开启后，编辑内容会自动保存到浏览器，刷新页面不会丢失。</p>
-                <div class="space-y-2">
-                    <button onclick="window.App.UI.setAutoSavePreference(true)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">开启</button>
-                    <button onclick="window.App.UI.setAutoSavePreference(false)" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">不用了</button>
-                </div>
-                <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">可在菜单 → 设置 中修改</p>
-            </div>
-        `;
-        this.modalManager.show(content);
+        this.modalManager.show(Templates.getAutoSavePromptTemplate());
     }
     setAutoSavePreference(enabled) {
         localStorage.setItem('autoSavePrompted', 'true');
@@ -275,63 +223,7 @@ export class UI {
         };
     }
     getSimulatorModalContent(settings) {
-        return `
-            <div class="modal-content bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-white">模拟器</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-white text-2xl">&times;</button>
-                </div>
-                
-                <!-- 预览区 -->
-                <div class="mb-6">
-                    <h3 class="text-sm font-medium text-gray-400 mb-2">预览</h3>
-                    <div id="simulator-preview" class="mc-preview min-h-[80px] whitespace-pre-wrap break-words border border-gray-700 rounded"></div>
-                </div>
-
-                <!-- Mock 设置 -->
-                <div class="space-y-4">
-                    <h3 class="text-sm font-medium text-gray-400">选择器 Mock</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">@p 显示为</label>
-                            <input type="text" id="mock-p" value="${settings.selectorNames['@p']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">@r 显示为</label>
-                            <input type="text" id="mock-r" value="${settings.selectorNames['@r']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">@a 显示为</label>
-                            <input type="text" id="mock-a" value="${settings.selectorNames['@a']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">@s 显示为</label>
-                            <input type="text" id="mock-s" value="${settings.selectorNames['@s']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                    </div>
-
-                    <h3 class="text-sm font-medium text-gray-400 mt-4">其他 Mock</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">计分板显示为</label>
-                            <input type="text" id="mock-score" value="${settings.scoreMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">翻译显示为</label>
-                            <input type="text" id="mock-translate" value="${settings.translateMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs text-gray-500 mb-1">条件块显示为</label>
-                            <input type="text" id="mock-condition" value="${settings.conditionMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-end space-x-2">
-                    <button onclick="window.App.UI.saveMockSettings()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存设置</button>
-                </div>
-            </div>
-        `;
+        return Templates.getSimulatorModalTemplate(settings);
     }
     updateSimulatorPreview() {
         const preview = document.getElementById('simulator-preview');
@@ -458,17 +350,7 @@ export class UI {
         this.modalManager.hide();
     }
     clearAll() {
-        const content = `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm">
-                <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">确认清空？</h2>
-                <p class="mb-4 text-gray-600 dark:text-gray-400">这将清除所有编辑内容，且无法恢复。</p>
-                <div class="flex space-x-2">
-                    <button onclick="window.App.UI.hideCurrentModal()" class="flex-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
-                    <button onclick="window.App.UI.confirmClear()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">清空</button>
-                </div>
-            </div>
-        `;
-        this.modalManager.show(content);
+        this.modalManager.show(Templates.getClearAllConfirmTemplate());
     }
     confirmClear() {
         const editor = document.getElementById('richTextEditor');
@@ -494,36 +376,10 @@ export class UI {
             c1c6b57 - Delete CNAME (3 months ago)
         `;
         const changelogHtml = gitLog.trim().split('\n').map(line => `<li>${line.trim()}</li>`).join('');
-        return `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md text-gray-800 dark:text-gray-200 max-h-[80vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">关于</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
-                </div>
-                <p class="mb-4">这是一款用于 Minecraft 基岩版 RawJSON 文本生成的工具，由 Akanyi 创建。</p>
-                <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank" class="text-blue-500 dark:text-blue-400 hover:underline">访问 GitHub 仓库</a>
-                <a href="https://github.com/Akanyi/AkayiRawjsonweb/blob/master/LICENSE" target="_blank" class="text-blue-500 dark:text-blue-400 hover:underline">查看许可证</a>
-                <p class="mt-4">鸣谢：MCBEID/ProjectXero</p>
-                <div class="mt-6">
-                    <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">更新日志</h3>
-                    <ul class="list-disc list-inside text-sm space-y-1 font-mono">
-                        ${changelogHtml}
-                    </ul>
-                </div>
-            </div>
-        `;
+        return Templates.getAboutModalTemplate(changelogHtml);
     }
     getDecodeModalContent() {
-        return `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">解析 JSON</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
-                </div>
-                <textarea id="json-input-area" class="w-full h-40 p-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="在此粘贴你的 RawJSON..."></textarea>
-                <button onclick="window.App.UI.handleDecodeJson()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">解析</button>
-            </div>
-        `;
+        return Templates.getDecodeModalTemplate();
     }
     handleDecodeJson() {
         const jsonInputArea = document.getElementById('json-input-area');
@@ -853,27 +709,13 @@ export class UI {
         }
     }
     showFamilyTypesDoc() {
-        const content = `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">可用族类型</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
-                </div>
-                <input type="text" id="family-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索族类型..." oninput="window.App.UI.filterFamilyTypes(this.value)">
-                <div id="family-types-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    ${FAMILY_TYPES.map(type => `
-                        <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
-                              onclick="window.App.UI.fillFamilyType('${type.name}')">
-                            ${type.name} <span class="text-gray-500 dark:text-gray-400">(${type.translation})</span>
-                        </span>
-                    `).join('')}
-                </div>
-                <div class="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                    这些是 Minecraft 基岩版中可用于选择器的 'family' 参数的族类型。点击可快速填入。
-                </div>
-            </div>
-        `;
-        this.modalManager.show(content); // 使用 ModalManager
+        const familyTypesHtml = FAMILY_TYPES.map(type => `
+            <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                  onclick="window.App.UI.fillFamilyType('${type.name}')">
+                ${type.name} <span class="text-gray-500 dark:text-gray-400">(${type.translation})</span>
+            </span>
+        `).join('');
+        this.modalManager.show(Templates.getFamilyTypesDocTemplate(familyTypesHtml));
     }
     filterFamilyTypes(query) {
         const listContainer = document.getElementById('family-types-list');
@@ -939,36 +781,10 @@ export class UI {
         return selector;
     }
     showRotationHelp() {
-        const content = `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">旋转角度帮助</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
-                </div>
-                <div class="space-y-4">
-                    <p>黄色空心箭头Zlocal代表当前实体朝向；如图绿色区域为rxm=-90,rx=90时（x_rotation=-90..90）所表示的角度范围。由于实体朝向处在绿色角度范围内，故可选中该实体；</p>
-                    <img src="static/The_x_rotation_rxm_rx_Of_Entity_Selector.png" alt="rx/rxm explanation" class="w-full h-auto rounded-md">
-                    <p>黄色空心箭头Zlocal代表当前实体朝向，Z'代表实体朝向在XZ平面上的投影；绿色区域为rym=-45,ry=45时（y_rotation=-45..45）所表示的角度范围。由于Z'投影处在绿色角度范围内，故该实体可被选中</p>
-                    <img src="static/The_y_rotation_rym_ry_Of_Entity_Selector.png" alt="ry/rym explanation" class="w-full h-auto rounded-md">
-                </div>
-            </div>
-        `;
-        this.modalManager.show(content); // 使用 ModalManager
+        this.modalManager.show(Templates.getRotationHelpTemplate());
     }
     showDimensionHelp() {
-        const content = `
-            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">维度选择帮助</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
-                </div>
-                <div class="space-y-4">
-                    <p>绿色方块即dx dy dz所形成的检测区域，蓝色方块表示某实体的判定箱，紫色区域即它们的相交部分；</p>
-                    <img src="static/The_dx_dy_dz_Of_Entity_Selector.png" alt="dx/dy/dz explanation" class="w-full h-auto rounded-md">
-                </div>
-            </div>
-        `;
-        this.modalManager.show(content); // 使用 ModalManager
+        this.modalManager.show(Templates.getDimensionHelpTemplate());
     }
     // Helper to parse key=value string into an object
     parseKeyValueStringToObject(str) {
