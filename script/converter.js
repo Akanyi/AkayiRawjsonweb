@@ -88,31 +88,105 @@ export class JsonConverter {
     }
     updatePreview(rawtext) {
         this.preview.innerHTML = '';
+        this.preview.className = 'mc-preview min-h-[50px] whitespace-pre-wrap break-words';
         if (!rawtext)
             return;
         rawtext.forEach(item => {
-            const span = document.createElement('span');
             if (item.text) {
-                span.textContent = item.text;
+                // 解析颜色和格式代码
+                this.appendFormattedText(item.text);
             }
             else if (item.score) {
-                span.textContent = `[${item.score.name}:${item.score.objective}]`;
-                span.className = 'text-red-400';
+                const span = document.createElement('span');
+                span.textContent = `${item.score.name}`;
+                span.className = 'mc-mock-score';
+                span.title = `计分板: ${item.score.objective}`;
+                this.preview.appendChild(span);
             }
             else if (item.selector) {
-                span.textContent = `[${item.selector}]`;
-                span.className = 'text-green-400';
+                const span = document.createElement('span');
+                // Mock: 显示示例玩家名
+                span.textContent = this.getMockSelectorName(item.selector);
+                span.className = 'mc-mock-selector';
+                span.title = `选择器: ${item.selector}`;
+                this.preview.appendChild(span);
             }
-            else if (item.translate === "%%2" && Array.isArray(item.with) && item.with.length === 2) {
-                span.textContent = `[IF...THEN...]`;
-                span.className = 'text-purple-400';
+            else if (item.translate === "%%2" && item.with) {
+                const span = document.createElement('span');
+                span.textContent = '[条件内容]';
+                span.className = 'mc-mock-condition';
+                span.title = '条件块';
+                this.preview.appendChild(span);
             }
             else if (item.translate) {
-                span.textContent = `[t:${item.translate}]`;
-                span.className = 'text-yellow-400';
+                const span = document.createElement('span');
+                span.textContent = `[${item.translate}]`;
+                span.className = 'mc-mock-translate';
+                span.title = `翻译键`;
+                this.preview.appendChild(span);
             }
-            this.preview.appendChild(span);
         });
+    }
+    appendFormattedText(text) {
+        // MC 颜色代码映射
+        const colorMap = {
+            '0': 'mc-0', '1': 'mc-1', '2': 'mc-2', '3': 'mc-3',
+            '4': 'mc-4', '5': 'mc-5', '6': 'mc-6', '7': 'mc-7',
+            '8': 'mc-8', '9': 'mc-9', 'a': 'mc-a', 'b': 'mc-b',
+            'c': 'mc-c', 'd': 'mc-d', 'e': 'mc-e', 'f': 'mc-f',
+            'g': 'mc-g'
+        };
+        const formatMap = {
+            'l': 'mc-l', 'o': 'mc-o', 'n': 'mc-n', 'm': 'mc-m', 'k': 'mc-k'
+        };
+        let currentClasses = ['mc-f']; // 默认白色
+        let buffer = '';
+        let i = 0;
+        const flushBuffer = () => {
+            if (buffer) {
+                const span = document.createElement('span');
+                span.textContent = buffer;
+                span.className = currentClasses.join(' ');
+                this.preview.appendChild(span);
+                buffer = '';
+            }
+        };
+        while (i < text.length) {
+            if (text[i] === '§' && i + 1 < text.length) {
+                flushBuffer();
+                const code = text[i + 1].toLowerCase();
+                if (code === 'r') {
+                    currentClasses = ['mc-f']; // 重置
+                }
+                else if (colorMap[code]) {
+                    // 颜色会重置格式
+                    currentClasses = [colorMap[code]];
+                }
+                else if (formatMap[code]) {
+                    currentClasses.push(formatMap[code]);
+                }
+                i += 2;
+            }
+            else {
+                buffer += text[i];
+                i++;
+            }
+        }
+        flushBuffer();
+    }
+    getMockSelectorName(selector) {
+        // 根据选择器类型返回模拟名称
+        if (selector.startsWith('@p'))
+            return 'Steve';
+        if (selector.startsWith('@r'))
+            return 'Alex';
+        if (selector.startsWith('@a'))
+            return 'Steve, Alex, ...';
+        if (selector.startsWith('@e'))
+            return '[实体]';
+        if (selector.startsWith('@s'))
+            return '[执行者]';
+        return selector;
     }
     decodeJson(jsonInput, editor, updateTagContent, editFeature, hideModal) {
         try {

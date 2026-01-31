@@ -7,6 +7,150 @@
     <title>Minecraft 基岩版文本转 JSON</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Minecraft 风格字体 */
+        @font-face {
+            font-family: 'Monocraft';
+            src: url('https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* MC 预览区样式 */
+        .mc-preview {
+            font-family: 'Monocraft', 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 8px 12px;
+            border-radius: 4px;
+            line-height: 1.4;
+            font-size: 16px;
+            text-shadow: 2px 2px 0px #3f3f3f;
+        }
+
+        /* MC 颜色代码 */
+        .mc-0 {
+            color: #000000;
+        }
+
+        .mc-1 {
+            color: #0000AA;
+        }
+
+        .mc-2 {
+            color: #00AA00;
+        }
+
+        .mc-3 {
+            color: #00AAAA;
+        }
+
+        .mc-4 {
+            color: #AA0000;
+        }
+
+        .mc-5 {
+            color: #AA00AA;
+        }
+
+        .mc-6 {
+            color: #FFAA00;
+        }
+
+        .mc-7 {
+            color: #AAAAAA;
+        }
+
+        .mc-8 {
+            color: #555555;
+        }
+
+        .mc-9 {
+            color: #5555FF;
+        }
+
+        .mc-a {
+            color: #55FF55;
+        }
+
+        .mc-b {
+            color: #55FFFF;
+        }
+
+        .mc-c {
+            color: #FF5555;
+        }
+
+        .mc-d {
+            color: #FF55FF;
+        }
+
+        .mc-e {
+            color: #FFFF55;
+        }
+
+        .mc-f {
+            color: #FFFFFF;
+        }
+
+        .mc-g {
+            color: #DDD605;
+        }
+
+        /* 金色(基岩版) */
+
+        /* MC 格式代码 */
+        .mc-l {
+            font-weight: bold;
+        }
+
+        .mc-o {
+            font-style: italic;
+        }
+
+        .mc-n {
+            text-decoration: underline;
+        }
+
+        .mc-m {
+            text-decoration: line-through;
+        }
+
+        .mc-k {
+            animation: obfuscate 0.1s infinite;
+        }
+
+        @keyframes obfuscate {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Mock 标签样式 */
+        .mc-mock-score {
+            color: #FF5555;
+            font-style: italic;
+        }
+
+        .mc-mock-selector {
+            color: #55FF55;
+            font-style: italic;
+        }
+
+        .mc-mock-translate {
+            color: #FFFF55;
+            font-style: italic;
+        }
+
+        .mc-mock-condition {
+            color: #AA00AA;
+            font-style: italic;
+        }
+
         /* 功能标签样式 */
         .function-tag {
             display: inline-block;
