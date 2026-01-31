@@ -124,13 +124,17 @@ export class UI {
 
     private getAboutModalContent(): string {
         const gitLog = `
-            20cd9d - 更新许可证信息，替换为Apache 2.0许可证 (5 minutes ago)
-            e59e26c - 优化代码结构，重构标签创建逻辑，增加createFunctionTag函数以简化功能标签的生成 (19 minutes ago)
-            9bc578e - score + 条件可视化 (3 hours ago)
-            6b36a6e - 优化copyJson方法，增加内容为空时的提示和Clipboard API的兼容性处理 (13 hours ago)
-            9ad4d4a - 优化score的实体选择器 (19 hours ago)
-            e7b7907 - 优化hasitem编辑器 (20 hours ago)
-            8cfb3cf - v2 od2rb93 (23 hours ago)
+            时间截至：2026-01-31 10:12:57
+            94f1120 - 优化JsonDecoder (2 minutes ago)
+            fff956b - Update license information in README.md (3 weeks ago)
+            6558128 - Merge pull request #3 from Akanyi/jules-7237428672540731923-16288a49 (7 weeks ago)
+            ea23ae6 - Remove debug logging from showHasitemEditorModal in script/ui.ts (7 weeks ago)
+            23cc560 - Merge pull request #2 from Akanyi/remove-debug-log-ui-6291540313635788449 (7 weeks ago)
+            ce3218c - Remove debug console.log from script/ui.ts (7 weeks ago)
+            4ba3293 - Merge pull request #1 from Akanyi/remove-debug-logging-9577369984925783225 (7 weeks ago)
+            2c44c11 - Remove debug logging in script/ui.ts (7 weeks ago)
+            7136525 - 修构建问题 (3 months ago)
+            c1c6b57 - Delete CNAME (3 months ago)
         `;
         const changelogHtml = gitLog.trim().split('\n').map(line => `<li>${line.trim()}</li>`).join('');
 
