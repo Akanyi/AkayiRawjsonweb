@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JsonConverter = void 0;
 // script/converter.ts
-const utils_js_1 = require("./utils.js");
-class JsonConverter {
+import { createFunctionTag } from './utils.js';
+export class JsonConverter {
     constructor() {
         this.richTextEditor = document.getElementById('richTextEditor');
         this.jsonOutput = document.getElementById('jsonOutput');
@@ -159,7 +156,7 @@ class JsonConverter {
                         initialDataset = { translate: item.translate, with: JSON.stringify(item.with || []) };
                     }
                     if (type) {
-                        const tag = (0, utils_js_1.createFunctionTag)(type, initialDataset, updateTagContent, editFeature);
+                        const tag = createFunctionTag(type, initialDataset, updateTagContent, editFeature);
                         editor.appendChild(tag);
                     }
                 }
@@ -172,4 +169,3 @@ class JsonConverter {
         }
     }
 }
-exports.JsonConverter = JsonConverter;

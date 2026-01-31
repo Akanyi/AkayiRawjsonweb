@@ -1,10 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ModalManager = exports.SLOTS = exports.ITEMS = exports.FAMILY_TYPES = exports.MODAL_SECTION_TITLE_CLASSES = exports.MODAL_GRID_CLASSES = exports.MODAL_LABEL_CLASSES = exports.MODAL_INPUT_CLASSES = exports.COLORS = void 0;
-exports.loadItems = loadItems;
-exports.loadSlots = loadSlots;
-exports.createFunctionTag = createFunctionTag;
-exports.COLORS = [
+export const COLORS = [
     { name: '黑色', code: '§0', bg: '#000000', text: '#FFFFFF' },
     { name: '深蓝色', code: '§1', bg: '#0000AA', text: '#FFFFFF' },
     { name: '深绿色', code: '§2', bg: '#00AA00', text: '#FFFFFF' },
@@ -26,11 +20,11 @@ exports.COLORS = [
     { name: '斜体', code: '§o', bg: '#4A5568', text: '#FFFFFF', italic: true },
     { name: '随机', code: '§k', bg: '#4A5568', text: '#FFFFFF', obfuscated: true },
 ];
-exports.MODAL_INPUT_CLASSES = "w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500";
-exports.MODAL_LABEL_CLASSES = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
-exports.MODAL_GRID_CLASSES = "grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-md";
-exports.MODAL_SECTION_TITLE_CLASSES = "text-lg font-semibold text-gray-900 dark:text-white col-span-full mb-2";
-exports.FAMILY_TYPES = [
+export const MODAL_INPUT_CLASSES = "w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500";
+export const MODAL_LABEL_CLASSES = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
+export const MODAL_GRID_CLASSES = "grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-md";
+export const MODAL_SECTION_TITLE_CLASSES = "text-lg font-semibold text-gray-900 dark:text-white col-span-full mb-2";
+export const FAMILY_TYPES = [
     { name: 'armor_stand', translation: '盔甲架' },
     { name: 'arrow', translation: '箭' },
     { name: 'axolotl', translation: '美西螈' },
@@ -127,36 +121,36 @@ exports.FAMILY_TYPES = [
     { name: 'zombie_pigman', translation: '僵尸猪灵' },
     { name: 'zombie_villager', translation: '僵尸村民' },
 ];
-exports.ITEMS = {};
-exports.SLOTS = {};
-async function loadItems() {
+export let ITEMS = {};
+export let SLOTS = {};
+export async function loadItems() {
     try {
         const response = await fetch('static/data/items.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        exports.ITEMS = await response.json();
-        console.log('Items loaded successfully:', Object.keys(exports.ITEMS).length);
+        ITEMS = await response.json();
+        console.log('Items loaded successfully:', Object.keys(ITEMS).length);
     }
     catch (error) {
         console.error('Failed to load items:', error);
     }
 }
-async function loadSlots() {
+export async function loadSlots() {
     try {
         const response = await fetch('static/data/slots.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        exports.SLOTS = await response.json();
-        console.log('Slots loaded successfully:', Object.keys(exports.SLOTS).length);
+        SLOTS = await response.json();
+        console.log('Slots loaded successfully:', Object.keys(SLOTS).length);
     }
     catch (error) {
         console.error('Failed to load slots:', error);
     }
 }
 // ModalManager 类
-class ModalManager {
+export class ModalManager {
     constructor() {
         this.modalStack = [];
         this.baseZIndex = 1000; // 基础 z-index
@@ -240,8 +234,7 @@ class ModalManager {
         return this.modalStack.length;
     }
 }
-exports.ModalManager = ModalManager;
-function createFunctionTag(type, initialDataset, updateTagContent, editFeature) {
+export function createFunctionTag(type, initialDataset, updateTagContent, editFeature) {
     const tag = document.createElement('span');
     tag.className = 'function-tag';
     tag.contentEditable = 'false';

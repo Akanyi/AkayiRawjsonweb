@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+*.js
+*.js.map
+*.d.ts
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+*.bak
+*.tmp
+fix_author.ps1
+git_log.txt
+git_graph.txt

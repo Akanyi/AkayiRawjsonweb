@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "Node16",
+    "module": "ESNext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./script",
     "rootDir": "./script",
-    "moduleResolution": "node16"
+    "moduleResolution": "bundler"
   },
   "include": [
     "script/**/*.ts"
