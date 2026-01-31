@@ -45,6 +45,7 @@ export class UI {
     initModals() {
         document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getAboutModalContent()); });
         document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getDecodeModalContent()); });
+        document.getElementById('settings-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.showSettingsModal(); });
         document.getElementById('copy-json-btn')?.addEventListener('click', () => this.copyJson());
     }
     renderColorButtons(insertCode) {
@@ -62,44 +63,108 @@ export class UI {
     }
     copyJson() {
         const jsonOutputElement = document.getElementById('jsonOutput');
-        const jsonText = jsonOutputElement?.textContent?.trim(); // 获取文本内容并去除首尾空白
+        const jsonText = jsonOutputElement?.textContent?.trim();
         if (!jsonText) {
-            console.warn('没有内容可以复制。');
-            const btn = document.getElementById('copy-json-btn');
-            if (btn) {
-                const originalText = btn.textContent;
-                btn.textContent = '没有内容可复制!';
-                setTimeout(() => btn.textContent = originalText, 3000);
+            this.showCopyFeedback('没有内容可复制!');
+            return;
+        }
+        const preference = localStorage.getItem('copyJsonFormat');
+        if (preference === null) {
+            // 首次复制，显示偏好选择
+            this.showCopyPreferencePrompt(jsonText);
+        }
+        else {
+            this.doCopy(jsonText, preference === 'compressed');
+        }
+    }
+    showCopyPreferencePrompt(jsonText) {
+        const content = `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm">
+                <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">选择复制格式</h2>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">你希望如何复制 JSON？此偏好将被记住。</p>
+                <div class="space-y-2">
+                    <button onclick="window.App.UI.setCopyPreferenceAndCopy('formatted')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">格式化（易读）</button>
+                    <button onclick="window.App.UI.setCopyPreferenceAndCopy('compressed')" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">压缩（单行）</button>
+                </div>
+                <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">可在菜单 → 设置 中修改此偏好</p>
+            </div>
+        `;
+        this.modalManager.show(content);
+        // 临时存储待复制的文本
+        window.__pendingCopyText = jsonText;
+    }
+    setCopyPreferenceAndCopy(format) {
+        localStorage.setItem('copyJsonFormat', format);
+        const jsonText = window.__pendingCopyText;
+        delete window.__pendingCopyText;
+        this.modalManager.hide();
+        if (jsonText) {
+            this.doCopy(jsonText, format === 'compressed');
+        }
+    }
+    doCopy(jsonText, compress) {
+        let textToCopy = jsonText;
+        if (compress) {
+            try {
+                // 解析后重新序列化为压缩格式
+                textToCopy = JSON.stringify(JSON.parse(jsonText));
             }
-            return; // 没有内容，直接返回
+            catch (e) {
+                // 如果解析失败，直接使用原文本去除空白
+                textToCopy = jsonText.replace(/\s+/g, '');
+            }
         }
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(jsonText).then(() => {
-                const btn = document.getElementById('copy-json-btn');
-                if (btn) {
-                    const originalText = btn.textContent;
-                    btn.textContent = '已复制!';
-                    setTimeout(() => btn.textContent = originalText, 2000);
-                }
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                this.showCopyFeedback('已复制!');
             }).catch(err => console.error('复制失败:', err));
         }
         else {
-            // Fallback for environments where navigator.clipboard is not available
-            console.warn('浏览器不支持 Clipboard API，请手动复制。');
-            const btn = document.getElementById('copy-json-btn');
-            if (btn) {
-                const originalText = btn.textContent;
-                btn.textContent = '复制失败，请手动复制!';
-                setTimeout(() => btn.textContent = originalText, 3000);
-            }
-            // 备用方案，创建一个临时的textarea来复制
-            // const tempTextArea = document.createElement('textarea');
-            // tempTextArea.value = jsonText;
-            // document.body.appendChild(tempTextArea);
-            // tempTextArea.select();
-            // document.execCommand('copy');
-            // document.body.removeChild(tempTextArea);
+            this.showCopyFeedback('复制失败，请手动复制!');
         }
+    }
+    showCopyFeedback(message) {
+        const btn = document.getElementById('copy-json-btn');
+        if (btn) {
+            const originalText = btn.textContent;
+            btn.textContent = message;
+            setTimeout(() => btn.textContent = originalText, 2000);
+        }
+    }
+    showSettingsModal() {
+        this.modalManager.show(this.getSettingsModalContent());
+    }
+    getSettingsModalContent() {
+        const currentFormat = localStorage.getItem('copyJsonFormat') || 'formatted';
+        return `
+            <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">设置</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="${MODAL_LABEL_CLASSES}">复制 JSON 格式</label>
+                        <select id="settings-copy-format" class="${MODAL_INPUT_CLASSES}">
+                            <option value="formatted" ${currentFormat === 'formatted' ? 'selected' : ''}>格式化（易读）</option>
+                            <option value="compressed" ${currentFormat === 'compressed' ? 'selected' : ''}>压缩（单行）</option>
+                        </select>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">选择复制 JSON 时的默认格式</p>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button onclick="window.App.UI.hideCurrentModal()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white font-bold py-2 px-4 rounded">取消</button>
+                    <button onclick="window.App.UI.saveSettings()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存</button>
+                </div>
+            </div>
+        `;
+    }
+    saveSettings() {
+        const formatSelect = document.getElementById('settings-copy-format');
+        if (formatSelect) {
+            localStorage.setItem('copyJsonFormat', formatSelect.value);
+        }
+        this.modalManager.hide();
     }
     getAboutModalContent() {
         const gitLog = `
