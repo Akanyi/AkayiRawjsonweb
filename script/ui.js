@@ -269,7 +269,9 @@ export class UI {
         }
         return {
             selectorNames: { '@p': 'Steve', '@r': 'Alex', '@a': '全体玩家', '@e': '实体', '@s': '执行者' },
-            scoreMockValue: '100'
+            scoreMockValue: '100',
+            translateMockValue: '[翻译文本]',
+            conditionMockValue: '[条件输出]'
         };
     }
     getSimulatorModalContent(settings) {
@@ -288,7 +290,7 @@ export class UI {
 
                 <!-- Mock 设置 -->
                 <div class="space-y-4">
-                    <h3 class="text-sm font-medium text-gray-400">Mock 设置</h3>
+                    <h3 class="text-sm font-medium text-gray-400">选择器 Mock</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">@p 显示为</label>
@@ -306,9 +308,21 @@ export class UI {
                             <label class="block text-xs text-gray-500 mb-1">@s 显示为</label>
                             <input type="text" id="mock-s" value="${settings.selectorNames['@s']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
                         </div>
+                    </div>
+
+                    <h3 class="text-sm font-medium text-gray-400 mt-4">其他 Mock</h3>
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">计分板 Mock 值</label>
+                            <label class="block text-xs text-gray-500 mb-1">计分板显示为</label>
                             <input type="text" id="mock-score" value="${settings.scoreMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">翻译显示为</label>
+                            <input type="text" id="mock-translate" value="${settings.translateMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs text-gray-500 mb-1">条件块显示为</label>
+                            <input type="text" id="mock-condition" value="${settings.conditionMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
                         </div>
                     </div>
                 </div>
@@ -328,6 +342,8 @@ export class UI {
         const mockA = document.getElementById('mock-a')?.value || '全体玩家';
         const mockS = document.getElementById('mock-s')?.value || '执行者';
         const mockScore = document.getElementById('mock-score')?.value || '100';
+        const mockTranslate = document.getElementById('mock-translate')?.value || '[翻译文本]';
+        const mockCondition = document.getElementById('mock-condition')?.value || '[条件输出]';
         const jsonOutput = document.getElementById('jsonOutput')?.textContent?.trim();
         if (!jsonOutput) {
             preview.innerHTML = '<span class="text-gray-500">没有内容</span>';
@@ -371,14 +387,16 @@ export class UI {
                 }
                 else if (item.translate === '%%2') {
                     const span = document.createElement('span');
-                    span.textContent = '[条件]';
+                    span.textContent = mockCondition;
                     span.className = 'mc-mock-condition';
+                    span.title = '条件块';
                     preview.appendChild(span);
                 }
                 else if (item.translate) {
                     const span = document.createElement('span');
-                    span.textContent = `[${item.translate}]`;
+                    span.textContent = mockTranslate;
                     span.className = 'mc-mock-translate';
+                    span.title = `翻译键: ${item.translate}`;
                     preview.appendChild(span);
                 }
             });
@@ -432,7 +450,9 @@ export class UI {
                 '@a': document.getElementById('mock-a')?.value || '全体玩家',
                 '@s': document.getElementById('mock-s')?.value || '执行者'
             },
-            scoreMockValue: document.getElementById('mock-score')?.value || '100'
+            scoreMockValue: document.getElementById('mock-score')?.value || '100',
+            translateMockValue: document.getElementById('mock-translate')?.value || '[翻译文本]',
+            conditionMockValue: document.getElementById('mock-condition')?.value || '[条件输出]'
         };
         localStorage.setItem('mockSettings', JSON.stringify(settings));
         this.modalManager.hide();
