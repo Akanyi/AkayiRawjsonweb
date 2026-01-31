@@ -80,7 +80,7 @@ export class UI {
         const jsonText = jsonOutputElement?.textContent?.trim();
 
         if (!jsonText) {
-            this.showCopyFeedback('没有内容可复制!');
+            this.showToast('没有内容可复制!', 'info');
             return;
         }
 
@@ -135,20 +135,51 @@ export class UI {
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textToCopy).then(() => {
-                this.showCopyFeedback('已复制!');
-            }).catch(err => console.error('复制失败:', err));
+                this.showToast('已复制!', 'success');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                this.showToast('复制失败: ' + err, 'error');
+            });
         } else {
-            this.showCopyFeedback('复制失败，请手动复制!');
+            this.showToast('复制失败，请手动复制!', 'error');
         }
     }
 
-    private showCopyFeedback(message: string): void {
-        const btn = document.getElementById('copy-json-btn');
-        if (btn) {
-            const originalText = btn.textContent;
-            btn.textContent = message;
-            setTimeout(() => btn.textContent = originalText, 2000);
+    private showToast(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center space-y-2 pointer-events-none';
+            document.body.appendChild(container);
         }
+
+        const toast = document.createElement('div');
+        toast.className = `px-4 py-2 rounded shadow-lg text-white font-bold transition-opacity duration-300 opacity-0 pointer-events-auto flex items-center gap-2 ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            'bg-gray-800'
+        }`;
+
+        toast.textContent = message;
+
+        container.appendChild(toast);
+
+        // Trigger reflow
+        void toast.offsetWidth;
+
+        // Fade in
+        toast.classList.remove('opacity-0');
+
+        setTimeout(() => {
+            toast.classList.add('opacity-0');
+            setTimeout(() => {
+                toast.remove();
+                if (container && container.children.length === 0) {
+                    container.remove();
+                }
+            }, 300);
+        }, 3000);
     }
 
     public showSettingsModal(): void {

@@ -123,7 +123,7 @@
 
         <div class="fixed top-4 right-4 z-50">
             <div id="menu" class="relative">
-                <button id="menu-button"
+                <button id="menu-button" aria-label="Menu"
                     class="bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900">
                     <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -151,7 +151,7 @@
         <main class="space-y-6">
             <!-- 编辑器区域 -->
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
-                <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本..."
+                <div id="richTextEditor" contenteditable="true" placeholder="在此输入文本..." aria-label="Rich Text Editor"
                     class="w-full min-h-[150px] p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 whitespace-pre-wrap">
                 </div>
 
@@ -186,7 +186,7 @@
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">生成的 JSON</h3>
-                    <button id="copy-json-btn" onclick="window.App.UI.copyJson()"
+                    <button id="copy-json-btn"
                         class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm">复制</button>
                 </div>
                 <pre id="jsonOutput"
