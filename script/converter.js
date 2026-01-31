@@ -65,10 +65,8 @@ export class JsonConverter {
                     result.push(obj);
                 }
                 else if (element.tagName === 'DIV' || element.tagName === 'P') {
-                    const lastResult = result[result.length - 1];
-                    if (result.length > 0 && lastResult && lastResult.text !== undefined && !lastResult.text.endsWith('\n')) {
-                        result.push({ text: '\n' });
-                    }
+                    // 每个 DIV/P 都表示一个换行，保留多个连续换行
+                    result.push({ text: '\n' });
                     result = result.concat(this.parseNodes(element));
                 }
                 else {
