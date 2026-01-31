@@ -57,6 +57,7 @@ export class UI {
         document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getAboutModalContent()); });
         document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getDecodeModalContent()); });
         document.getElementById('settings-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.showSettingsModal(); });
+        document.getElementById('simulator-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.showSimulatorModal(); });
         document.getElementById('clear-all-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.clearAll(); });
         document.getElementById('copy-json-btn')?.addEventListener('click', () => this.copyJson());
     }
@@ -155,11 +156,10 @@ export class UI {
         }
 
         const toast = document.createElement('div');
-        toast.className = `px-4 py-2 rounded shadow-lg text-white font-bold transition-opacity duration-300 opacity-0 pointer-events-auto flex items-center gap-2 ${
-            type === 'success' ? 'bg-green-500' :
+        toast.className = `px-4 py-2 rounded shadow-lg text-white font-bold transition-opacity duration-300 opacity-0 pointer-events-auto flex items-center gap-2 ${type === 'success' ? 'bg-green-500' :
             type === 'error' ? 'bg-red-500' :
-            'bg-gray-800'
-        }`;
+                'bg-gray-800'
+            }`;
 
         toast.textContent = message;
 
@@ -286,6 +286,183 @@ export class UI {
         if (savedContent && editor) {
             editor.innerHTML = savedContent;
         }
+    }
+
+    public showSimulatorModal(): void {
+        const mockSettings = this.getMockSettings();
+        this.modalManager.show(this.getSimulatorModalContent(mockSettings));
+        setTimeout(() => this.updateSimulatorPreview(), 100);
+    }
+
+    private getMockSettings(): { selectorNames: { [key: string]: string }, scoreMockValue: string } {
+        const saved = localStorage.getItem('mockSettings');
+        if (saved) {
+            try { return JSON.parse(saved); } catch (e) { }
+        }
+        return {
+            selectorNames: { '@p': 'Steve', '@r': 'Alex', '@a': '全体玩家', '@e': '实体', '@s': '执行者' },
+            scoreMockValue: '100'
+        };
+    }
+
+    private getSimulatorModalContent(settings: { selectorNames: { [key: string]: string }, scoreMockValue: string }): string {
+        return `
+            <div class="modal-content bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white">模拟器</h2>
+                    <button class="close-modal-btn text-gray-400 hover:text-white text-2xl">&times;</button>
+                </div>
+                
+                <!-- 预览区 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-400 mb-2">预览</h3>
+                    <div id="simulator-preview" class="mc-preview min-h-[80px] whitespace-pre-wrap break-words border border-gray-700 rounded"></div>
+                </div>
+
+                <!-- Mock 设置 -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-medium text-gray-400">Mock 设置</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">@p 显示为</label>
+                            <input type="text" id="mock-p" value="${settings.selectorNames['@p']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">@r 显示为</label>
+                            <input type="text" id="mock-r" value="${settings.selectorNames['@r']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">@a 显示为</label>
+                            <input type="text" id="mock-a" value="${settings.selectorNames['@a']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">@s 显示为</label>
+                            <input type="text" id="mock-s" value="${settings.selectorNames['@s']}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">计分板 Mock 值</label>
+                            <input type="text" id="mock-score" value="${settings.scoreMockValue}" class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white text-sm" oninput="window.App.UI.updateSimulatorPreview()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button onclick="window.App.UI.saveMockSettings()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">保存设置</button>
+                </div>
+            </div>
+        `;
+    }
+
+    public updateSimulatorPreview(): void {
+        const preview = document.getElementById('simulator-preview');
+        if (!preview) return;
+
+        const mockP = (document.getElementById('mock-p') as HTMLInputElement)?.value || 'Steve';
+        const mockR = (document.getElementById('mock-r') as HTMLInputElement)?.value || 'Alex';
+        const mockA = (document.getElementById('mock-a') as HTMLInputElement)?.value || '全体玩家';
+        const mockS = (document.getElementById('mock-s') as HTMLInputElement)?.value || '执行者';
+        const mockScore = (document.getElementById('mock-score') as HTMLInputElement)?.value || '100';
+
+        const jsonOutput = document.getElementById('jsonOutput')?.textContent?.trim();
+        if (!jsonOutput) {
+            preview.innerHTML = '<span class="text-gray-500">没有内容</span>';
+            return;
+        }
+
+        try {
+            const parsed = JSON.parse(jsonOutput);
+            if (!parsed.rawtext) {
+                preview.innerHTML = '<span class="text-gray-500">无效的 JSON</span>';
+                return;
+            }
+
+            preview.innerHTML = '';
+            parsed.rawtext.forEach((item: any) => {
+                if (item.text) {
+                    this.appendSimulatorFormattedText(preview, item.text);
+                } else if (item.score) {
+                    const span = document.createElement('span');
+                    span.textContent = mockScore;
+                    span.className = 'mc-mock-score';
+                    span.title = `${item.score.name}: ${item.score.objective}`;
+                    preview.appendChild(span);
+                } else if (item.selector) {
+                    const span = document.createElement('span');
+                    if (item.selector.startsWith('@p')) span.textContent = mockP;
+                    else if (item.selector.startsWith('@r')) span.textContent = mockR;
+                    else if (item.selector.startsWith('@a')) span.textContent = mockA;
+                    else if (item.selector.startsWith('@s')) span.textContent = mockS;
+                    else if (item.selector.startsWith('@e')) span.textContent = '[实体]';
+                    else span.textContent = item.selector;
+                    span.className = 'mc-mock-selector';
+                    span.title = item.selector;
+                    preview.appendChild(span);
+                } else if (item.translate === '%%2') {
+                    const span = document.createElement('span');
+                    span.textContent = '[条件]';
+                    span.className = 'mc-mock-condition';
+                    preview.appendChild(span);
+                } else if (item.translate) {
+                    const span = document.createElement('span');
+                    span.textContent = `[${item.translate}]`;
+                    span.className = 'mc-mock-translate';
+                    preview.appendChild(span);
+                }
+            });
+        } catch (e) {
+            preview.innerHTML = '<span class="text-red-500">JSON 解析错误</span>';
+        }
+    }
+
+    private appendSimulatorFormattedText(container: HTMLElement, text: string): void {
+        const colorMap: { [key: string]: string } = {
+            '0': 'mc-0', '1': 'mc-1', '2': 'mc-2', '3': 'mc-3', '4': 'mc-4', '5': 'mc-5', '6': 'mc-6', '7': 'mc-7',
+            '8': 'mc-8', '9': 'mc-9', 'a': 'mc-a', 'b': 'mc-b', 'c': 'mc-c', 'd': 'mc-d', 'e': 'mc-e', 'f': 'mc-f', 'g': 'mc-g'
+        };
+        const formatMap: { [key: string]: string } = { 'l': 'mc-l', 'o': 'mc-o', 'n': 'mc-n', 'm': 'mc-m', 'k': 'mc-k' };
+
+        let currentClasses: string[] = ['mc-f'];
+        let buffer = '';
+        let i = 0;
+
+        const flushBuffer = () => {
+            if (buffer) {
+                const span = document.createElement('span');
+                span.textContent = buffer;
+                span.className = currentClasses.join(' ');
+                container.appendChild(span);
+                buffer = '';
+            }
+        };
+
+        while (i < text.length) {
+            if (text[i] === '§' && i + 1 < text.length) {
+                flushBuffer();
+                const code = text[i + 1].toLowerCase();
+                if (code === 'r') currentClasses = ['mc-f'];
+                else if (colorMap[code]) currentClasses = [colorMap[code]];
+                else if (formatMap[code]) currentClasses.push(formatMap[code]);
+                i += 2;
+            } else {
+                buffer += text[i];
+                i++;
+            }
+        }
+        flushBuffer();
+    }
+
+    public saveMockSettings(): void {
+        const settings = {
+            selectorNames: {
+                '@p': (document.getElementById('mock-p') as HTMLInputElement)?.value || 'Steve',
+                '@r': (document.getElementById('mock-r') as HTMLInputElement)?.value || 'Alex',
+                '@a': (document.getElementById('mock-a') as HTMLInputElement)?.value || '全体玩家',
+                '@s': (document.getElementById('mock-s') as HTMLInputElement)?.value || '执行者'
+            },
+            scoreMockValue: (document.getElementById('mock-score') as HTMLInputElement)?.value || '100'
+        };
+        localStorage.setItem('mockSettings', JSON.stringify(settings));
+        this.modalManager.hide();
     }
 
     public clearAll(): void {
