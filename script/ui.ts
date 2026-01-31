@@ -160,9 +160,24 @@ export class UI {
                     <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
                 </div>
                 <textarea id="json-input-area" class="w-full h-40 p-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="在此粘贴你的 RawJSON..."></textarea>
-                <button onclick="window.App.JsonLogic.decodeJson()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">解析</button>
+                <button onclick="window.App.UI.handleDecodeJson()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">解析</button>
             </div>
         `;
+    }
+
+    public handleDecodeJson(): void {
+        const jsonInputArea = document.getElementById('json-input-area') as HTMLTextAreaElement;
+        const editor = document.getElementById('richTextEditor');
+        if (!jsonInputArea || !editor) return;
+
+        const jsonInput = jsonInputArea.value;
+        this.jsonConverter.decodeJson(
+            jsonInput,
+            editor,
+            this.updateTagContent,
+            this.editFeature,
+            () => this.modalManager.hide()
+        );
     }
 
     public getEditModalContent(type: string): string {

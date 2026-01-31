@@ -1,6 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UI = void 0;
 // script/ui.ts
-import { COLORS, MODAL_INPUT_CLASSES, MODAL_LABEL_CLASSES, MODAL_GRID_CLASSES, MODAL_SECTION_TITLE_CLASSES, FAMILY_TYPES } from './utils.js';
-export class UI {
+const utils_js_1 = require("./utils.js");
+class UI {
     constructor(appState, jsonConverter, modalManager, updateTagContent, editFeature) {
         this.currentItemSearchTargetIndex = null;
         this.currentLocationSearchTargetIndex = null; // location 搜索的目标索引
@@ -56,7 +59,7 @@ export class UI {
         const container = document.getElementById('colorButtons');
         if (!container)
             return;
-        container.innerHTML = COLORS.map(color => `
+        container.innerHTML = utils_js_1.COLORS.map(color => `
             <button
                 style="background-color:${color.bg}; color:${color.text}; ${color.border ? 'border: 1px solid #ccc;' : ''} ${color.bold ? 'font-weight:bold;' : ''} ${color.italic ? 'font-style:italic;' : ''}"
                 class="p-2 rounded shadow transition-transform transform hover:scale-110"
@@ -142,9 +145,17 @@ export class UI {
                     <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
                 </div>
                 <textarea id="json-input-area" class="w-full h-40 p-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="在此粘贴你的 RawJSON..."></textarea>
-                <button onclick="window.App.JsonLogic.decodeJson()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">解析</button>
+                <button onclick="window.App.UI.handleDecodeJson()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">解析</button>
             </div>
         `;
+    }
+    handleDecodeJson() {
+        const jsonInputArea = document.getElementById('json-input-area');
+        const editor = document.getElementById('richTextEditor');
+        if (!jsonInputArea || !editor)
+            return;
+        const jsonInput = jsonInputArea.value;
+        this.jsonConverter.decodeJson(jsonInput, editor, this.updateTagContent, this.editFeature, () => this.modalManager.hide());
     }
     getEditModalContent(type) {
         const tag = this.appState.currentEditingTag;
@@ -157,15 +168,15 @@ export class UI {
                     <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">编辑计分板</h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">计分对象</label>
                             <div class="flex">
-                                <input id="score-name" type="text" value="${tag.dataset.name || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
+                                <input id="score-name" type="text" value="${tag.dataset.name || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
                                 <button type="button" onclick="window.App.UI.showSelectorEditorForScoreName('score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                             </div>
                         </div>
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">计分项</label>
-                            <input id="score-objective" type="text" value="${tag.dataset.objective || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="分数, 金钱...">
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">计分项</label>
+                            <input id="score-objective" type="text" value="${tag.dataset.objective || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="分数, 金钱...">
                         </div>
                     </div>
                 `;
@@ -175,12 +186,12 @@ export class UI {
                     <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">编辑翻译</h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">翻译键</label>
-                            <input id="translate-key" type="text" value="${tag.dataset.translate || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="welcome.message.1">
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">翻译键</label>
+                            <input id="translate-key" type="text" value="${tag.dataset.translate || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="welcome.message.1">
                         </div>
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">参数 (JSON 数组格式)</label>
-                            <textarea id="translate-with" class="w-full h-24 ${MODAL_INPUT_CLASSES}" placeholder='[{"text":"玩家"}]'>${tag.dataset.with || ''}</textarea>
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">参数 (JSON 数组格式)</label>
+                            <textarea id="translate-with" class="w-full h-24 ${utils_js_1.MODAL_INPUT_CLASSES}" placeholder='[{"text":"玩家"}]'>${tag.dataset.with || ''}</textarea>
                         </div>
                     </div>
                 `;
@@ -222,11 +233,11 @@ export class UI {
 
                 <div id="selector-advanced-form" class="${isAdvancedMode ? '' : 'hidden'} space-y-6">
                     <!-- 基本参数 -->
-                    <div class="${MODAL_GRID_CLASSES}">
-                        <h3 class="${MODAL_SECTION_TITLE_CLASSES}">基本</h3>
+                    <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                        <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES}">基本</h3>
                         <div>
-                            <label for="sel-base" class="${MODAL_LABEL_CLASSES}">目标</label>
-                            <select id="sel-base" class="${MODAL_INPUT_CLASSES}">
+                            <label for="sel-base" class="${utils_js_1.MODAL_LABEL_CLASSES}">目标</label>
+                            <select id="sel-base" class="${utils_js_1.MODAL_INPUT_CLASSES}">
                                 <option value="p" ${base === 'p' ? 'selected' : ''}>@p (最近的玩家)</option>
                                 <option value="r" ${base === 'r' ? 'selected' : ''}>@r (随机玩家)</option>
                                 <option value="a" ${base === 'a' ? 'selected' : ''}>@a (所有玩家)</option>
@@ -236,77 +247,77 @@ export class UI {
                             </select>
                         </div>
                         <div>
-                            <label for="sel-type" class="${MODAL_LABEL_CLASSES}">实体类型 (type)</label>
-                            <input id="sel-type" type="text" value="${params.type || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="minecraft:player">
+                            <label for="sel-type" class="${utils_js_1.MODAL_LABEL_CLASSES}">实体类型 (type)</label>
+                            <input id="sel-type" type="text" value="${params.type || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="minecraft:player">
                         </div>
                         <div>
-                            <label for="sel-name" class="${MODAL_LABEL_CLASSES}">名称 (name)</label>
-                            <input id="sel-name" type="text" value="${params.name || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="Steve">
+                            <label for="sel-name" class="${utils_js_1.MODAL_LABEL_CLASSES}">名称 (name)</label>
+                            <input id="sel-name" type="text" value="${params.name || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="Steve">
                         </div>
                         <div>
-                            <label for="sel-c" class="${MODAL_LABEL_CLASSES}">数量 (c)</label>
-                            <input id="sel-c" type="number" value="${params.c || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="正数=最近, 负数=最远">
+                            <label for="sel-c" class="${utils_js_1.MODAL_LABEL_CLASSES}">数量 (c)</label>
+                            <input id="sel-c" type="number" value="${params.c || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="正数=最近, 负数=最远">
                         </div>
                          <div class="flex items-end gap-2">
                             <div class="flex-grow">
-                                <label for="sel-family" class="${MODAL_LABEL_CLASSES}">族 (family)</label>
-                                <input id="sel-family" type="text" value="${params.family || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="monster">
+                                <label for="sel-family" class="${utils_js_1.MODAL_LABEL_CLASSES}">族 (family)</label>
+                                <input id="sel-family" type="text" value="${params.family || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="monster">
                             </div>
                             <button type="button" onclick="window.App.UI.showFamilyTypesDoc()" class="p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
 
                     <!-- 坐标与距离 -->
-                    <div class="${MODAL_GRID_CLASSES}">
-                        <h3 class="${MODAL_SECTION_TITLE_CLASSES}">坐标与距离</h3>
-                        <div><label for="sel-x" class="${MODAL_LABEL_CLASSES}">X坐标 (x)</label><input id="sel-x" type="text" value="${params.x || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="~, 10, ~-5"></div>
-                        <div><label for="sel-y" class="${MODAL_LABEL_CLASSES}">Y坐标 (y)</label><input id="sel-y" type="text" value="${params.y || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="~, 64, ~10"></div>
-                        <div><label for="sel-z" class="${MODAL_LABEL_CLASSES}">Z坐标 (z)</label><input id="sel-z" type="text" value="${params.z || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="~, 100, ~-5"></div>
-                        <div><label for="sel-r" class="${MODAL_LABEL_CLASSES}">最大半径 (r)</label><input id="sel-r" type="number" value="${params.r || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10"></div>
-                            <div><label for="sel-rm" class="${MODAL_LABEL_CLASSES}">最小半径 (rm)</label><input id="sel-rm" type="number" value="${params.rm || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="1"></div>
+                    <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                        <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES}">坐标与距离</h3>
+                        <div><label for="sel-x" class="${utils_js_1.MODAL_LABEL_CLASSES}">X坐标 (x)</label><input id="sel-x" type="text" value="${params.x || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="~, 10, ~-5"></div>
+                        <div><label for="sel-y" class="${utils_js_1.MODAL_LABEL_CLASSES}">Y坐标 (y)</label><input id="sel-y" type="text" value="${params.y || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="~, 64, ~10"></div>
+                        <div><label for="sel-z" class="${utils_js_1.MODAL_LABEL_CLASSES}">Z坐标 (z)</label><input id="sel-z" type="text" value="${params.z || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="~, 100, ~-5"></div>
+                        <div><label for="sel-r" class="${utils_js_1.MODAL_LABEL_CLASSES}">最大半径 (r)</label><input id="sel-r" type="number" value="${params.r || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="10"></div>
+                            <div><label for="sel-rm" class="${utils_js_1.MODAL_LABEL_CLASSES}">最小半径 (rm)</label><input id="sel-rm" type="number" value="${params.rm || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="1"></div>
                         </div>
 
                         <!-- 旋转角度 -->
-                        <div class="${MODAL_GRID_CLASSES}">
-                            <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center">
+                        <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                            <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES} flex items-center">
                                 旋转角度
                                 <button type="button" onclick="window.App.UI.showRotationHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
                             </h3>
                             <div>
-                                <label for="sel-rx" class="${MODAL_LABEL_CLASSES}">最大垂直旋转 (rx)</label>
-                                <input id="sel-rx" type="number" value="${params.rx || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="90">
+                                <label for="sel-rx" class="${utils_js_1.MODAL_LABEL_CLASSES}">最大垂直旋转 (rx)</label>
+                                <input id="sel-rx" type="number" value="${params.rx || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="90">
                             </div>
                             <div>
-                                <label for="sel-rxm" class="${MODAL_LABEL_CLASSES}">最小垂直旋转 (rxm)</label>
-                                <input id="sel-rxm" type="number" value="${params.rxm || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-90">
+                                <label for="sel-rxm" class="${utils_js_1.MODAL_LABEL_CLASSES}">最小垂直旋转 (rxm)</label>
+                                <input id="sel-rxm" type="number" value="${params.rxm || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="-90">
                             </div>
                             <div>
-                                <label for="sel-ry" class="${MODAL_LABEL_CLASSES}">最大水平旋转 (ry)</label>
-                                <input id="sel-ry" type="number" value="${params.ry || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="180">
+                                <label for="sel-ry" class="${utils_js_1.MODAL_LABEL_CLASSES}">最大水平旋转 (ry)</label>
+                                <input id="sel-ry" type="number" value="${params.ry || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="180">
                             </div>
                             <div>
-                                <label for="sel-rym" class="${MODAL_LABEL_CLASSES}">最小水平旋转 (rym)</label>
-                                <input id="sel-rym" type="number" value="${params.rym || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-180">
+                                <label for="sel-rym" class="${utils_js_1.MODAL_LABEL_CLASSES}">最小水平旋转 (rym)</label>
+                                <input id="sel-rym" type="number" value="${params.rym || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="-180">
                             </div>
                         </div>
 
                         <!-- 维度选择 -->
-                        <div class="${MODAL_GRID_CLASSES}">
-                            <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center">
+                        <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                            <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES} flex items-center">
                                 维度选择 (dx, dy, dz)
                                 <button type="button" onclick="window.App.UI.showDimensionHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
                             </h3>
                             <div>
-                                <label for="sel-dx" class="${MODAL_LABEL_CLASSES}">X维度 (dx)</label>
-                                <input id="sel-dx" type="text" value="${params.dx || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10.5">
+                                <label for="sel-dx" class="${utils_js_1.MODAL_LABEL_CLASSES}">X维度 (dx)</label>
+                                <input id="sel-dx" type="text" value="${params.dx || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="10.5">
                             </div>
                             <div>
-                                <label for="sel-dy" class="${MODAL_LABEL_CLASSES}">Y维度 (dy)</label>
-                                <input id="sel-dy" type="text" value="${params.dy || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="-5">
+                                <label for="sel-dy" class="${utils_js_1.MODAL_LABEL_CLASSES}">Y维度 (dy)</label>
+                                <input id="sel-dy" type="text" value="${params.dy || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="-5">
                             </div>
                             <div>
-                                <label class="${MODAL_LABEL_CLASSES}">Z维度 (dz)</label>
-                                <input id="sel-dz" type="text" value="${params.dz || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="20">
+                                <label class="${utils_js_1.MODAL_LABEL_CLASSES}">Z维度 (dz)</label>
+                                <input id="sel-dz" type="text" value="${params.dz || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="20">
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400 col-span-full mt-1">
                                 定义一个长方体区域。可为负数和小数。
@@ -315,17 +326,17 @@ export class UI {
                         </div>
                         
                         <!-- 标签 -->
-                        <div class="${MODAL_GRID_CLASSES}">
-                            <h3 class="${MODAL_SECTION_TITLE_CLASSES}">标签 (tag)</h3>
+                        <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                            <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES}">标签 (tag)</h3>
                             <div class="col-span-full">
-                                <input id="sel-tag" type="text" value="${params.tag || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="vip, !member, ...">
+                                <input id="sel-tag" type="text" value="${params.tag || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="vip, !member, ...">
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">用逗号分隔多个标签. 例如: vip,!newbie</p>
                             </div>
                         </div>
 
                         <!-- 物品栏 (hasitem) -->
-                        <div class="${MODAL_GRID_CLASSES}">
-                            <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
+                        <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                            <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
                                 <span>物品栏 (hasitem)</span>
                                 <button type="button" onclick="window.App.UI.showHasitemEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -334,7 +345,7 @@ export class UI {
                                 </button>
                             </h3>
                             <div class="col-span-full">
-                                <textarea id="sel-hasitem" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{item=apple,quantity=1..}\n或者\n[{item=diamond,quantity=3..},{item=stick,quantity=2..}]'>${params.hasitem || ''}</textarea>
+                                <textarea id="sel-hasitem" class="w-full h-24 font-mono ${utils_js_1.MODAL_INPUT_CLASSES}" placeholder='{item=apple,quantity=1..}\n或者\n[{item=diamond,quantity=3..},{item=stick,quantity=2..}]'>${params.hasitem || ''}</textarea>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     输入 \`key=value\` 格式的物品条件。单个条件用 {}，多个条件用 [] 包裹并用逗号分隔。
                                     例如: <code>{item=apple}</code> 或 <code>[{item=diamond,quantity=3..},{item=stick,quantity=2..}]</code>
@@ -343,11 +354,11 @@ export class UI {
                         </div>
 
                     <!-- 玩家数据 -->
-                    <div class="${MODAL_GRID_CLASSES}">
-                        <h3 class="${MODAL_SECTION_TITLE_CLASSES}">玩家数据</h3>
+                    <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                        <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES}">玩家数据</h3>
                         <div>
-                            <label for="sel-m" class="${MODAL_LABEL_CLASSES}">游戏模式 (m)</label>
-                            <select id="sel-m" class="${MODAL_INPUT_CLASSES}">
+                            <label for="sel-m" class="${utils_js_1.MODAL_LABEL_CLASSES}">游戏模式 (m)</label>
+                            <select id="sel-m" class="${utils_js_1.MODAL_INPUT_CLASSES}">
                                 <option value="">任何</option>
                                 <option value="s" ${params.m === 's' ? 'selected' : ''}>生存 (s)</option>
                                 <option value="c" ${params.m === 'c' ? 'selected' : ''}>创造 (c)</option>
@@ -355,13 +366,13 @@ export class UI {
                                 <option value="d" ${params.m === 'd' ? 'selected' : ''}>默认 (d)</option>
                             </select>
                         </div>
-                        <div><label for="sel-lm" class="${MODAL_LABEL_CLASSES}">最小等级 (lm)</label><input id="sel-lm" type="number" value="${params.lm || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10"></div>
-                        <div><label for="sel-l" class="${MODAL_LABEL_CLASSES}">最大等级 (l)</label><input id="sel-l" type="number" value="${params.l || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="50"></div>
+                        <div><label for="sel-lm" class="${utils_js_1.MODAL_LABEL_CLASSES}">最小等级 (lm)</label><input id="sel-lm" type="number" value="${params.lm || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="10"></div>
+                        <div><label for="sel-l" class="${utils_js_1.MODAL_LABEL_CLASSES}">最大等级 (l)</label><input id="sel-l" type="number" value="${params.l || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="50"></div>
                     </div>
 
                     <!-- 计分板 (scores) -->
-                    <div class="${MODAL_GRID_CLASSES}">
-                        <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
+                    <div class="${utils_js_1.MODAL_GRID_CLASSES}">
+                        <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
                             <span>计分板 (scores)</span>
                             <button type="button" onclick="window.App.UI.showScoreEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -370,7 +381,7 @@ export class UI {
                             </button>
                         </h3>
                         <div class="col-span-full">
-                            <textarea id="sel-scores" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{myscore=10}\n或者\n{myscore=10..12,another_score=5..}'>${params.scores || ''}</textarea>
+                            <textarea id="sel-scores" class="w-full h-24 font-mono ${utils_js_1.MODAL_INPUT_CLASSES}" placeholder='{myscore=10}\n或者\n{myscore=10..12,another_score=5..}'>${params.scores || ''}</textarea>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 输入 \`{记分项=值}\` 格式的计分板条件。支持范围和不等号。
                                 例如: <code>{myscore=10}</code> 或 <code>{myscore=10..12,another_score=!5}</code>
@@ -380,8 +391,8 @@ export class UI {
                 </div>
 
                 <div id="selector-manual-form" class="${isAdvancedMode ? 'hidden' : ''} space-y-4">
-                    <label for="manual-selector-input" class="${MODAL_LABEL_CLASSES}">手动输入选择器</label>
-                    <textarea id="manual-selector-input" class="w-full h-32 font-mono ${MODAL_INPUT_CLASSES}" placeholder="@a[tag=vip,r=10]">${selectorStr}</textarea>
+                    <label for="manual-selector-input" class="${utils_js_1.MODAL_LABEL_CLASSES}">手动输入选择器</label>
+                    <textarea id="manual-selector-input" class="w-full h-32 font-mono ${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="@a[tag=vip,r=10]">${selectorStr}</textarea>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">直接输入完整的选择器字符串。</p>
                 </div>
 
@@ -472,9 +483,9 @@ export class UI {
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">可用族类型</h2>
                     <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
                 </div>
-                <input type="text" id="family-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索族类型..." oninput="window.App.UI.filterFamilyTypes(this.value)">
+                <input type="text" id="family-search-input" class="${utils_js_1.MODAL_INPUT_CLASSES} mb-4" placeholder="搜索族类型..." oninput="window.App.UI.filterFamilyTypes(this.value)">
                 <div id="family-types-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    ${FAMILY_TYPES.map(type => `
+                    ${utils_js_1.FAMILY_TYPES.map(type => `
                         <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
                               onclick="window.App.UI.fillFamilyType('${type.name}')">
                             ${type.name} <span class="text-gray-500 dark:text-gray-400">(${type.translation})</span>
@@ -492,7 +503,7 @@ export class UI {
         const listContainer = document.getElementById('family-types-list');
         if (!listContainer)
             return;
-        const filteredTypes = FAMILY_TYPES.filter(type => type.name.toLowerCase().includes(query.toLowerCase()) ||
+        const filteredTypes = utils_js_1.FAMILY_TYPES.filter(type => type.name.toLowerCase().includes(query.toLowerCase()) ||
             type.translation.toLowerCase().includes(query.toLowerCase()));
         listContainer.innerHTML = filteredTypes.map(type => `
             <span class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
@@ -510,7 +521,6 @@ export class UI {
     }
     // Helper to parse selector string into base and parameters
     parseSelectorString(selectorStr) {
-        console.log('parseSelectorString input:', selectorStr); // DEBUG
         const baseMatch = selectorStr.match(/^@([prsaen])/) || [, 'p'];
         const base = baseMatch[1];
         const params = {};
@@ -601,12 +611,10 @@ export class UI {
         if (!tag)
             return;
         const selectorStr = tag.dataset.selector || '';
-        console.log('showHasitemEditorModal selectorStr:', selectorStr); // DEBUG
         const hasitemMatch = selectorStr.match(/hasitem=({[^}]*}|\[.*?\])/); // 匹配 hasitem={...} 或 hasitem=[...]
         let currentHasitem = [];
         if (hasitemMatch) {
             const hasitemString = hasitemMatch[1];
-            console.log('showHasitemEditorModal hasitemString:', hasitemString); // DEBUG
             try {
                 if (hasitemString.startsWith('[') && hasitemString.endsWith(']')) {
                     // 处理数组形式：[{k=v,...},{k=v,...}]
@@ -626,7 +634,6 @@ export class UI {
                 console.error("解析现有 hasitem 参数失败", e);
             }
         }
-        console.log('showHasitemEditorModal currentHasitem:', currentHasitem); // DEBUG
         this.modalManager.show(this.getHasitemEditorModalContent(currentHasitem)); // 使用 ModalManager
     }
     showScoreEditorModal() {
@@ -676,7 +683,7 @@ export class UI {
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">物品查询</h2>
                     <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
                 </div>
-                <input type="text" id="item-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索物品ID或名称..." oninput="window.App.UI.filterItems(this.value)">
+                <input type="text" id="item-search-input" class="${utils_js_1.MODAL_INPUT_CLASSES} mb-4" placeholder="搜索物品ID或名称..." oninput="window.App.UI.filterItems(this.value)">
                 <div id="item-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     ${allItemsHtml}
                 </div>
@@ -694,12 +701,12 @@ export class UI {
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">计分项 (objective)</label>
-                        <input id="score-objective-${index}" type="text" value="${condition.objective || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="money, kills...">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">计分项 (objective)</label>
+                        <input id="score-objective-${index}" type="text" value="${condition.objective || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="money, kills...">
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">分数 (value)</label>
-                        <input id="score-value-${index}" type="text" value="${condition.value || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">分数 (value)</label>
+                        <input id="score-value-${index}" type="text" value="${condition.value || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
                     </div>
                 </div>
             </div>
@@ -764,7 +771,7 @@ export class UI {
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">槽位查询</h2>
                     <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
                 </div>
-                <input type="text" id="location-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索槽位ID或名称..." oninput="window.App.UI.filterLocations(this.value)">
+                <input type="text" id="location-search-input" class="${utils_js_1.MODAL_INPUT_CLASSES} mb-4" placeholder="搜索槽位ID或名称..." oninput="window.App.UI.filterLocations(this.value)">
                 <div id="location-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     ${allSlotsHtml}
                 </div>
@@ -804,30 +811,30 @@ export class UI {
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">物品ID (item)</label>
                         <div class="flex">
-                            <input id="hasitem-item-${index}" type="text" value="${condition.item || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
+                            <input id="hasitem-item-${index}" type="text" value="${condition.item || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
                             <button type="button" onclick="window.App.UI.showItemSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">数据值 (data)</label>
-                        <input id="hasitem-data-${index}" type="number" value="${condition.data || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="0-32767">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">数据值 (data)</label>
+                        <input id="hasitem-data-${index}" type="number" value="${condition.data || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="0-32767">
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">数量 (quantity)</label>
-                        <input id="hasitem-quantity-${index}" type="text" value="${condition.quantity || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="1.., 1-10, !0">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">数量 (quantity)</label>
+                        <input id="hasitem-quantity-${index}" type="text" value="${condition.quantity || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="1.., 1-10, !0">
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">物品栏 (location)</label>
                         <div class="flex">
-                            <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
+                            <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
                             <button type="button" onclick="window.App.UI.showLocationSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">槽位 (slot)</label>
-                        <input id="hasitem-slot-${index}" type="text" value="${condition.slot || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="0..8">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">槽位 (slot)</label>
+                        <input id="hasitem-slot-${index}" type="text" value="${condition.slot || ''}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="0..8">
                     </div>
                 </div>
             </div>
@@ -864,30 +871,30 @@ export class UI {
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">物品ID (item)</label>
                         <div class="flex">
-                            <input id="hasitem-item-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
+                            <input id="hasitem-item-${newIndex}" type="text" value="" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
                             <button type="button" onclick="window.App.UI.showItemSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">数据值 (data)</label>
-                        <input id="hasitem-data-${newIndex}" type="number" value="" class="${MODAL_INPUT_CLASSES}" placeholder="0-32767">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">数据值 (data)</label>
+                        <input id="hasitem-data-${newIndex}" type="number" value="" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="0-32767">
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">数量 (quantity)</label>
-                        <input id="hasitem-quantity-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="1.., 1-10, !0">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">数量 (quantity)</label>
+                        <input id="hasitem-quantity-${newIndex}" type="text" value="" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="1.., 1-10, !0">
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">物品栏 (location)</label>
                         <div class="flex">
-                            <input id="hasitem-location-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
+                            <input id="hasitem-location-${newIndex}" type="text" value="" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
                             <button type="button" onclick="window.App.UI.showLocationSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">槽位 (slot)</label>
-                        <input id="hasitem-slot-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="0..8">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">槽位 (slot)</label>
+                        <input id="hasitem-slot-${newIndex}" type="text" value="" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="0..8">
                     </div>
                 </div>
             </div>
@@ -907,12 +914,12 @@ export class UI {
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">计分项 (objective)</label>
-                        <input id="score-objective-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="money, kills...">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">计分项 (objective)</label>
+                        <input id="score-objective-${newIndex}" type="text" value="" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="money, kills...">
                     </div>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">分数 (value)</label>
-                        <input id="score-value-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">分数 (value)</label>
+                        <input id="score-value-${newIndex}" type="text" value="" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
                     </div>
                 </div>
             </div>
@@ -1094,10 +1101,10 @@ export class UI {
             <div class="space-y-4">
                 <!-- IF Condition Section -->
                 <div class="border border-gray-300 dark:border-gray-600 p-4 rounded-md">
-                    <h3 class="${MODAL_SECTION_TITLE_CLASSES} mb-3">IF (条件)</h3>
+                    <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES} mb-3">IF (条件)</h3>
                     <div class="mb-4">
-                        <label class="${MODAL_LABEL_CLASSES}">条件类型</label>
-                        <select id="conditional-type-select" class="${MODAL_INPUT_CLASSES}" onchange="window.App.UI.updateConditionalEditorConditionType(this.value)">
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">条件类型</label>
+                        <select id="conditional-type-select" class="${utils_js_1.MODAL_INPUT_CLASSES}" onchange="window.App.UI.updateConditionalEditorConditionType(this.value)">
                             <option value="selector" ${conditionType === 'selector' ? 'selected' : ''}>选择器 (selector)</option>
                             <option value="score" ${conditionType === 'score' ? 'selected' : ''}>计分板 (score)</option>
                             <option value="rawjson" ${conditionType === 'rawjson' ? 'selected' : ''}>RawJSON</option>
@@ -1106,9 +1113,9 @@ export class UI {
 
                     <div id="conditional-selector-editor" class="${conditionType === 'selector' ? '' : 'hidden'} space-y-4">
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">选择器</label>
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">选择器</label>
                             <div class="flex">
-                                <input id="conditional-selector-input" type="text" value="${currentCondition.selector || '@p'}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p[tag=vip]">
+                                <input id="conditional-selector-input" type="text" value="${currentCondition.selector || '@p'}" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="@p[tag=vip]">
                                 <button type="button" onclick="window.App.UI.showSelectorEditorForConditional('conditional-selector-input')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                             </div>
                         </div>
@@ -1116,26 +1123,26 @@ export class UI {
 
                     <div id="conditional-score-editor" class="${conditionType === 'score' ? '' : 'hidden'} space-y-4">
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">计分对象</label>
                             <div class="flex">
-                                <input id="conditional-score-name" type="text" value="${currentCondition.score?.name || '@p'}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
+                                <input id="conditional-score-name" type="text" value="${currentCondition.score?.name || '@p'}" class="${utils_js_1.MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
                                 <button type="button" onclick="window.App.UI.showSelectorEditorForConditional('conditional-score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                             </div>
                         </div>
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">计分项</label>
-                            <input id="conditional-score-objective" type="text" value="${currentCondition.score?.objective || 'money'}" class="${MODAL_INPUT_CLASSES}" placeholder="分数, 金钱...">
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">计分项</label>
+                            <input id="conditional-score-objective" type="text" value="${currentCondition.score?.objective || 'money'}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="分数, 金钱...">
                         </div>
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">分数 (支持范围, 例如: 10, 5.., ..15, 10..12, !10)</label>
-                            <input id="conditional-score-value" type="text" value="${scoreValue}" class="${MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">分数 (支持范围, 例如: 10, 5.., ..15, 10..12, !10)</label>
+                            <input id="conditional-score-value" type="text" value="${scoreValue}" class="${utils_js_1.MODAL_INPUT_CLASSES}" placeholder="10, 5.., ..15, 10..12, !10">
                         </div>
                     </div>
 
                     <div id="conditional-rawjson-editor" class="${conditionType === 'rawjson' ? '' : 'hidden'} space-y-4">
                         <div>
-                            <label class="${MODAL_LABEL_CLASSES}">RawJSON 条件</label>
-                            <textarea id="conditional-rawjson-input" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='{"test":"value"}\n或者\n{"selector":"@a[tag=admin]"}' >${tag.dataset.condition || ''}</textarea>
+                            <label class="${utils_js_1.MODAL_LABEL_CLASSES}">RawJSON 条件</label>
+                            <textarea id="conditional-rawjson-input" class="w-full h-24 font-mono ${utils_js_1.MODAL_INPUT_CLASSES}" placeholder='{"test":"value"}\n或者\n{"selector":"@a[tag=admin]"}' >${tag.dataset.condition || ''}</textarea>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">输入一个有效的 JSON 对象作为条件。</p>
                         </div>
                     </div>
@@ -1143,10 +1150,10 @@ export class UI {
 
                 <!-- THEN Result Section -->
                 <div class="border border-gray-300 dark:border-gray-600 p-4 rounded-md">
-                    <h3 class="${MODAL_SECTION_TITLE_CLASSES} mb-3">THEN (结果)</h3>
+                    <h3 class="${utils_js_1.MODAL_SECTION_TITLE_CLASSES} mb-3">THEN (结果)</h3>
                     <div>
-                        <label class="${MODAL_LABEL_CLASSES}">Rawtext JSON 数组</label>
-                        <textarea id="conditional-then-input" class="w-full h-24 font-mono ${MODAL_INPUT_CLASSES}" placeholder='[{"text":"You are a VIP!"}]'>${currentThen}</textarea>
+                        <label class="${utils_js_1.MODAL_LABEL_CLASSES}">Rawtext JSON 数组</label>
+                        <textarea id="conditional-then-input" class="w-full h-24 font-mono ${utils_js_1.MODAL_INPUT_CLASSES}" placeholder='[{"text":"You are a VIP!"}]'>${currentThen}</textarea>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">输入一个 Rawtext 数组作为条件成功时显示的内容。</p>
                     </div>
                 </div>
@@ -1180,3 +1187,4 @@ export class UI {
         this.modalManager.show(this.getSelectorModalContent(tempTag));
     }
 }
+exports.UI = UI;

@@ -129,15 +129,17 @@ export class JsonConverter {
                     let type: string | undefined;
                     let initialDataset: { [key: string]: string } = {};
 
-                    if (item.translate === "%%2" && item.with && typeof item.with === 'object' && 'rawtext' in item.with && Array.isArray((item.with as any).rawtext) && (item.with as any).rawtext.length === 2) {
-                        const withContent = (item.with as any).rawtext;
-                        const conditionalContent = withContent[1];
-                        if (typeof conditionalContent === 'object' && conditionalContent !== null && 'rawtext' in conditionalContent) {
-                            type = 'conditional';
-                            initialDataset = {
-                                condition: JSON.stringify(withContent[0] || {}),
-                                then: JSON.stringify(conditionalContent.rawtext || [])
-                            };
+                    if (item.translate === "%%2") {
+                        const withContent = (item.with as any).rawtext || item.with; // Support both {rawtext: [...]} and [...]
+                        if (Array.isArray(withContent) && withContent.length === 2) {
+                            const conditionalContent = withContent[1];
+                            if (typeof conditionalContent === 'object' && conditionalContent !== null) {
+                                type = 'conditional';
+                                initialDataset = {
+                                    condition: JSON.stringify(withContent[0] || {}),
+                                    then: JSON.stringify((conditionalContent as any).rawtext || conditionalContent || [])
+                                };
+                            }
                         }
                     } else if (item.score) {
                         type = 'score';

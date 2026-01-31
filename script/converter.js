@@ -1,6 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JsonConverter = void 0;
 // script/converter.ts
-import { createFunctionTag } from './utils.js';
-export class JsonConverter {
+const utils_js_1 = require("./utils.js");
+class JsonConverter {
     constructor() {
         this.richTextEditor = document.getElementById('richTextEditor');
         this.jsonOutput = document.getElementById('jsonOutput');
@@ -130,15 +133,17 @@ export class JsonConverter {
                 else {
                     let type;
                     let initialDataset = {};
-                    if (item.translate === "%%2" && item.with && typeof item.with === 'object' && 'rawtext' in item.with && Array.isArray(item.with.rawtext) && item.with.rawtext.length === 2) {
-                        const withContent = item.with.rawtext;
-                        const conditionalContent = withContent[1];
-                        if (typeof conditionalContent === 'object' && conditionalContent !== null && 'rawtext' in conditionalContent) {
-                            type = 'conditional';
-                            initialDataset = {
-                                condition: JSON.stringify(withContent[0] || {}),
-                                then: JSON.stringify(conditionalContent.rawtext || [])
-                            };
+                    if (item.translate === "%%2") {
+                        const withContent = item.with.rawtext || item.with; // Support both {rawtext: [...]} and [...]
+                        if (Array.isArray(withContent) && withContent.length === 2) {
+                            const conditionalContent = withContent[1];
+                            if (typeof conditionalContent === 'object' && conditionalContent !== null) {
+                                type = 'conditional';
+                                initialDataset = {
+                                    condition: JSON.stringify(withContent[0] || {}),
+                                    then: JSON.stringify(conditionalContent.rawtext || conditionalContent || [])
+                                };
+                            }
                         }
                     }
                     else if (item.score) {
@@ -154,7 +159,7 @@ export class JsonConverter {
                         initialDataset = { translate: item.translate, with: JSON.stringify(item.with || []) };
                     }
                     if (type) {
-                        const tag = createFunctionTag(type, initialDataset, updateTagContent, editFeature);
+                        const tag = (0, utils_js_1.createFunctionTag)(type, initialDataset, updateTagContent, editFeature);
                         editor.appendChild(tag);
                     }
                 }
@@ -167,3 +172,4 @@ export class JsonConverter {
         }
     }
 }
+exports.JsonConverter = JsonConverter;

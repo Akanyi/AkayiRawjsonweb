@@ -1,6 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RichTextEditor = void 0;
 // script/editor.ts
-import { createFunctionTag } from './utils.js';
-export class RichTextEditor {
+const utils_js_1 = require("./utils.js");
+class RichTextEditor {
     constructor(appState, jsonConverter, ui) {
         this.appState = appState;
         this.jsonConverter = jsonConverter;
@@ -51,7 +54,7 @@ export class RichTextEditor {
                 initialDataset = { condition: '{"selector":"@p"}', then: '[{"text":"Success!"}]' };
                 break;
         }
-        const tag = createFunctionTag(type, initialDataset, (tag) => this.updateTagContent(tag), (tag) => this.editFeature(tag));
+        const tag = (0, utils_js_1.createFunctionTag)(type, initialDataset, (tag) => this.updateTagContent(tag), (tag) => this.editFeature(tag));
         range.deleteContents();
         range.insertNode(tag);
         const space = document.createTextNode('\u00A0');
@@ -369,3 +372,4 @@ export class RichTextEditor {
         window.App.UI.hideCurrentModal();
     }
 }
+exports.RichTextEditor = RichTextEditor;
