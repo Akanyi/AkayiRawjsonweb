@@ -1,11 +1,10 @@
-import { UI } from './ui.js'; // 导入 UI 类，用于类型提示
+
 
 export interface AppState {
     isDarkMode: boolean;
     isMenuOpen: boolean;
-    // isModalOpen: boolean; // 不再需要这个，由 modalStack 管理
     currentEditingTag: HTMLElement | null;
-    modalStack: ModalInstance[]; // 新增模态框堆栈
+    modalStack: ModalInstance[];
 }
 
 export interface ModalInstance {
@@ -66,8 +65,6 @@ export const COLORS = [
     { name: '清除', code: '§r', bg: '#E2E8F0', text: '#2D3748', border: true },
     { name: '粗体', code: '§l', bg: '#4A5568', text: '#FFFFFF', bold: true },
     { name: '斜体', code: '§o', bg: '#4A5568', text: '#FFFFFF', italic: true },
-    { name: '下划线', code: '§n', bg: '#4A5568', text: '#FFFFFF', underline: true },
-    { name: '删除线', code: '§m', bg: '#4A5568', text: '#FFFFFF', strikethrough: true },
     { name: '随机', code: '§k', bg: '#4A5568', text: '#FFFFFF', obfuscated: true },
 ];
 
@@ -175,7 +172,7 @@ export const FAMILY_TYPES = [
 ];
 
 export let ITEMS: ItemData = {};
-export let SLOTS: SlotData = {}; 
+export let SLOTS: SlotData = {};
 
 export async function loadItems(): Promise<void> {
     try {
@@ -190,7 +187,7 @@ export async function loadItems(): Promise<void> {
     }
 }
 
-export async function loadSlots(): Promise<void> { 
+export async function loadSlots(): Promise<void> {
     try {
         const response = await fetch('static/data/slots.json');
         if (!response.ok) {

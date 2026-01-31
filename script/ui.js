@@ -48,13 +48,8 @@ class UI {
     initModals() {
         document.getElementById('about-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getAboutModalContent()); });
         document.getElementById('decode-json-btn')?.addEventListener('click', (e) => { e.preventDefault(); this.modalManager.show(this.getDecodeModalContent()); });
-        // 移除模态框背景监听，现在由 ModalManager 管理
-        // document.getElementById('modal-backdrop')?.addEventListener('click', () => this.hideModal());
         document.getElementById('copy-json-btn')?.addEventListener('click', () => this.copyJson());
     }
-    // showModal 和 hideModal 方法被 ModalManager 替代
-    // public showModal(content: string, isSubModal: boolean = false): void { ... }
-    // public hideModal(isSubModal: boolean = false): void { ... }
     renderColorButtons(insertCode) {
         const container = document.getElementById('colorButtons');
         if (!container)
@@ -100,7 +95,7 @@ class UI {
                 btn.textContent = '复制失败，请手动复制!';
                 setTimeout(() => btn.textContent = originalText, 3000);
             }
-            // 可以考虑提供一个备用方案，例如创建一个临时的textarea来复制
+            // 备用方案，创建一个临时的textarea来复制
             // const tempTextArea = document.createElement('textarea');
             // tempTextArea.value = jsonText;
             // document.body.appendChild(tempTextArea);
@@ -132,6 +127,8 @@ class UI {
                 </div>
                 <p class="mb-4">这是一款用于 Minecraft 基岩版 RawJSON 文本生成的工具，由 Akanyi 创建。</p>
                 <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank" class="text-blue-500 dark:text-blue-400 hover:underline">访问 GitHub 仓库</a>
+                <a href="https://github.com/Akanyi/AkayiRawjsonweb/blob/master/LICENSE" target="_blank" class="text-blue-500 dark:text-blue-400 hover:underline">查看许可证</a>
+                <p class="mt-4">鸣谢：MCBEID/ProjectXero</p>
                 <div class="mt-6">
                     <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">更新日志</h3>
                     <ul class="list-disc list-inside text-sm space-y-1 font-mono">
@@ -544,7 +541,6 @@ class UI {
                 }
             }
         }
-        console.log('parseSelectorString output params:', params); // DEBUG
         return { base, params };
     }
     // Helper to build selector string from base and parameters
@@ -645,12 +641,10 @@ class UI {
         if (!tag)
             return;
         const selectorStr = tag.dataset.selector || '';
-        console.log('showScoreEditorModal selectorStr:', selectorStr); // DEBUG
         const scoresMatch = selectorStr.match(/scores=({[^}]*})/); // 匹配 scores={...}
         let currentScores = [];
         if (scoresMatch) {
             const scoresString = scoresMatch[1];
-            console.log('showScoreEditorModal scoresString:', scoresString); // DEBUG
             try {
                 // 解析 scores={objective=value,objective2=value2} 这种格式
                 const innerContent = scoresString.substring(1, scoresString.length - 1); // 移除花括号
@@ -666,7 +660,6 @@ class UI {
                 console.error("解析现有 scores 参数失败", e);
             }
         }
-        console.log('showScoreEditorModal currentScores:', currentScores); // DEBUG
         this.modalManager.show(this.getScoreEditorModalContent(currentScores)); // 使用 ModalManager
     }
     showItemSearchModal(targetIndex) {

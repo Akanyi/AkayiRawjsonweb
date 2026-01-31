@@ -24,8 +24,6 @@ exports.COLORS = [
     { name: '清除', code: '§r', bg: '#E2E8F0', text: '#2D3748', border: true },
     { name: '粗体', code: '§l', bg: '#4A5568', text: '#FFFFFF', bold: true },
     { name: '斜体', code: '§o', bg: '#4A5568', text: '#FFFFFF', italic: true },
-    { name: '下划线', code: '§n', bg: '#4A5568', text: '#FFFFFF', underline: true },
-    { name: '删除线', code: '§m', bg: '#4A5568', text: '#FFFFFF', strikethrough: true },
     { name: '随机', code: '§k', bg: '#4A5568', text: '#FFFFFF', obfuscated: true },
 ];
 exports.MODAL_INPUT_CLASSES = "w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500";
