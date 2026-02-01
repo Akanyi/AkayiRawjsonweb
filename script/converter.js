@@ -89,8 +89,11 @@ export class JsonConverter {
     updatePreview(rawtext) {
         this.preview.innerHTML = '';
         this.preview.className = 'mc-preview min-h-[50px] whitespace-pre-wrap break-words';
-        if (!rawtext)
+        const isEffectiveEmpty = !rawtext || rawtext.length === 0 || rawtext.every(item => item.text !== undefined && item.text.trim() === '' && Object.keys(item).length === 1);
+        if (isEffectiveEmpty) {
+            this.preview.innerHTML = '<span class="text-gray-500 italic">预览将显示在这里...</span>';
             return;
+        }
         rawtext.forEach(item => {
             if (item.text) {
                 // 解析颜色和格式代码

@@ -403,7 +403,7 @@ export class UI {
                             <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
                             <div class="flex">
                                 <input id="score-name" type="text" value="${tag.dataset.name || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
-                                <button type="button" onclick="window.App.UI.showSelectorEditorForScoreName('score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                                <button type="button" aria-label="Open Selector Editor" onclick="window.App.UI.showSelectorEditorForScoreName('score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                             </div>
                         </div>
                         <div>
@@ -455,7 +455,7 @@ export class UI {
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">选择器编辑器</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
                 </div>
 
                 <div class="mb-4 flex justify-center space-x-4">
@@ -495,7 +495,7 @@ export class UI {
                                 <label for="sel-family" class="${MODAL_LABEL_CLASSES}">族 (family)</label>
                                 <input id="sel-family" type="text" value="${params.family || ''}" class="${MODAL_INPUT_CLASSES}" placeholder="monster">
                             </div>
-                            <button type="button" onclick="window.App.UI.showFamilyTypesDoc()" class="p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            <button type="button" aria-label="Show Family Types Help" onclick="window.App.UI.showFamilyTypesDoc()" class="p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
 
@@ -513,7 +513,7 @@ export class UI {
                         <div class="${MODAL_GRID_CLASSES}">
                             <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center">
                                 旋转角度
-                                <button type="button" onclick="window.App.UI.showRotationHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
+                                <button type="button" aria-label="Show Rotation Help" onclick="window.App.UI.showRotationHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
                             </h3>
                             <div>
                                 <label for="sel-rx" class="${MODAL_LABEL_CLASSES}">最大垂直旋转 (rx)</label>
@@ -537,7 +537,7 @@ export class UI {
                         <div class="${MODAL_GRID_CLASSES}">
                             <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center">
                                 维度选择 (dx, dy, dz)
-                                <button type="button" onclick="window.App.UI.showDimensionHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
+                                <button type="button" aria-label="Show Dimension Help" onclick="window.App.UI.showDimensionHelp()" class="ml-2 p-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-6 w-6 flex items-center justify-center text-xs font-bold">?</button>
                             </h3>
                             <div>
                                 <label for="sel-dx" class="${MODAL_LABEL_CLASSES}">X维度 (dx)</label>
@@ -570,7 +570,7 @@ export class UI {
                         <div class="${MODAL_GRID_CLASSES}">
                             <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
                                 <span>物品栏 (hasitem)</span>
-                                <button type="button" onclick="window.App.UI.showHasitemEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
+                                <button type="button" aria-label="Edit hasitem conditions" onclick="window.App.UI.showHasitemEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                     </svg>
@@ -606,7 +606,7 @@ export class UI {
                     <div class="${MODAL_GRID_CLASSES}">
                         <h3 class="${MODAL_SECTION_TITLE_CLASSES} flex items-center justify-between">
                             <span>计分板 (scores)</span>
-                            <button type="button" onclick="window.App.UI.showScoreEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
+                            <button type="button" aria-label="Edit score conditions" onclick="window.App.UI.showScoreEditorModal()" class="ml-2 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded h-8 w-8 flex items-center justify-center text-xs font-bold">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                 </svg>
@@ -869,7 +869,7 @@ export class UI {
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">物品查询</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
                 </div>
                 <input type="text" id="item-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索物品ID或名称..." oninput="window.App.UI.filterItems(this.value)">
                 <div id="item-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -885,7 +885,7 @@ export class UI {
         const conditionHtml = scoreConditions.map((condition, index) => `
             <div class="score-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
                 <div class="flex justify-end">
-                    <button type="button" onclick="window.App.UI.removeScoreCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                    <button type="button" aria-label="Remove condition" onclick="window.App.UI.removeScoreCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -903,7 +903,7 @@ export class UI {
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">计分板可视化编辑器</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
                 </div>
 
                 <div id="score-conditions-container" class="space-y-4">
@@ -957,7 +957,7 @@ export class UI {
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">槽位查询</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
                 </div>
                 <input type="text" id="location-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索槽位ID或名称..." oninput="window.App.UI.filterLocations(this.value)">
                 <div id="location-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -995,14 +995,14 @@ export class UI {
         const conditionHtml = hasitemConditions.map((condition, index) => `
             <div class="hasitem-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
                 <div class="flex justify-end">
-                    <button type="button" onclick="window.App.UI.removeHasitemCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                    <button type="button" aria-label="Remove condition" onclick="window.App.UI.removeHasitemCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
                         <div class="flex">
                             <input id="hasitem-item-${index}" type="text" value="${condition.item || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
-                            <button type="button" onclick="window.App.UI.showItemSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            <button type="button" aria-label="Search items" onclick="window.App.UI.showItemSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
@@ -1017,7 +1017,7 @@ export class UI {
                         <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
                         <div class="flex">
                             <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
-                            <button type="button" onclick="window.App.UI.showLocationSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            <button type="button" aria-label="Search slots" onclick="window.App.UI.showLocationSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
@@ -1031,7 +1031,7 @@ export class UI {
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">hasitem 可视化编辑器</h2>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
                 </div>
 
                 <div id="hasitem-conditions-container" class="space-y-4">
@@ -1055,14 +1055,14 @@ export class UI {
         const newConditionHtml = `
             <div class="hasitem-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${newIndex}">
                 <div class="flex justify-end">
-                    <button type="button" onclick="window.App.UI.removeHasitemCondition(${newIndex})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                    <button type="button" aria-label="Remove condition" onclick="window.App.UI.removeHasitemCondition(${newIndex})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
                         <div class="flex">
                             <input id="hasitem-item-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
-                            <button type="button" onclick="window.App.UI.showItemSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            <button type="button" aria-label="Search items" onclick="window.App.UI.showItemSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
@@ -1077,7 +1077,7 @@ export class UI {
                         <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
                         <div class="flex">
                             <input id="hasitem-location-${newIndex}" type="text" value="" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
-                            <button type="button" onclick="window.App.UI.showLocationSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                            <button type="button" aria-label="Search slots" onclick="window.App.UI.showLocationSearchModal(${newIndex})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                         </div>
                     </div>
                     <div>
@@ -1098,7 +1098,7 @@ export class UI {
         const newConditionHtml = `
             <div class="score-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${newIndex}">
                 <div class="flex justify-end">
-                    <button type="button" onclick="window.App.UI.removeScoreCondition(${newIndex})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                    <button type="button" aria-label="Remove condition" onclick="window.App.UI.removeScoreCondition(${newIndex})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -1304,7 +1304,7 @@ export class UI {
                             <label class="${MODAL_LABEL_CLASSES}">选择器</label>
                             <div class="flex">
                                 <input id="conditional-selector-input" type="text" value="${currentCondition.selector || '@p'}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p[tag=vip]">
-                                <button type="button" onclick="window.App.UI.showSelectorEditorForConditional('conditional-selector-input')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                                <button type="button" aria-label="Open selector editor" onclick="window.App.UI.showSelectorEditorForConditional('conditional-selector-input')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                             </div>
                         </div>
                     </div>
@@ -1314,7 +1314,7 @@ export class UI {
                             <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
                             <div class="flex">
                                 <input id="conditional-score-name" type="text" value="${currentCondition.score?.name || '@p'}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
-                                <button type="button" onclick="window.App.UI.showSelectorEditorForConditional('conditional-score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                                <button type="button" aria-label="Open selector editor" onclick="window.App.UI.showSelectorEditorForConditional('conditional-score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                             </div>
                         </div>
                         <div>
