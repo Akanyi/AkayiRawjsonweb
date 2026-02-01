@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ui.renderColorButtons((code) => richTextEditor.insertCode(code));
     richTextEditor.init();
     ui.initAutoSave();
+    jsonConverter.generateJson();
 
     console.log("应用已初始化");
 });

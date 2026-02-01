@@ -46,7 +46,7 @@ export function getSettingsModalTemplate(currentFormat, autoSaveEnabled) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">设置</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <div class="space-y-4">
                 <div>
@@ -80,7 +80,7 @@ export function getSimulatorModalTemplate(settings) {
         <div class="modal-content bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-white">模拟器</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             
             <!-- 预览区 -->
@@ -140,7 +140,7 @@ export function getAboutModalTemplate(changelogHtml) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md text-gray-800 dark:text-gray-200 max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">关于</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <p class="mb-4">这是一款用于 Minecraft 基岩版 RawJSON 文本生成的工具，由 Akanyi 创建。</p>
             <a href="https://github.com/Akanyi/AkayiRawjsonweb" target="_blank" class="text-blue-500 dark:text-blue-400 hover:underline">访问 GitHub 仓库</a>
@@ -160,7 +160,7 @@ export function getDecodeModalTemplate() {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">解析 JSON</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <textarea id="json-input-area" class="w-full h-40 p-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="在此粘贴你的 RawJSON..."></textarea>
             <button onclick="window.App.UI.handleDecodeJson()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">解析</button>
@@ -176,7 +176,7 @@ export function getScoreEditTemplate(name, objective) {
                 <label class="${MODAL_LABEL_CLASSES}">计分对象</label>
                 <div class="flex">
                     <input id="score-name" type="text" value="${name}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="@p, 玩家名...">
-                    <button type="button" onclick="window.App.UI.showSelectorEditorForScoreName('score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                    <button type="button" aria-label="Open selector editor" onclick="window.App.UI.showSelectorEditorForScoreName('score-name')" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                 </div>
             </div>
             <div>
@@ -206,7 +206,7 @@ export function wrapEditModalContent(innerContent) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
             <div class="flex justify-between items-center">
                 <div></div>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             ${innerContent}
             <div class="mt-6 flex justify-end space-x-2">
@@ -222,7 +222,7 @@ export function getRotationHelpTemplate() {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">旋转角度帮助</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <div class="space-y-4">
                 <p>黄色空心箭头Zlocal代表当前实体朝向；如图绿色区域为rxm=-90,rx=90时（x_rotation=-90..90）所表示的角度范围。由于实体朝向处在绿色角度范围内，故可选中该实体；</p>
@@ -238,7 +238,7 @@ export function getDimensionHelpTemplate() {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">维度选择帮助</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <div class="space-y-4">
                 <p>绿色方块即dx dy dz所形成的检测区域，蓝色方块表示某实体的判定箱，紫色区域即它们的相交部分；</p>
@@ -252,7 +252,7 @@ export function getFamilyTypesDocTemplate(familyTypesHtml) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">可用族类型</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <input type="text" id="family-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索族类型..." oninput="window.App.UI.filterFamilyTypes(this.value)">
             <div id="family-types-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -270,7 +270,7 @@ export function getItemSearchModalTemplate(itemsHtml) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">物品查询</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <input type="text" id="item-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索物品ID或名称..." oninput="window.App.UI.filterItems(this.value)">
             <div id="item-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -287,7 +287,7 @@ export function getLocationSearchModalTemplate(slotsHtml) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto text-gray-800 dark:text-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">槽位查询</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
             <input type="text" id="location-search-input" class="${MODAL_INPUT_CLASSES} mb-4" placeholder="搜索槽位ID或名称..." oninput="window.App.UI.filterLocations(this.value)">
             <div id="location-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -304,14 +304,14 @@ export function getHasitemConditionItemTemplate(index, condition) {
     return `
         <div class="hasitem-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
             <div class="flex justify-end">
-                <button type="button" onclick="window.App.UI.removeHasitemCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                <button type="button" aria-label="Remove condition" onclick="window.App.UI.removeHasitemCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="${MODAL_LABEL_CLASSES}">物品ID (item)</label>
                     <div class="flex">
                         <input id="hasitem-item-${index}" type="text" value="${condition.item || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="minecraft:apple">
-                        <button type="button" onclick="window.App.UI.showItemSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                        <button type="button" aria-label="Search items" onclick="window.App.UI.showItemSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                     </div>
                 </div>
                 <div>
@@ -326,7 +326,7 @@ export function getHasitemConditionItemTemplate(index, condition) {
                     <label class="${MODAL_LABEL_CLASSES}">物品栏 (location)</label>
                     <div class="flex">
                         <input id="hasitem-location-${index}" type="text" value="${condition.location || ''}" class="${MODAL_INPUT_CLASSES} flex-grow" placeholder="slot.hotbar">
-                        <button type="button" onclick="window.App.UI.showLocationSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
+                        <button type="button" aria-label="Search slots" onclick="window.App.UI.showLocationSearchModal(${index})" class="ml-2 p-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-black dark:text-white rounded h-10 w-10 flex items-center justify-center">?</button>
                     </div>
                 </div>
                 <div>
@@ -342,7 +342,7 @@ export function getHasitemEditorModalTemplate(conditionsHtml) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">hasitem 可视化编辑器</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
 
             <div id="hasitem-conditions-container" class="space-y-4">
@@ -362,7 +362,7 @@ export function getScoreConditionItemTemplate(index, objective, value) {
     return `
         <div class="score-condition-item border border-gray-300 dark:border-gray-600 p-4 rounded-md mb-4" data-index="${index}">
             <div class="flex justify-end">
-                <button type="button" onclick="window.App.UI.removeScoreCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
+                <button type="button" aria-label="Remove condition" onclick="window.App.UI.removeScoreCondition(${index})" class="text-red-500 hover:text-red-700 text-xl">&times;</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -382,7 +382,7 @@ export function getScoreEditorModalTemplate(conditionsHtml) {
         <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">计分板可视化编辑器</h2>
-                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
             </div>
 
             <div id="score-conditions-container" class="space-y-4">
