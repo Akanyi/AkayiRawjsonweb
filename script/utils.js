@@ -177,6 +177,7 @@ export class ModalManager {
             container: modalContainer,
             backdrop: modalBackdrop,
             onClose: options?.onClose,
+            previousFocus: document.activeElement,
         };
         this.modalStack.push(newModal);
         // 隐藏前一个模态框（如果存在）
@@ -190,6 +191,15 @@ export class ModalManager {
         modalBackdrop.addEventListener('click', () => this.hide(modalId));
         // 应用动画
         modalContainer.querySelector('.modal-content')?.classList.add('fade-in');
+        // Focus management: Focus the first interactive element or the container
+        const firstFocusable = modalContainer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) {
+            firstFocusable.focus();
+        }
+        else {
+            modalContainer.tabIndex = -1; // Make sure it's focusable programmatically
+            modalContainer.focus();
+        }
         return modalId;
     }
     hide(modalId) {
@@ -228,6 +238,10 @@ export class ModalManager {
             }
             // 执行回调
             onClose?.();
+            // Restore focus
+            if (modalToHide.previousFocus) {
+                modalToHide.previousFocus.focus();
+            }
         }, 300); // 动画持续时间
     }
     get currentModalCount() {

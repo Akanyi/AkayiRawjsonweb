@@ -13,6 +13,7 @@ export interface ModalInstance {
     container: HTMLElement;
     backdrop: HTMLElement;
     onClose?: () => void;
+    previousFocus: HTMLElement | null;
 }
 
 export interface ItemData {
@@ -230,6 +231,7 @@ export class ModalManager {
             container: modalContainer,
             backdrop: modalBackdrop,
             onClose: options?.onClose,
+            previousFocus: document.activeElement as HTMLElement,
         };
         this.modalStack.push(newModal);
 
@@ -246,6 +248,15 @@ export class ModalManager {
 
         // 应用动画
         modalContainer.querySelector('.modal-content')?.classList.add('fade-in');
+
+        // Focus management: Focus the first interactive element or the container
+        const firstFocusable = modalContainer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') as HTMLElement;
+        if (firstFocusable) {
+            firstFocusable.focus();
+        } else {
+            modalContainer.tabIndex = -1; // Make sure it's focusable programmatically
+            modalContainer.focus();
+        }
 
         return modalId;
     }
@@ -292,6 +303,11 @@ export class ModalManager {
 
             // 执行回调
             onClose?.();
+
+            // Restore focus
+            if (modalToHide.previousFocus) {
+                modalToHide.previousFocus.focus();
+            }
         }, 300); // 动画持续时间
     }
 
