@@ -35,11 +35,13 @@ export class UI {
             e.stopPropagation();
             this.appState.isMenuOpen = !this.appState.isMenuOpen;
             menuContent?.classList.toggle('hidden', !this.appState.isMenuOpen);
+            menuButton.setAttribute('aria-expanded', this.appState.isMenuOpen.toString());
         });
         document.addEventListener('click', () => {
             if (this.appState.isMenuOpen) {
                 this.appState.isMenuOpen = false;
                 menuContent?.classList.add('hidden');
+                menuButton?.setAttribute('aria-expanded', 'false');
             }
         });
     }
@@ -436,7 +438,7 @@ export class UI {
             <div class="modal-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
                 <div class="flex justify-between items-center">
                     <div></div>
-                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl" aria-label="Close modal">&times;</button>
                 </div>
                 ${content}
                 <div class="mt-6 flex justify-end space-x-2">
